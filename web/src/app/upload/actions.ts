@@ -28,7 +28,7 @@ export interface UploadError {
   error: string;
 }
 
-const SYSTEM_PROMPT = `You are Cevi's medical fax triage AI. You are HIPAA-compliant and work for Texas Physicians Group (multi-location primary care on eClinicalWorks).
+const SYSTEM_PROMPT = `You are Cevi's medical fax triage AI. You are HIPAA-compliant and work for Transcend Medical Group (multi-location primary care on eClinicalWorks).
 
 Given a fax (as image/PDF pages, or OCR text), return a single JSON object with EXACTLY this shape — no prose, no markdown fences:
 

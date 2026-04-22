@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   UploadCloud,
-  FileText,
   ClipboardPaste,
   Sparkles,
   ArrowRight,
@@ -14,7 +13,7 @@ import {
   AlertCircle,
   FlaskConical,
   Stethoscope,
-  ShieldCheck,
+  Receipt,
 } from "lucide-react";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,11 +22,17 @@ import { Input } from "@/components/ui/input";
 import { IconBox } from "@/components/ui/icon-box";
 import { cn } from "@/lib/utils";
 import { uploadFax, type UploadResult, type UploadError } from "./actions";
+import {
+  extractEob,
+  type EobResult as EobSuccess,
+  type EobError,
+} from "./eob-actions";
+import { EobResultView, EobErrorView } from "@/components/upload/EobResult";
 
+type Kind = "fax" | "eob";
 type Mode = "file" | "text";
-type Tier = "fast" | "smart" | "premium";
 
-const SAMPLE_TEXT = `QUEST DIAGNOSTICS - IRVING METROPLEX
+const SAMPLE_FAX = `QUEST DIAGNOSTICS - IRVING METROPLEX
 BMP / Basic Metabolic Panel
 Patient: BROWN, ANTHONY    DOB: 03/14/1971
 Collection: 04/23/2026 0910    Reported: 04/23/2026 1148
@@ -49,7 +54,7 @@ const SAMPLE_REFERRAL = `ARLINGTON ORTHOPEDIC ASSOCIATES
 3500 MATLOCK RD, ARLINGTON TX 76015
 Date: 04/23/2026
 REFERRING PROVIDER: Jennifer Soto, MD
-REFERRING TO: Texas Physicians Group PCP of record
+REFERRING TO: Transcend Medical Group PCP of record
 PATIENT: Anderson, Michelle   DOB: 06/22/1959
 
 Reason for referral: Patient s/p left total knee replacement
@@ -58,40 +63,89 @@ hyperlipidemia, and early CKD. Please schedule new-patient
 visit within 2 weeks to establish care.
 Thank you.`;
 
-const SAMPLES = [
+const SAMPLE_EOB = `BLUECROSS BLUESHIELD OF TEXAS
+EXPLANATION OF BENEFITS
+Provider: Transcend Medical Group - Arlington  NPI 1487293042
+Check #: 100238841   Check Date: 04/19/2026   Check Total: $342.58
+
+Patient: GONZALEZ, MARIA E.    Acct: TMG-004218
+  DOS       CPT    Description           Billed    Allowed    Paid    Adj     Pt Resp   Denial
+  04/08/26  99214  Office visit level 4  $210.00   $132.40    $132.40 $77.60  $0.00
+  04/08/26  36415  Venipuncture          $25.00    $3.00      $3.00   $22.00  $0.00
+
+Patient: WHITFIELD, JAMES      Acct: TMG-004221
+  DOS       CPT    Description           Billed    Allowed    Paid    Adj     Pt Resp   Denial
+  04/10/26  99213  Office visit level 3  $160.00   $94.18     $75.34  $65.82  $18.84
+  04/10/26  93000  EKG complete          $60.00    $28.84     $28.84  $31.16  $0.00
+  04/10/26  85025  CBC w/ auto diff      $35.00    $10.00     $0.00   $10.00  $0.00    CO-97
+
+Patient: RAMANATHAN, PRIYA     Acct: TMG-004233
+  DOS       CPT    Description           Billed    Allowed    Paid    Adj     Pt Resp   Denial
+  04/14/26  99215  Office visit level 5  $305.00   $175.00    $87.50  $130.00 $87.50   PR-1
+
+TOTAL PAID: $327.08   ADJUSTMENTS: $336.58   PATIENT RESPONSIBILITY: $106.34`;
+
+interface Samples {
+  id: string;
+  title: string;
+  summary: string;
+  icon: React.ReactNode;
+  tone: "accent" | "teal" | "sand";
+  body: string;
+}
+
+const FAX_SAMPLES: Samples[] = [
   {
     id: "sample-lab",
     title: "Critical lab result",
-    body: SAMPLE_TEXT,
-    icon: <FlaskConical className="h-4 w-4" strokeWidth={1.5} />,
-    tone: "accent" as const,
     summary: "Quest BMP · K+ 6.4 critical high",
+    icon: <FlaskConical className="h-4 w-4" strokeWidth={1.5} />,
+    tone: "accent",
+    body: SAMPLE_FAX,
   },
   {
     id: "sample-referral",
     title: "Inbound referral",
-    body: SAMPLE_REFERRAL,
-    icon: <Stethoscope className="h-4 w-4" strokeWidth={1.5} />,
-    tone: "teal" as const,
     summary: "Orthopedic post-op PCP co-management",
+    icon: <Stethoscope className="h-4 w-4" strokeWidth={1.5} />,
+    tone: "teal",
+    body: SAMPLE_REFERRAL,
+  },
+];
+
+const EOB_SAMPLES: Samples[] = [
+  {
+    id: "sample-eob",
+    title: "BCBS of Texas · 3 patients",
+    summary: "5 claim lines with one denial",
+    icon: <Receipt className="h-4 w-4" strokeWidth={1.5} />,
+    tone: "sand",
+    body: SAMPLE_EOB,
   },
 ];
 
 export function UploadForm() {
   const router = useRouter();
+  const [kind, setKind] = useState<Kind>("fax");
   const [mode, setMode] = useState<Mode>("text");
-  const [tier, setTier] = useState<Tier>("smart");
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [senderHint, setSenderHint] = useState("");
   const [clinic, setClinic] = useState("Arlington");
-  const [result, setResult] = useState<UploadResult | UploadError | null>(null);
+  const [faxResult, setFaxResult] = useState<UploadResult | UploadError | null>(null);
+  const [eobResult, setEobResult] = useState<EobSuccess | EobError | null>(null);
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   function reset() {
-    setResult(null);
+    setFaxResult(null);
+    setEobResult(null);
+  }
+
+  function switchKind(next: Kind) {
+    setKind(next);
+    reset();
   }
 
   function loadSample(body: string) {
@@ -105,29 +159,115 @@ export function UploadForm() {
     startTransition(async () => {
       const fd = new FormData();
       fd.append("mode", mode);
-      fd.append("tier", tier);
       fd.append("sender", senderHint);
       fd.append("clinic", clinic);
       if (mode === "text") fd.append("text", text);
       if (mode === "file" && file) fd.append("file", file);
-      const r = await uploadFax(fd);
-      setResult(r);
-      if (r.ok) {
-        // Let the success card show for a beat, then route.
-        setTimeout(() => {
-          router.push(`/inbox/${r.faxId}`);
-        }, 1500);
+
+      if (kind === "fax") {
+        // Default to smart tier internally; UI hides the choice.
+        fd.append("tier", "smart");
+        const r = await uploadFax(fd);
+        setFaxResult(r);
+        if (r.ok) {
+          window.setTimeout(() => router.push(`/inbox/${r.faxId}`), 1500);
+        }
+      } else {
+        const r = await extractEob(fd);
+        setEobResult(r);
       }
     });
   }
 
-  const canSubmit = !isPending && (mode === "text" ? text.trim().length > 20 : !!file);
+  const canSubmit =
+    !isPending && (mode === "text" ? text.trim().length > 20 : !!file);
+
+  const samples = kind === "fax" ? FAX_SAMPLES : EOB_SAMPLES;
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6">
+    <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6">
       {/* Main form */}
       <div className="space-y-4">
-        {/* Mode switch */}
+        {/* Kind toggle — primary choice */}
+        <div className="rounded-lg border border-[var(--cevi-border)] bg-white overflow-hidden">
+          <div className="grid grid-cols-2">
+            <button
+              type="button"
+              onClick={() => switchKind("fax")}
+              className={cn(
+                "px-5 py-3 text-left transition-colors border-r border-[var(--cevi-border)]",
+                kind === "fax"
+                  ? "bg-[var(--cevi-accent-light)]"
+                  : "bg-white hover:bg-[var(--cevi-surface-warm)]",
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <UploadCloud
+                  className={cn(
+                    "h-4 w-4",
+                    kind === "fax"
+                      ? "text-[var(--cevi-accent)]"
+                      : "text-[var(--cevi-text-muted)]",
+                  )}
+                  strokeWidth={1.5}
+                />
+                <span
+                  className={cn(
+                    "text-[13px] font-semibold",
+                    kind === "fax"
+                      ? "text-[var(--cevi-text)]"
+                      : "text-[var(--cevi-text-secondary)]",
+                  )}
+                >
+                  A fax
+                </span>
+              </div>
+              <div className="mt-1 text-[11px] text-[var(--cevi-text-muted)]">
+                Lab, consult, referral, prior auth, records, Rx refill
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => switchKind("eob")}
+              className={cn(
+                "px-5 py-3 text-left transition-colors",
+                kind === "eob"
+                  ? "bg-[var(--cevi-accent-light)]"
+                  : "bg-white hover:bg-[var(--cevi-surface-warm)]",
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <Receipt
+                  className={cn(
+                    "h-4 w-4",
+                    kind === "eob"
+                      ? "text-[var(--cevi-accent)]"
+                      : "text-[var(--cevi-text-muted)]",
+                  )}
+                  strokeWidth={1.5}
+                />
+                <span
+                  className={cn(
+                    "text-[13px] font-semibold",
+                    kind === "eob"
+                      ? "text-[var(--cevi-text)]"
+                      : "text-[var(--cevi-text-secondary)]",
+                  )}
+                >
+                  A paper EOB
+                </span>
+                <Badge variant="jade" size="sm">
+                  New
+                </Badge>
+              </div>
+              <div className="mt-1 text-[11px] text-[var(--cevi-text-muted)]">
+                Saves your biller from hand-keying each claim line
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Mode sub-toggle */}
         <div className="inline-flex items-center bg-[var(--cevi-surface)] rounded-lg p-1 text-[12px] font-semibold">
           <button
             type="button"
@@ -157,6 +297,7 @@ export function UploadForm() {
           </button>
         </div>
 
+        {/* Input */}
         {mode === "file" ? (
           <Card padding="none">
             <CardHeader>
@@ -167,7 +308,9 @@ export function UploadForm() {
                   </IconBox>
                   <div>
                     <div className="text-[13px] font-semibold text-[var(--cevi-text)]">
-                      Drop a fax file
+                      {kind === "fax"
+                        ? "Drop a fax file"
+                        : "Drop the scanned EOB"}
                     </div>
                     <div className="text-[11px] text-[var(--cevi-text-muted)]">
                       PDF, PNG, JPG, or WebP · up to 15 MB
@@ -231,11 +374,10 @@ export function UploadForm() {
                 ) : (
                   <>
                     <div className="text-[14px] font-semibold text-[var(--cevi-text)]">
-                      Drop your fax here, or click to browse
+                      Drop here, or click to browse
                     </div>
                     <div className="mt-1 text-[12px] text-[var(--cevi-text-muted)]">
-                      Faxes are classified with Cevi AI on our server — never stored in
-                      the browser.
+                      Processed on Cevi's server. Nothing is stored in your browser.
                     </div>
                   </>
                 )}
@@ -265,8 +407,9 @@ export function UploadForm() {
                       Paste OCR text
                     </div>
                     <div className="text-[11px] text-[var(--cevi-text-muted)]">
-                      For faxes already OCR'd by your fax provider (Medsender, Scrypt,
-                      etc.)
+                      {kind === "fax"
+                        ? "For faxes already OCR'd by your fax provider"
+                        : "For EOBs already OCR'd or copy-pasted from a PDF"}
                     </div>
                   </div>
                 </div>
@@ -282,80 +425,57 @@ export function UploadForm() {
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 rows={14}
-                placeholder="Paste the fax OCR text here — provider name, patient name/DOB, labs, recommendations, anything you've got…"
+                placeholder={
+                  kind === "fax"
+                    ? "Paste the fax OCR text here…"
+                    : "Paste the EOB OCR text here — check header, then one line per claim…"
+                }
                 className="w-full rounded-md border border-[var(--cevi-border)] bg-[var(--cevi-surface-warm)] p-3 text-[12px] font-mono leading-[1.55] text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-faint)] focus:outline-none focus:border-[var(--cevi-text)] focus:ring-2 focus:ring-[var(--cevi-accent)]/20"
               />
             </CardContent>
           </Card>
         )}
 
-        {/* Context fields */}
-        <Card padding="md">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--cevi-text-tertiary)]">
-                Sender hint (optional)
-              </label>
-              <Input
-                className="mt-1"
-                placeholder="e.g. Baylor Cardiology, BCBS PA"
-                value={senderHint}
-                onChange={(e) => setSenderHint(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--cevi-text-tertiary)]">
-                Receiving clinic
-              </label>
-              <select
-                value={clinic}
-                onChange={(e) => setClinic(e.target.value)}
-                className="mt-1 w-full h-9 px-3 rounded-md border border-[var(--cevi-border)] bg-white text-[13px] text-[var(--cevi-text)] focus:outline-none focus:border-[var(--cevi-text)] focus:ring-2 focus:ring-[var(--cevi-accent)]/20"
-              >
-                <option>Arlington</option>
-                <option>Pantego</option>
-                <option>Grand Prairie</option>
-                <option>River Oaks</option>
-              </select>
-            </div>
-          </div>
-        </Card>
-
-        {/* Model tier */}
-        <Card padding="md">
-          <div className="flex items-center justify-between gap-4 flex-wrap">
-            <div>
-              <div className="text-[13px] font-semibold text-[var(--cevi-text)]">
-                Classify with
+        {/* Context fields — only relevant for faxes */}
+        {kind === "fax" && (
+          <Card padding="md">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--cevi-text-tertiary)]">
+                  Sender hint (optional)
+                </label>
+                <Input
+                  className="mt-1"
+                  placeholder="e.g. Baylor Cardiology, BCBS PA"
+                  value={senderHint}
+                  onChange={(e) => setSenderHint(e.target.value)}
+                />
               </div>
-              <div className="text-[11px] text-[var(--cevi-text-muted)] mt-0.5">
-                Pick a tier. Max runs slower but handles the trickiest consults.
-              </div>
-            </div>
-            <div className="inline-flex items-center bg-[var(--cevi-surface)] rounded-md p-1 text-[12px] font-semibold">
-              {(["fast", "smart", "premium"] as const).map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setTier(t)}
-                  className={cn(
-                    "px-3 h-7 rounded inline-flex items-center gap-1 transition-colors",
-                    tier === t
-                      ? "bg-[var(--cevi-accent)] text-white"
-                      : "text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)]",
-                  )}
+              <div>
+                <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--cevi-text-tertiary)]">
+                  Receiving clinic
+                </label>
+                <select
+                  value={clinic}
+                  onChange={(e) => setClinic(e.target.value)}
+                  className="mt-1 w-full h-9 px-3 rounded-md border border-[var(--cevi-border)] bg-white text-[13px] text-[var(--cevi-text)] focus:outline-none focus:border-[var(--cevi-text)] focus:ring-2 focus:ring-[var(--cevi-accent)]/20"
                 >
-                  {t === "fast" ? "Base" : t === "smart" ? "Pro" : "Max"}
-                </button>
-              ))}
+                  <option>Arlington</option>
+                  <option>Pantego</option>
+                  <option>Grand Prairie</option>
+                  <option>River Oaks</option>
+                </select>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        )}
 
         {/* CTA */}
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="text-[11px] text-[var(--cevi-text-muted)]">
-            By uploading, you confirm the fax contains synthetic or de-identified
-            content for demo purposes.
+            {kind === "fax"
+              ? "Cevi tags it and drops it in your inbox in under ten seconds."
+              : "Cevi extracts every claim line so your biller can post without re-typing."}
           </div>
           <Button
             variant="primary"
@@ -365,14 +485,20 @@ export function UploadForm() {
             onClick={handleSubmit}
             iconRight={<ArrowRight className="h-4 w-4" />}
           >
-            {isPending ? "Classifying…" : "Classify and route"}
+            {isPending
+              ? kind === "fax"
+                ? "Tagging…"
+                : "Extracting…"
+              : kind === "fax"
+                ? "Tag and route"
+                : "Extract claims"}
           </Button>
         </div>
 
-        {/* Result */}
-        {result && (
+        {/* Fax result */}
+        {kind === "fax" && faxResult && (
           <Card padding="none">
-            {result.ok ? (
+            {faxResult.ok ? (
               <>
                 <CardHeader>
                   <div className="flex items-center gap-2.5">
@@ -381,11 +507,12 @@ export function UploadForm() {
                     </IconBox>
                     <div>
                       <div className="text-[13px] font-semibold text-[var(--cevi-text)]">
-                        Classified and persisted
+                        Tagged and queued
                       </div>
                       <div className="text-[11px] text-[var(--cevi-text-muted)]">
-                        {result.modelLabel} · {(result.latencyMs / 1000).toFixed(1)}s ·
-                        redirecting to fax detail…
+                        {faxResult.modelLabel} ·{" "}
+                        {(faxResult.latencyMs / 1000).toFixed(1)}s · redirecting
+                        to fax…
                       </div>
                     </div>
                   </div>
@@ -397,7 +524,7 @@ export function UploadForm() {
                         Type
                       </div>
                       <div className="mt-0.5 text-[var(--cevi-text)] capitalize">
-                        {result.classifiedAs.replace("_", " ")}
+                        {faxResult.classifiedAs.replace("_", " ")}
                       </div>
                     </div>
                     <div className="p-2 rounded bg-[var(--cevi-surface)]">
@@ -405,36 +532,35 @@ export function UploadForm() {
                         Confidence
                       </div>
                       <div className="mt-0.5 text-[var(--cevi-text)]">
-                        {Math.round(result.confidence * 100)}%
+                        {Math.round(faxResult.confidence * 100)}%
                       </div>
                     </div>
                     <div className="p-2 rounded bg-[var(--cevi-surface)]">
                       <div className="font-semibold uppercase tracking-[0.06em] text-[var(--cevi-text-tertiary)]">
-                        Persisted
+                        Saved
                       </div>
                       <div
                         className={cn(
                           "mt-0.5 font-semibold",
-                          result.persisted
+                          faxResult.persisted
                             ? "text-[var(--cevi-success)]"
                             : "text-[var(--cevi-accent)]",
                         )}
                       >
-                        {result.persisted ? "Supabase · ok" : "in-memory only"}
+                        {faxResult.persisted ? "Yes" : "Local only"}
                       </div>
                     </div>
                   </div>
-                  {!result.persisted && result.persistError && (
+                  {!faxResult.persisted && faxResult.persistError && (
                     <div className="mt-3 p-3 rounded-md bg-[var(--cevi-accent-light)] border border-[var(--cevi-accent)]/20 text-[11px] text-[var(--cevi-accent)]">
-                      Database note: {result.persistError}. Run the schema from{" "}
-                      <code>web/supabase/schema.sql</code> in your Supabase SQL editor
-                      to unlock persistence.
+                      Database note: {faxResult.persistError}. Apply{" "}
+                      <code>web/supabase/schema.sql</code> to unlock persistence.
                     </div>
                   )}
                 </CardContent>
                 <CardFooter>
                   <Link
-                    href={`/inbox/${result.faxId}`}
+                    href={`/inbox/${faxResult.faxId}`}
                     className="text-[12px] font-semibold text-[var(--cevi-accent)] hover:underline inline-flex items-center gap-1"
                   >
                     Open fax <ArrowRight className="h-3 w-3" strokeWidth={2} />
@@ -459,11 +585,20 @@ export function UploadForm() {
                   </div>
                 </CardHeader>
                 <CardContent className="text-[12px] text-[var(--cevi-text-secondary)]">
-                  {result.error}
+                  {faxResult.error}
                 </CardContent>
               </>
             )}
           </Card>
+        )}
+
+        {/* EOB result */}
+        {kind === "eob" && eobResult && (
+          eobResult.ok ? (
+            <EobResultView result={eobResult} />
+          ) : (
+            <EobErrorView error={eobResult.error} />
+          )
         )}
       </div>
 
@@ -473,11 +608,11 @@ export function UploadForm() {
           <CardHeader>
             <div className="flex items-center gap-2.5">
               <IconBox tone="sand" size="sm">
-                <FileText className="h-4 w-4" strokeWidth={1.5} />
+                <Sparkles className="h-4 w-4" strokeWidth={1.5} />
               </IconBox>
               <div>
                 <div className="text-[13px] font-semibold text-[var(--cevi-text)]">
-                  Try a sample fax
+                  Try a sample
                 </div>
                 <div className="text-[11px] text-[var(--cevi-text-muted)]">
                   Synthetic — no real PHI
@@ -486,7 +621,7 @@ export function UploadForm() {
             </div>
           </CardHeader>
           <CardContent className="space-y-2">
-            {SAMPLES.map((s) => (
+            {samples.map((s) => (
               <button
                 key={s.id}
                 type="button"
@@ -505,10 +640,6 @@ export function UploadForm() {
                       {s.summary}
                     </div>
                   </div>
-                  <Sparkles
-                    className="h-3.5 w-3.5 text-[var(--cevi-accent)] shrink-0 mt-1"
-                    strokeWidth={1.5}
-                  />
                 </div>
               </button>
             ))}
@@ -517,30 +648,33 @@ export function UploadForm() {
 
         <Card padding="none">
           <CardHeader>
-            <div className="flex items-center gap-2.5">
-              <IconBox tone="teal" size="sm">
-                <ShieldCheck className="h-4 w-4" strokeWidth={1.5} />
-              </IconBox>
-              <div>
-                <div className="text-[13px] font-semibold text-[var(--cevi-text)]">
-                  What happens next
-                </div>
+            <div>
+              <div className="text-[13px] font-semibold text-[var(--cevi-text)]">
+                What happens next
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <ol className="space-y-2.5 text-[12px] text-[var(--cevi-text-secondary)]">
-              {[
-                "OCR / vision extraction",
-                "Classify with Cevi AI",
-                "Match to patient directory",
-                "Structure diagnoses, Rx, urgency",
-                "Route per workflow rules",
-                "Write fax + audit events to Supabase",
-                "Redirect you to the fax detail",
-              ].map((step, i) => (
+              {(kind === "fax"
+                ? [
+                    "Read the fax (OCR + vision)",
+                    "Classify — lab, consult, PA, etc.",
+                    "Match to your patient directory",
+                    "Structure diagnoses, Rx, urgency",
+                    "Route per your workflow rules",
+                    "Write to eClinicalWorks chart",
+                  ]
+                : [
+                    "Read the paper EOB (OCR + vision)",
+                    "Pull out check header (payer, #, date)",
+                    "Extract every claim line-item",
+                    "Flag denials and adjustments",
+                    "Hand your biller a clean table to post",
+                  ]
+              ).map((step, i) => (
                 <li key={i} className="flex items-start gap-2.5">
-                  <span className="shrink-0 w-5 h-5 rounded-full bg-[var(--cevi-accent-bg)] text-[var(--cevi-accent)] text-[10px] font-semibold inline-flex items-center justify-center">
+                  <span className="shrink-0 w-5 h-5 rounded-full bg-[var(--cevi-accent-bg)] text-[var(--cevi-accent)] text-[10px] font-semibold inline-flex items-center justify-center tabular-nums">
                     {i + 1}
                   </span>
                   <span>{step}</span>
@@ -550,7 +684,8 @@ export function UploadForm() {
           </CardContent>
           <CardFooter>
             <div className="text-[11px] text-[var(--cevi-text-muted)] inline-flex items-center gap-1.5">
-              <Loader2 className="h-3 w-3" strokeWidth={1.5} /> Typical end-to-end: 3–8 seconds
+              <Loader2 className="h-3 w-3" strokeWidth={1.5} /> Typical end-to-end:
+              3–8 seconds
             </div>
           </CardFooter>
         </Card>

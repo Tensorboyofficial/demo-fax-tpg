@@ -1,7 +1,7 @@
 import { DemoStage } from "./DemoStage";
 
 export const metadata = {
-  title: "Live Demo · Cevi for Texas Physicians",
+  title: "Live Demo · Cevi for Transcend Medical Group",
 };
 
 export default function DemoPage() {

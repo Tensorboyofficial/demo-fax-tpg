@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { ArrowLeft, Printer, Flag, Copy } from "lucide-react";
+import { ArrowLeft, Database } from "lucide-react";
 import { Badge, statusBadgeVariant } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FaxPreview } from "./FaxPreview";
@@ -120,25 +120,11 @@ export function DetailShell({ fax, initialEvents }: Props) {
         <div className="flex items-center gap-2 flex-wrap">
           <PatientMessageButton fax={fax} />
           <Button
-            variant="ghost"
-            size="sm"
-            icon={<Copy className="h-3.5 w-3.5" strokeWidth={1.5} />}
+            variant="primary"
+            size="md"
+            icon={<Database className="h-3.5 w-3.5" strokeWidth={1.5} />}
           >
-            Copy link
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={<Printer className="h-3.5 w-3.5" strokeWidth={1.5} />}
-          >
-            Print
-          </Button>
-          <Button
-            variant="danger"
-            size="sm"
-            icon={<Flag className="h-3.5 w-3.5" strokeWidth={1.5} />}
-          >
-            Flag for QA
+            Send to chart
           </Button>
         </div>
       </div>

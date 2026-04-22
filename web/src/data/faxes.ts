@@ -9,7 +9,7 @@ function ago(minutes: number): string {
   return new Date(NOW - minutes * MIN).toISOString();
 }
 
-const TPG_FAX = "817-860-2704";
+const TMG_FAX = "817-860-2704";
 
 export const faxes: Fax[] = [
   // 1. HERO — Cardiology specialist consult (Opus 4.7)
@@ -19,7 +19,7 @@ export const faxes: Fax[] = [
     pages: 6,
     fromNumber: "682-885-4100",
     fromOrg: "Baylor Scott & White Heart & Vascular — Fort Worth",
-    faxNumberTo: TPG_FAX,
+    faxNumberTo: TMG_FAX,
     toClinic: "Arlington",
     status: "auto_routed",
     type: "specialist_consult",
@@ -64,7 +64,7 @@ export const faxes: Fax[] = [
 CONSULTATION REPORT
 Date: 04/21/2026
 PATIENT: GONZALEZ, MARIA E.      DOB: 07/14/1962    MRN: 004218
-REFERRING PROVIDER: T. Nguyen, MD, Texas Physicians Group - Arlington
+REFERRING PROVIDER: T. Nguyen, MD, Transcend Medical Group - Arlington
 CONSULTING PROVIDER: C. Arnett, MD
 REASON: Exertional chest pain, family hx of premature CAD
 
@@ -93,7 +93,7 @@ Signed: C. Arnett, MD`,
     pages: 2,
     fromNumber: "972-465-0900",
     fromOrg: "Quest Diagnostics — Irving Metroplex Service Center",
-    faxNumberTo: TPG_FAX,
+    faxNumberTo: TMG_FAX,
     toClinic: "Pantego",
     status: "auto_routed",
     type: "lab_result",
@@ -150,7 +150,7 @@ Recommend repeat STAT; rule out hemolysis.`,
     pages: 3,
     fromNumber: "800-441-9188",
     fromOrg: "BCBS of Texas — Utilization Management",
-    faxNumberTo: TPG_FAX,
+    faxNumberTo: TMG_FAX,
     toClinic: "Arlington",
     status: "auto_routed",
     type: "prior_auth",
@@ -180,7 +180,7 @@ UTILIZATION MANAGEMENT
 Fax: 800-441-9188 | Ref #: PA-2026-04-77193
 04/22/2026
 
-PROVIDER: Texas Physicians Group - Arlington
+PROVIDER: Transcend Medical Group - Arlington
 ORDERING: T. Nguyen, MD  NPI 1487293042
 MEMBER: Whitfield, James   DOB 03/22/1947   ID BCBS-TX-883471209
 
@@ -203,7 +203,7 @@ Clinical documentation required by 04/27/2026:
     pages: 2,
     fromNumber: "817-548-2100",
     fromOrg: "Arlington Orthopedic Associates",
-    faxNumberTo: TPG_FAX,
+    faxNumberTo: TMG_FAX,
     toClinic: "Grand Prairie",
     status: "auto_routed",
     type: "referral",
@@ -238,7 +238,7 @@ Clinical documentation required by 04/27/2026:
 P 817-548-2000   F 817-548-2100
 Date: 04/22/2026
 REFERRING PROVIDER: Kenneth Chun, DO
-REFERRING TO: Texas Physicians Group, PCP of record
+REFERRING TO: Transcend Medical Group, PCP of record
 PATIENT: Robert ("Bobby") Harlan   DOB: 09/08/1955
 
 Reason: Patient s/p bilateral IA steroid injections for advanced
@@ -255,7 +255,7 @@ Please see patient for new-patient visit within 2 weeks.`,
     pages: 4,
     fromNumber: "214-871-2000",
     fromOrg: "Anderson & Hughes LLP, Attorneys at Law",
-    faxNumberTo: TPG_FAX,
+    faxNumberTo: TMG_FAX,
     toClinic: "Arlington",
     status: "auto_routed",
     type: "records_request",
@@ -299,7 +299,7 @@ referrals, and medication lists. Invoice per state regulations.`,
     pages: 1,
     fromNumber: "817-460-5500",
     fromOrg: "CVS Pharmacy #4215 — Arlington",
-    faxNumberTo: TPG_FAX,
+    faxNumberTo: TMG_FAX,
     toClinic: "Arlington",
     status: "auto_routed",
     type: "rx_refill",
@@ -342,7 +342,7 @@ Prescriber of record: T. Nguyen, MD
     pages: 5,
     fromNumber: "214-645-8300",
     fromOrg: "UT Southwestern GI Associates",
-    faxNumberTo: TPG_FAX,
+    faxNumberTo: TMG_FAX,
     toClinic: "Pantego",
     status: "auto_routed",
     type: "specialist_consult",
@@ -401,7 +401,7 @@ RECOMMENDATION: Repeat screening colonoscopy in 5 years`,
     pages: 2,
     fromNumber: "800-845-6167",
     fromOrg: "LabCorp",
-    faxNumberTo: TPG_FAX,
+    faxNumberTo: TMG_FAX,
     toClinic: "River Oaks",
     status: "auto_routed",
     type: "lab_result",
@@ -442,7 +442,7 @@ No action required.`,
     pages: 8,
     fromNumber: "214-655-5384",
     fromOrg: "USCIS Texas Service Center",
-    faxNumberTo: TPG_FAX,
+    faxNumberTo: TMG_FAX,
     toClinic: "Grand Prairie",
     status: "needs_review",
     type: "unknown",
@@ -471,7 +471,7 @@ RE: Form I-693, Report of Medical Examination and Vaccination Record
 Case #: MSC-2026-046-8824
 
 Applicant: TANAKA, YUKI   DOB: 10/25/1983
-Civil Surgeon: Texas Physicians Group - Grand Prairie
+Civil Surgeon: Transcend Medical Group - Grand Prairie
 
 REQUEST FOR ADDITIONAL EVIDENCE:
 Missing supplement 2 - Vaccination record. Please resubmit
@@ -486,7 +486,7 @@ completed form within 87 days.`,
     pages: 1,
     fromNumber: "Unknown",
     fromOrg: "Unreadable sender",
-    faxNumberTo: TPG_FAX,
+    faxNumberTo: TMG_FAX,
     toClinic: "Unknown",
     status: "needs_review",
     type: "unknown",
@@ -522,7 +522,7 @@ Please confirm patient identity and fax back.`,
     pages: 3,
     fromNumber: "817-275-4100",
     fromOrg: "Arlington Diagnostic Imaging",
-    faxNumberTo: TPG_FAX,
+    faxNumberTo: TMG_FAX,
     toClinic: "River Oaks",
     status: "auto_routed",
     type: "imaging_report",
@@ -565,7 +565,7 @@ Stable hepatic cyst.`,
     pages: 1,
     fromNumber: "800-441-9188",
     fromOrg: "BCBS of Texas — Utilization Management",
-    faxNumberTo: TPG_FAX,
+    faxNumberTo: TMG_FAX,
     toClinic: "Pantego",
     status: "completed",
     type: "prior_auth",
@@ -595,7 +595,7 @@ Auth #: BCBS-2026-04-118724
 Member: MCGRAW, WILLIS   DOB 05/29/1944
 Service: MRI Right Knee (CPT 73721)
 Valid: 04/22/2026 through 06/21/2026
-Provider: Texas Physicians Group`,
+Provider: Transcend Medical Group`,
     modelUsed: "claude-haiku-4-5-20251001",
   },
 
@@ -606,7 +606,7 @@ Provider: Texas Physicians Group`,
     pages: 3,
     fromNumber: "214-358-2300",
     fromOrg: "Dallas Nephrology Associates",
-    faxNumberTo: TPG_FAX,
+    faxNumberTo: TMG_FAX,
     toClinic: "Grand Prairie",
     status: "auto_routed",
     type: "specialist_consult",
@@ -655,7 +655,7 @@ renal US. Next visit in 6 months unless eGFR <35.`,
     pages: 2,
     fromNumber: "972-465-0900",
     fromOrg: "Quest Diagnostics",
-    faxNumberTo: TPG_FAX,
+    faxNumberTo: TMG_FAX,
     toClinic: "Arlington",
     status: "auto_routed",
     type: "lab_result",
@@ -704,7 +704,7 @@ Suggest TSI, thyroid US, endocrinology referral.`,
     pages: 2,
     fromNumber: "817-923-4400",
     fromOrg: "Tarrant Orthopedic Associates",
-    faxNumberTo: TPG_FAX,
+    faxNumberTo: TMG_FAX,
     toClinic: "Arlington",
     status: "auto_routed",
     type: "referral",

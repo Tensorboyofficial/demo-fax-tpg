@@ -101,7 +101,7 @@ export default function IntegrationsPage() {
           eClinicalWorks is your source of truth. Cevi syncs your patient directory every
           60 seconds, writes faxes straight to the chart, and kicks downstream workflows
           via Healow, Availity, and your lab vendors. 148+ integrations available — these
-          are the ones live for Texas Physicians today.
+          are the ones live for Transcend Medical Group today.
         </p>
       </div>
 

@@ -18,7 +18,7 @@ const ebGaramond = EB_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Cevi · Fax Intelligence for Texas Physicians Group",
+  title: "Cevi · Fax Intelligence for Transcend Medical Group",
   description:
     "AI fax classification, patient matching, and automated routing with full HIPAA audit trails. Built for multi-location primary care.",
 };

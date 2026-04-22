@@ -113,37 +113,18 @@ export function ClassificationCard({
       </CardContent>
       <CardFooter className="flex items-center justify-between gap-2 flex-wrap">
         <div className="text-[11px] text-[var(--cevi-text-muted)]">
-          Re-run live on this fax:
+          Not quite right? Re-check live with Cevi AI.
         </div>
-        <div className="flex items-center gap-1.5">
-          <Button
-            variant={tier === "fast" ? "primary" : "outline"}
-            size="sm"
-            loading={isRunning && tier === "fast"}
-            disabled={isRunning}
-            onClick={() => onReclassify("fast")}
-          >
-            Base
-          </Button>
-          <Button
-            variant={tier === "smart" ? "primary" : "outline"}
-            size="sm"
-            loading={isRunning && tier === "smart"}
-            disabled={isRunning}
-            onClick={() => onReclassify("smart")}
-          >
-            Pro
-          </Button>
-          <Button
-            variant={tier === "premium" ? "primary" : "outline"}
-            size="sm"
-            loading={isRunning && tier === "premium"}
-            disabled={isRunning}
-            onClick={() => onReclassify("premium")}
-          >
-            Max
-          </Button>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          loading={isRunning}
+          disabled={isRunning}
+          onClick={() => onReclassify("premium")}
+          icon={<Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} />}
+        >
+          Re-check with Cevi AI
+        </Button>
       </CardFooter>
     </Card>
   );

@@ -120,7 +120,7 @@ Draft a message appropriate for the patient portal. Lead with reassurance if res
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) throw new Error("Model did not return JSON");
     const parsed = JSON.parse(match[0]);
-    const subject = String(parsed.subject ?? "Your results from Texas Physicians Group");
+    const subject = String(parsed.subject ?? "Your results from Transcend Medical Group");
     const body = String(parsed.body ?? "");
 
     const messageId = `MSG-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
