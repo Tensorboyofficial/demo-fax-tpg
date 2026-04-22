@@ -21,8 +21,9 @@ function fmtElapsed(ms: number): string {
 }
 
 export function CriticalBanner({ fax }: Props) {
-  const initialElapsed = Date.now() - new Date(fax.receivedAt).getTime();
-  const [elapsed, setElapsed] = useState(initialElapsed);
+  // Initialize to null to skip live timer on first server render — prevents
+  // React hydration mismatch (error #418) when server Date.now() ≠ client.
+  const [elapsed, setElapsed] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
   const [acknowledgedBy, setAcknowledgedBy] = useState("");
@@ -33,15 +34,16 @@ export function CriticalBanner({ fax }: Props) {
 
   useEffect(() => {
     if (acknowledged) return;
-    const i = window.setInterval(() => {
-      setElapsed(Date.now() - new Date(fax.receivedAt).getTime());
-    }, 1000);
+    const compute = () =>
+      Math.max(0, Date.now() - new Date(fax.receivedAt).getTime());
+    setElapsed(compute());
+    const i = window.setInterval(() => setElapsed(compute()), 1000);
     return () => window.clearInterval(i);
   }, [acknowledged, fax.receivedAt]);
 
   if (fax.urgency !== "critical" && fax.urgency !== "stat") return null;
 
-  const overdue = elapsed > 30 * 60_000; // 30 minutes
+  const overdue = (elapsed ?? 0) > 30 * 60_000; // 30 minutes
   const tone = acknowledged
     ? "jade"
     : overdue
@@ -111,7 +113,7 @@ export function CriticalBanner({ fax }: Props) {
                   ? "Critical result · overdue"
                   : "Critical result · patient not yet contacted"}
             </span>
-            {!acknowledged && (
+            {!acknowledged && elapsed !== null && (
               <Badge variant={tone} size="sm" dot pulse>
                 {fmtElapsed(elapsed)} since arrival
               </Badge>

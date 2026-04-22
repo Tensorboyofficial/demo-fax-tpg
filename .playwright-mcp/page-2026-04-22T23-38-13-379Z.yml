@@ -1,0 +1,137 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - link "Cevi home" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img "Cevi" [ref=e6]
+      - navigation [ref=e9]:
+        - list [ref=e10]:
+          - listitem [ref=e11]:
+            - link "Inbox" [ref=e12] [cursor=pointer]:
+              - /url: /
+              - img [ref=e14]
+              - generic [ref=e17]: Inbox
+          - listitem [ref=e18]:
+            - link "Upload" [ref=e19] [cursor=pointer]:
+              - /url: /upload
+              - img [ref=e21]
+              - generic [ref=e24]: Upload
+          - listitem [ref=e25]:
+            - link "Paper EOB" [ref=e26] [cursor=pointer]:
+              - /url: /eob
+              - img [ref=e28]
+              - generic [ref=e31]: Paper EOB
+          - listitem [ref=e32]:
+            - link "Audit" [ref=e33] [cursor=pointer]:
+              - /url: /audit
+              - img [ref=e35]
+              - generic [ref=e38]: Audit
+          - listitem [ref=e39]:
+            - link "Settings" [ref=e40] [cursor=pointer]:
+              - /url: /settings
+              - img [ref=e42]
+              - generic [ref=e45]: Settings
+    - generic [ref=e46]:
+      - banner [ref=e47]:
+        - generic [ref=e48]:
+          - generic [ref=e50]:
+            - generic:
+              - img
+            - textbox "Search faxes, patients, MRNs…" [ref=e51]
+          - generic [ref=e52]: TMG Arlington
+          - generic "Dr. Todd Nguyen" [ref=e54]: TN
+      - main [ref=e55]:
+        - generic [ref=e56]:
+          - generic [ref=e57]:
+            - heading "Upload" [level=1] [ref=e58]
+            - generic [ref=e59]: Drop a fax or paste OCR text. Cevi reads, tags, and sends it to the chart.
+          - generic [ref=e60]:
+            - generic [ref=e61]:
+              - generic [ref=e63]:
+                - button "A fax Lab, consult, referral, prior auth, records, Rx refill" [ref=e64]:
+                  - generic [ref=e65]:
+                    - img [ref=e66]
+                    - generic [ref=e69]: A fax
+                  - generic [ref=e70]: Lab, consult, referral, prior auth, records, Rx refill
+                - button "A paper EOB New Saves your biller from hand-keying each claim line" [ref=e71]:
+                  - generic [ref=e72]:
+                    - img [ref=e73]
+                    - generic [ref=e76]: A paper EOB
+                    - generic [ref=e77]: New
+                  - generic [ref=e78]: Saves your biller from hand-keying each claim line
+              - generic [ref=e79]:
+                - button "Paste OCR" [ref=e80]:
+                  - img [ref=e81]
+                  - text: Paste OCR
+                - button "Upload PDF / image" [ref=e86]:
+                  - img [ref=e87]
+                  - text: Upload PDF / image
+              - generic [ref=e90]:
+                - generic [ref=e93]:
+                  - img [ref=e95]
+                  - generic [ref=e100]:
+                    - generic [ref=e101]: Paste OCR text
+                    - generic [ref=e102]: For faxes already OCR'd by your fax provider
+                - textbox "Paste the fax OCR text here…" [ref=e104]
+              - generic [ref=e106]:
+                - generic [ref=e107]:
+                  - text: Sender hint (optional)
+                  - textbox "e.g. Baylor Cardiology, BCBS PA" [ref=e108]
+                - generic [ref=e109]:
+                  - text: Receiving clinic
+                  - combobox [ref=e110]:
+                    - option "Arlington" [selected]
+                    - option "Pantego"
+                    - option "Grand Prairie"
+                    - option "River Oaks"
+              - generic [ref=e111]:
+                - generic [ref=e112]: Cevi tags it and drops it in your inbox in under ten seconds.
+                - button "Tag and route" [disabled]:
+                  - text: Tag and route
+                  - generic:
+                    - img
+            - complementary [ref=e113]:
+              - generic [ref=e114]:
+                - generic [ref=e116]:
+                  - img [ref=e118]
+                  - generic [ref=e121]:
+                    - generic [ref=e122]: Try a sample
+                    - generic [ref=e123]: Synthetic — no real PHI
+                - generic [ref=e124]:
+                  - button "Critical lab result Quest BMP · K+ 6.4 critical high" [ref=e125]:
+                    - generic [ref=e126]:
+                      - img [ref=e128]
+                      - generic [ref=e130]:
+                        - generic [ref=e131]: Critical lab result
+                        - generic [ref=e132]: Quest BMP · K+ 6.4 critical high
+                  - button "Inbound referral Orthopedic post-op PCP co-management" [ref=e133]:
+                    - generic [ref=e134]:
+                      - img [ref=e136]
+                      - generic [ref=e140]:
+                        - generic [ref=e141]: Inbound referral
+                        - generic [ref=e142]: Orthopedic post-op PCP co-management
+              - generic [ref=e143]:
+                - generic [ref=e146]: What happens next
+                - list [ref=e148]:
+                  - listitem [ref=e149]:
+                    - generic [ref=e150]: "1"
+                    - generic [ref=e151]: Read the fax (OCR + vision)
+                  - listitem [ref=e152]:
+                    - generic [ref=e153]: "2"
+                    - generic [ref=e154]: Classify — lab, consult, PA, etc.
+                  - listitem [ref=e155]:
+                    - generic [ref=e156]: "3"
+                    - generic [ref=e157]: Match to your patient directory
+                  - listitem [ref=e158]:
+                    - generic [ref=e159]: "4"
+                    - generic [ref=e160]: Structure diagnoses, Rx, urgency
+                  - listitem [ref=e161]:
+                    - generic [ref=e162]: "5"
+                    - generic [ref=e163]: Route per your workflow rules
+                  - listitem [ref=e164]:
+                    - generic [ref=e165]: "6"
+                    - generic [ref=e166]: Write to eClinicalWorks chart
+                - generic [ref=e168]:
+                  - img [ref=e169]
+                  - text: "Typical end-to-end: 3–8 seconds"
+  - alert [ref=e171]

@@ -1,0 +1,308 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - link "Cevi home" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img "Cevi" [ref=e6]
+      - navigation [ref=e9]:
+        - list [ref=e10]:
+          - listitem [ref=e11]:
+            - link "Inbox" [ref=e12] [cursor=pointer]:
+              - /url: /
+              - img [ref=e14]
+              - generic [ref=e17]: Inbox
+          - listitem [ref=e18]:
+            - link "Upload" [ref=e19] [cursor=pointer]:
+              - /url: /upload
+              - img [ref=e21]
+              - generic [ref=e24]: Upload
+          - listitem [ref=e25]:
+            - link "Paper EOB" [ref=e26] [cursor=pointer]:
+              - /url: /eob
+              - img [ref=e28]
+              - generic [ref=e31]: Paper EOB
+          - listitem [ref=e32]:
+            - link "Audit" [ref=e33] [cursor=pointer]:
+              - /url: /audit
+              - img [ref=e35]
+              - generic [ref=e38]: Audit
+          - listitem [ref=e39]:
+            - link "Settings" [ref=e40] [cursor=pointer]:
+              - /url: /settings
+              - img [ref=e42]
+              - generic [ref=e45]: Settings
+    - generic [ref=e46]:
+      - banner [ref=e47]:
+        - generic [ref=e48]:
+          - generic [ref=e50]:
+            - generic:
+              - img
+            - textbox "Search faxes, patients, MRNs…" [ref=e51]
+          - generic [ref=e52]: TMG Arlington
+          - generic "Dr. Todd Nguyen" [ref=e54]: TN
+      - main [ref=e55]:
+        - generic [ref=e56]:
+          - generic [ref=e57]:
+            - generic [ref=e58]:
+              - link "Back to inbox" [ref=e59] [cursor=pointer]:
+                - /url: /inbox
+                - img [ref=e60]
+                - text: Back to inbox
+              - heading "Baylor Scott & White Heart & Vascular — Fort Worth" [level=1] [ref=e62]
+              - generic [ref=e63]:
+                - generic [ref=e64]: FAX-20260423-001
+                - generic [ref=e65]: ·
+                - generic [ref=e66]: 6 pages
+                - generic [ref=e67]: ·
+                - generic [ref=e68]: Arlington clinic
+                - generic [ref=e69]: ·
+                - generic [ref=e70]: auto routed
+            - generic [ref=e72]:
+              - button "Draft patient message" [ref=e73] [cursor=pointer]:
+                - img [ref=e75]
+                - text: Draft patient message
+              - button "Send to chart" [ref=e77] [cursor=pointer]:
+                - img [ref=e79]
+                - text: Send to chart
+          - generic [ref=e83]:
+            - generic [ref=e85]:
+              - generic [ref=e86]:
+                - generic [ref=e87]:
+                  - img [ref=e88]
+                  - generic [ref=e92]: 6-page fax
+                  - generic [ref=e93]: ·
+                  - generic [ref=e94]: Apr 23, 10:24 PM
+                - generic [ref=e96]: PHI · Confidential
+              - generic [ref=e97]:
+                - generic:
+                  - generic: CONFIDENTIAL
+                - generic [ref=e98]:
+                  - generic [ref=e99]:
+                    - generic [ref=e100]: RECEIVED AT 817-860-2704
+                    - generic [ref=e101]: Apr 23, 10:24 PM
+                  - generic [ref=e102]: "BAYLOR SCOTT & WHITE HEART & VASCULAR - FORT WORTH 1400 8TH AVE, FORT WORTH TX 76104 | 682-885-4100 | F 682-885-4133 CONSULTATION REPORT Date: 04/21/2026 PATIENT: GONZALEZ, MARIA E. DOB: 07/14/1962 MRN: 004218 REFERRING PROVIDER: T. Nguyen, MD, Transcend Medical Group - Arlington CONSULTING PROVIDER: C. Arnett, MD REASON: Exertional chest pain, family hx of premature CAD HISTORY & EXAM: 62yo F with 3-month hx of substernal chest pressure on exertion, relieved by rest. BP 138/86, HR 78. Exam unremarkable. EKG: NSR, nonspecific ST-T changes lateral leads. ASSESSMENT: ASHD of native coronary artery with angina (I25.110) Hyperlipidemia (E78.5) PLAN: - Atorvastatin 40 mg daily - Metoprolol tartrate 25 mg BID - ASA 81 mg daily - Stress echo in 6 weeks - F/U cardiology 8 weeks Signed: C. Arnett, MD"
+                  - generic [ref=e103]:
+                    - generic [ref=e104]: — end of page 6 —
+                    - generic [ref=e105]:
+                      - img [ref=e106]
+                      - text: Medsender inbound · 682-885-4100
+                - generic:
+                  - text: RECEIVED
+                  - generic: Apr 23, 2026
+            - generic [ref=e109]:
+              - generic [ref=e110]:
+                - generic [ref=e112]:
+                  - generic [ref=e113]:
+                    - img [ref=e115]
+                    - generic [ref=e118]:
+                      - generic [ref=e119]: Classification
+                      - generic [ref=e120]: Cevi Max · 5.5s
+                  - generic [ref=e121]: routine
+                - generic [ref=e123]:
+                  - generic [ref=e124]:
+                    - generic [ref=e126]: Specialist consultation
+                    - generic [ref=e127]:
+                      - generic [ref=e128]: Confidence
+                      - generic [ref=e132]: 96%
+                  - generic [ref=e404]:
+                    - img [ref=e405]
+                    - text: Tokens
+                    - generic [ref=e407]: 1274→496
+                - generic [ref=e133]:
+                  - generic [ref=e134]: Not quite right? Re-check live with Cevi AI.
+                  - button "Re-check with Cevi AI" [ref=e135] [cursor=pointer]:
+                    - img [ref=e409]
+                    - text: Re-check with Cevi AI
+              - generic [ref=e140]:
+                - generic [ref=e142]:
+                  - generic [ref=e143]:
+                    - img [ref=e145]
+                    - generic [ref=e150]:
+                      - generic [ref=e151]: Patient match
+                      - generic [ref=e152]: Compared against 4,217 active patients
+                  - generic [ref=e153]: Confirmed
+                - generic [ref=e155]:
+                  - list [ref=e156]:
+                    - listitem [ref=e157]:
+                      - generic [ref=e158]:
+                        - img [ref=e160]
+                        - generic [ref=e163]:
+                          - generic [ref=e164]:
+                            - generic [ref=e165]: Maria Gonzalez
+                            - generic [ref=e169]: 99%
+                          - generic [ref=e170]: MRN-004218 · DOB 07/14/1962 · 63y F
+                          - generic [ref=e171]:
+                            - img [ref=e172]
+                            - text: Arlington · PCP Todd Thang Nguyen
+                          - generic [ref=e176]: Exact name + DOB + MRN match
+                    - listitem [ref=e177]:
+                      - generic [ref=e178]:
+                        - img [ref=e180]
+                        - generic [ref=e183]:
+                          - generic [ref=e184]:
+                            - generic [ref=e185]: Margaret Sullivan
+                            - generic [ref=e189]: 21%
+                          - generic [ref=e190]: MRN-004301 · DOB 12/02/1968 · 57y F
+                          - generic [ref=e191]:
+                            - img [ref=e192]
+                            - text: Pantego · PCP Alicia Harbison
+                          - generic [ref=e196]: Partial last-name overlap
+                  - generic [ref=e197]: Auto-confirmed on arrival (score 99% ≥ threshold 90%). Override available above.
+              - generic [ref=e198]:
+                - generic [ref=e200]:
+                  - generic [ref=e201]:
+                    - img [ref=e203]
+                    - generic [ref=e208]:
+                      - generic [ref=e209]: Structured extraction
+                      - generic [ref=e211]:
+                        - img [ref=e212]
+                        - text: Cevi Max
+                        - generic [ref=e412]: · 5.5s
+                  - generic [ref=e215]: JSON-validated
+                - generic [ref=e216]:
+                  - generic [ref=e217]:
+                    - generic [ref=e218]: AI summary
+                    - generic [ref=e219]: Cardiology consult for Gonzalez diagnoses angina/ASHD; started on statin, metoprolol, ASA with stress echo in 6 weeks.
+                  - generic [ref=e220]:
+                    - generic [ref=e221]:
+                      - generic [ref=e222]: Sending provider
+                      - generic [ref=e223]: C. Arnett, MD
+                    - generic [ref=e224]:
+                      - generic [ref=e225]: Sending org
+                      - generic [ref=e226]: Baylor Scott & White Heart & Vascular - Fort Worth
+                    - generic [ref=e227]:
+                      - generic [ref=e228]: Document date
+                      - generic [ref=e229]: 2026-04-21
+                    - generic [ref=e230]:
+                      - generic [ref=e231]: Patient on doc
+                      - generic [ref=e232]: GONZALEZ, MARIA E.
+                    - generic [ref=e233]:
+                      - generic [ref=e234]: DOB on doc
+                      - generic [ref=e235]: 07/14/1962
+                    - generic [ref=e236]:
+                      - generic [ref=e237]: MRN on doc
+                      - generic [ref=e238]: "004218"
+                    - generic [ref=e239]:
+                      - generic [ref=e240]: Diagnoses
+                      - list [ref=e242]:
+                        - listitem [ref=e243]: · ASHD of native coronary artery with angina
+                        - listitem [ref=e244]: · Hyperlipidemia
+                    - generic [ref=e245]:
+                      - generic [ref=e246]: Medications
+                      - list [ref=e248]:
+                        - listitem [ref=e249]: · Atorvastatin 40 mg daily
+                        - listitem [ref=e250]: · Metoprolol tartrate 25 mg BID
+                        - listitem [ref=e251]: · ASA 81 mg daily
+                    - generic [ref=e252]:
+                      - generic [ref=e253]: Recommendations
+                      - list [ref=e255]:
+                        - listitem [ref=e256]:
+                          - generic [ref=e257]: →
+                          - generic [ref=e258]: Stress echo in 6 weeks
+                        - listitem [ref=e259]:
+                          - generic [ref=e260]: →
+                          - generic [ref=e261]: Follow-up cardiology in 8 weeks
+                    - generic [ref=e271]:
+                      - generic [ref=e272]: ICD-10
+                      - generic [ref=e274]:
+                        - generic [ref=e275]: I25.110
+                        - generic [ref=e276]: E78.5
+              - generic [ref=e280]:
+                - generic [ref=e282]:
+                  - img [ref=e284]
+                  - generic [ref=e290]:
+                    - generic [ref=e291]: Routing
+                    - generic [ref=e292]: Auto-applied per workflow rule · override anytime
+                - generic [ref=e293]:
+                  - generic [ref=e294]:
+                    - generic [ref=e295]: Routed to
+                    - generic [ref=e296]: Todd Thang Nguyen, MD
+                    - generic [ref=e297]: Internal Medicine · Arlington clinic
+                  - generic [ref=e298]: "Why: Patient's PCP is Dr. Nguyen; cardiology reports are routed to PCP results inbox per workflow rule R-204."
+                  - generic [ref=e299]:
+                    - text: Override
+                    - combobox [ref=e300]:
+                      - option "Todd Thang Nguyen · Arlington" [selected]
+                      - option "Alicia Harbison · Pantego"
+                      - option "Elena Varga · Grand Prairie"
+                      - option "Marcus O'Donnell · River Oaks"
+                      - option "Referral Management & Tracking (agent)"
+                      - option "Prior Authorization Processing (agent)"
+                      - option "Lab Results Delivery & Follow-Up (agent)"
+                      - option "Prescription Routing & Refill Mgmt (agent)"
+                      - option "Medical Records Request Processing (agent)"
+                - generic [ref=e301]:
+                  - generic [ref=e302]: Notification will go via eClinicalWorks inbox + SMS if critical
+                  - button "Send now" [ref=e303] [cursor=pointer]:
+                    - text: Send now
+                    - img [ref=e305]
+              - generic [ref=e307]:
+                - generic [ref=e309]:
+                  - img [ref=e311]
+                  - generic [ref=e314]:
+                    - generic [ref=e315]: Pipeline audit
+                    - generic [ref=e316]: Every step timestamped for HIPAA + SOC 2
+                - list [ref=e318]:
+                  - listitem [ref=e413]:
+                    - img [ref=e416]
+                    - generic [ref=e419]:
+                      - generic [ref=e420]:
+                        - generic [ref=e421]: Classified
+                        - generic [ref=e422]: Apr 23, 7:29 AM
+                      - generic [ref=e423]: Re-classified live by user · Cevi Max
+                      - generic [ref=e424]:
+                        - generic [ref=e425]: Cevi Max
+                        - generic [ref=e426]: · 5.5s
+                        - generic [ref=e427]: · 1274→496 tokens
+                  - listitem [ref=e319]:
+                    - img [ref=e322]
+                    - generic [ref=e325]:
+                      - generic [ref=e326]:
+                        - generic [ref=e327]: Received
+                        - generic [ref=e328]: Apr 23, 10:24 PM
+                      - generic [ref=e329]: Fax received from Baylor Scott & White Heart & Vascular — Fort Worth (6 pages)
+                  - listitem [ref=e330]:
+                    - img [ref=e333]
+                    - generic [ref=e338]:
+                      - generic [ref=e339]:
+                        - generic [ref=e340]: OCR
+                        - generic [ref=e341]: Apr 23, 10:24 PM
+                      - generic [ref=e342]: OCR extracted text (Tesseract + layout analysis)
+                      - generic [ref=e344]: · 14.0s
+                  - listitem [ref=e345]:
+                    - img [ref=e348]
+                    - generic [ref=e351]:
+                      - generic [ref=e352]:
+                        - generic [ref=e353]: Classified
+                        - generic [ref=e354]: Apr 23, 10:24 PM
+                      - generic [ref=e355]: Classified as specialist consult (97% confidence)
+                      - generic [ref=e356]:
+                        - generic [ref=e357]: Cevi Max
+                        - generic [ref=e358]: · 1.9s
+                        - generic [ref=e359]: · 3920→320 tokens
+                  - listitem [ref=e360]:
+                    - img [ref=e363]
+                    - generic [ref=e367]:
+                      - generic [ref=e368]:
+                        - generic [ref=e369]: Matched
+                        - generic [ref=e370]: Apr 23, 10:24 PM
+                      - generic [ref=e371]: Matched to patient (99% confidence)
+                  - listitem [ref=e372]:
+                    - img [ref=e375]
+                    - generic [ref=e380]:
+                      - generic [ref=e381]:
+                        - generic [ref=e382]: Extracted
+                        - generic [ref=e383]: Apr 23, 10:24 PM
+                      - generic [ref=e384]: Structured fields extracted (provider, Dx, Rx, recommendations)
+                      - generic [ref=e385]:
+                        - generic [ref=e386]: Cevi Max
+                        - generic [ref=e387]: · 2.2s
+                        - generic [ref=e388]: · 3920→680 tokens
+                  - listitem [ref=e389]:
+                    - img [ref=e391]
+                    - generic [ref=e397]:
+                      - generic [ref=e398]:
+                        - generic [ref=e399]: Routed
+                        - generic [ref=e400]: Apr 23, 10:24 PM
+                      - generic [ref=e401]: Routed to P-001
+  - alert [ref=e402]

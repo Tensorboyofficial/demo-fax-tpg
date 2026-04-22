@@ -1,0 +1,255 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "Cevi home" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img "Cevi" [ref=e6]
+          - generic [ref=e10]:
+            - text: Transcend Medical
+            - text: Group
+        - link "Audit" [ref=e11] [cursor=pointer]:
+          - /url: /audit
+          - img [ref=e12]
+          - text: Audit
+        - link "Upload a fax" [ref=e15] [cursor=pointer]:
+          - /url: /upload
+          - img [ref=e16]
+          - text: Upload a fax
+        - generic [ref=e20]: eCW connected
+        - generic "Dr. Todd Nguyen" [ref=e22]: TN
+    - main [ref=e23]:
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - link "Back to inbox" [ref=e27] [cursor=pointer]:
+              - /url: /inbox
+              - img [ref=e28]
+              - text: Back to inbox
+            - heading "Quest Diagnostics — Irving Metroplex Service Center" [level=1] [ref=e30]
+            - generic [ref=e31]:
+              - generic [ref=e32]: FAX-20260423-002
+              - generic [ref=e33]: ·
+              - generic [ref=e34]: 2 pages
+              - generic [ref=e35]: ·
+              - generic [ref=e36]: Pantego clinic
+              - generic [ref=e37]: ·
+              - generic [ref=e38]: auto routed
+          - generic [ref=e40]:
+            - button "Draft patient message" [ref=e41] [cursor=pointer]:
+              - img [ref=e43]
+              - text: Draft patient message
+            - button "Send to chart" [ref=e45] [cursor=pointer]:
+              - img [ref=e47]
+              - text: Send to chart
+        - complementary [ref=e51]:
+          - img [ref=e53]
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - generic [ref=e60]: Critical result · patient not yet contacted
+              - generic [ref=e61]: "-54567s since arrival"
+            - generic [ref=e63]: Cevi SMS dispatched to on-call nurse. Log callback here to close the loop.
+          - button "Acknowledge & log callback" [ref=e64] [cursor=pointer]:
+            - img [ref=e66]
+            - text: Acknowledge & log callback
+        - generic [ref=e70]:
+          - generic [ref=e72]:
+            - generic [ref=e73]:
+              - generic [ref=e74]:
+                - img [ref=e75]
+                - generic [ref=e79]: 2-page fax
+                - generic [ref=e80]: ·
+                - generic [ref=e81]: Apr 23, 10:29 PM
+              - generic [ref=e83]: PHI · Confidential
+            - generic [ref=e84]:
+              - generic:
+                - generic: CONFIDENTIAL
+              - generic [ref=e85]:
+                - generic [ref=e86]:
+                  - generic [ref=e87]: RECEIVED AT 817-860-2704
+                  - generic [ref=e88]: Apr 23, 10:29 PM
+                - generic [ref=e89]: "QUEST DIAGNOSTICS - IRVING METROPLEX BMP / Basic Metabolic Panel Patient: RAMANATHAN, PRIYA DOB: 11/03/1985 Collection: 04/23/2026 0742 Reported: 04/23/2026 1121 Ordering: A. Harbison DO TEST RESULT UNITS REFERENCE FLAG Sodium 140 mmol/L 136-145 Potassium 6.1 mmol/L 3.5-5.1 *** CRITICAL HIGH *** Chloride 103 mmol/L 98-107 CO2 22 mmol/L 22-29 BUN 22 mg/dL 7-20 HIGH Creatinine 1.1 mg/dL 0.6-1.1 Glucose 96 mg/dL 70-99 Calcium 9.2 mg/dL 8.6-10.3 CRITICAL VALUE called to: A. Harbison (PCP) 04/23/2026 1124 Recommend repeat STAT; rule out hemolysis."
+                - generic [ref=e90]:
+                  - generic [ref=e91]: — end of page 2 —
+                  - generic [ref=e92]:
+                    - img [ref=e93]
+                    - text: Medsender inbound · 972-465-0900
+              - generic:
+                - text: RECEIVED
+                - generic: Apr 23, 2026
+          - generic [ref=e96]:
+            - generic [ref=e97]:
+              - generic [ref=e99]:
+                - generic [ref=e100]:
+                  - img [ref=e102]
+                  - generic [ref=e105]:
+                    - generic [ref=e106]: Classification
+                    - generic [ref=e107]: Cevi Pro
+                - generic [ref=e108]: critical
+              - generic [ref=e111]:
+                - generic [ref=e113]: Lab result
+                - generic [ref=e114]:
+                  - generic [ref=e115]: Confidence
+                  - generic [ref=e119]: 98%
+              - generic [ref=e120]:
+                - generic [ref=e121]: Not quite right? Re-check live with Cevi AI.
+                - button "Re-check with Cevi AI" [ref=e122] [cursor=pointer]:
+                  - img [ref=e124]
+                  - text: Re-check with Cevi AI
+            - generic [ref=e127]:
+              - generic [ref=e129]:
+                - generic [ref=e130]:
+                  - img [ref=e132]
+                  - generic [ref=e137]:
+                    - generic [ref=e138]: Patient match
+                    - generic [ref=e139]: Compared against 4,217 active patients
+                - generic [ref=e140]: Confirmed
+              - generic [ref=e142]:
+                - list [ref=e143]:
+                  - listitem [ref=e144]:
+                    - generic [ref=e145]:
+                      - img [ref=e147]
+                      - generic [ref=e150]:
+                        - generic [ref=e151]:
+                          - generic [ref=e152]: Priya Ramanathan
+                          - generic [ref=e156]: 98%
+                        - generic [ref=e157]: MRN-004233 · DOB 11/03/1985 · 40y F
+                        - generic [ref=e158]:
+                          - img [ref=e159]
+                          - text: Pantego · PCP Alicia Harbison
+                        - generic [ref=e163]: Exact name + DOB match
+                - generic [ref=e164]: Auto-confirmed on arrival (score 98% ≥ threshold 90%). Override available above.
+            - generic [ref=e165]:
+              - generic [ref=e167]:
+                - generic [ref=e168]:
+                  - img [ref=e170]
+                  - generic [ref=e175]:
+                    - generic [ref=e176]: Structured extraction
+                    - generic [ref=e178]:
+                      - img [ref=e179]
+                      - text: Cevi Pro
+                - generic [ref=e182]: JSON-validated
+              - generic [ref=e183]:
+                - generic [ref=e184]:
+                  - generic [ref=e185]: AI summary
+                  - generic [ref=e186]: Potassium 6.1 mmol/L — critical high. BUN/Cr mildly elevated. Notified on-call via SMS.
+                - generic [ref=e187]:
+                  - generic [ref=e188]:
+                    - generic [ref=e189]: Sending org
+                    - generic [ref=e190]: Quest Diagnostics
+                  - generic [ref=e191]:
+                    - generic [ref=e192]: Document date
+                    - generic [ref=e193]: 2026-04-23
+                  - generic [ref=e194]:
+                    - generic [ref=e195]: Patient on doc
+                    - generic [ref=e196]: Ramanathan, Priya
+                  - generic [ref=e197]:
+                    - generic [ref=e198]: DOB on doc
+                    - generic [ref=e199]: 11/03/1985
+                  - generic [ref=e200]:
+                    - generic [ref=e201]: Diagnoses
+                    - list [ref=e203]:
+                      - listitem [ref=e204]: · Hyperkalemia — critical value
+                  - generic [ref=e205]:
+                    - generic [ref=e206]: Recommendations
+                    - list [ref=e208]:
+                      - listitem [ref=e209]:
+                        - generic [ref=e210]: →
+                        - generic [ref=e211]: STAT repeat BMP to rule out pseudohyperkalemia
+                      - listitem [ref=e212]:
+                        - generic [ref=e213]: →
+                        - generic [ref=e214]: EKG to assess for peaked T waves / conduction changes
+                      - listitem [ref=e215]:
+                        - generic [ref=e216]: →
+                        - generic [ref=e217]: Consider ED evaluation if persistent K+ > 6.0
+                  - generic [ref=e218]:
+                    - generic [ref=e219]: Urgency
+                    - generic [ref=e220]: critical
+            - generic [ref=e221]:
+              - generic [ref=e223]:
+                - img [ref=e225]
+                - generic [ref=e231]:
+                  - generic [ref=e232]: Routing
+                  - generic [ref=e233]: Auto-applied per workflow rule · override anytime
+              - generic [ref=e234]:
+                - generic [ref=e235]:
+                  - generic [ref=e236]: Routed to
+                  - generic [ref=e237]: Alicia Harbison, DO
+                  - generic [ref=e238]: Family Practice · Pantego clinic
+                - generic [ref=e239]: "Why: Critical lab value — routed to PCP (Dr. Harbison) + SMS to on-call nurse per policy R-019."
+                - generic [ref=e240]:
+                  - text: Override
+                  - combobox [ref=e241]:
+                    - option "Todd Thang Nguyen · Arlington"
+                    - option "Alicia Harbison · Pantego" [selected]
+                    - option "Elena Varga · Grand Prairie"
+                    - option "Marcus O'Donnell · River Oaks"
+                    - option "Referral Management & Tracking (agent)"
+                    - option "Prior Authorization Processing (agent)"
+                    - option "Lab Results Delivery & Follow-Up (agent)"
+                    - option "Prescription Routing & Refill Mgmt (agent)"
+                    - option "Medical Records Request Processing (agent)"
+              - generic [ref=e242]:
+                - generic [ref=e243]: Notification will go via eClinicalWorks inbox + SMS if critical
+                - button "Send now" [ref=e244] [cursor=pointer]:
+                  - text: Send now
+                  - img [ref=e246]
+            - generic [ref=e248]:
+              - generic [ref=e250]:
+                - img [ref=e252]
+                - generic [ref=e255]:
+                  - generic [ref=e256]: Pipeline audit
+                  - generic [ref=e257]: Every step timestamped for HIPAA + SOC 2
+              - list [ref=e259]:
+                - listitem [ref=e260]:
+                  - img [ref=e263]
+                  - generic [ref=e266]:
+                    - generic [ref=e267]:
+                      - generic [ref=e268]: Received
+                      - generic [ref=e269]: Apr 23, 10:29 PM
+                    - generic [ref=e270]: Fax received from Quest Diagnostics — Irving Metroplex Service Center (2 pages)
+                - listitem [ref=e271]:
+                  - img [ref=e274]
+                  - generic [ref=e279]:
+                    - generic [ref=e280]:
+                      - generic [ref=e281]: OCR
+                      - generic [ref=e282]: Apr 23, 10:29 PM
+                    - generic [ref=e283]: OCR extracted text (Tesseract + layout analysis)
+                    - generic [ref=e285]: · 14.0s
+                - listitem [ref=e286]:
+                  - img [ref=e289]
+                  - generic [ref=e292]:
+                    - generic [ref=e293]:
+                      - generic [ref=e294]: Classified
+                      - generic [ref=e295]: Apr 23, 10:29 PM
+                    - generic [ref=e296]: Classified as lab result (98% confidence)
+                    - generic [ref=e297]:
+                      - generic [ref=e298]: Cevi Pro
+                      - generic [ref=e299]: · 1.9s
+                      - generic [ref=e300]: · 1840→320 tokens
+                - listitem [ref=e301]:
+                  - img [ref=e304]
+                  - generic [ref=e308]:
+                    - generic [ref=e309]:
+                      - generic [ref=e310]: Matched
+                      - generic [ref=e311]: Apr 23, 10:29 PM
+                    - generic [ref=e312]: Matched to patient (98% confidence)
+                - listitem [ref=e313]:
+                  - img [ref=e316]
+                  - generic [ref=e321]:
+                    - generic [ref=e322]:
+                      - generic [ref=e323]: Extracted
+                      - generic [ref=e324]: Apr 23, 10:29 PM
+                    - generic [ref=e325]: Structured fields extracted (provider, Dx, Rx, recommendations)
+                    - generic [ref=e326]:
+                      - generic [ref=e327]: Cevi Pro
+                      - generic [ref=e328]: · 2.2s
+                      - generic [ref=e329]: · 1840→680 tokens
+                - listitem [ref=e330]:
+                  - img [ref=e332]
+                  - generic [ref=e338]:
+                    - generic [ref=e339]:
+                      - generic [ref=e340]: Routed
+                      - generic [ref=e341]: Apr 23, 10:29 PM
+                    - generic [ref=e342]: Routed to P-002
+  - alert [ref=e343]

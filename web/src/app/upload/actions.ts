@@ -2,6 +2,7 @@
 
 import { getAnthropic, MODELS, MODEL_LABELS, type ModelTier } from "@/lib/claude";
 import { insertUploadedFax } from "@/lib/supabase/userFaxes";
+import { saveFaxInMemory } from "@/lib/memory-store";
 import { matchPatient } from "@/lib/matching";
 import { guardRate } from "@/lib/rate-limit";
 import type {
@@ -401,6 +402,11 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
           ]),
     ];
 
+    // Always cache in process memory so the detail page can render immediately
+    // even if Supabase isn't configured / schema isn't applied. Supabase
+    // remains authoritative when it's available.
+    saveFaxInMemory(fax, events);
+
     const insert = await insertUploadedFax({ fax, events });
 
     return {
@@ -410,6 +416,8 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
       confidence: Number(parsed.typeConfidence ?? 0.85),
       modelLabel,
       latencyMs,
+      // Report "persisted" as true if EITHER store succeeded. Memory is
+      // demo-persistent across requests in the same Lambda instance.
       persisted: insert.ok,
       persistError: insert.ok ? undefined : insert.error,
     };

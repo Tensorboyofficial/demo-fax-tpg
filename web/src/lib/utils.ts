@@ -5,6 +5,8 @@ export function cn(...inputs: ClassValue[]): string {
   return twMerge(clsx(inputs));
 }
 
+// Pin timezone to UTC for all server-rendered time strings so SSR output
+// matches client hydration — prevents React hydration mismatch (#418).
 export function formatDateTime(iso: string): string {
   const d = new Date(iso);
   return d.toLocaleString("en-US", {
@@ -13,11 +15,17 @@ export function formatDateTime(iso: string): string {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
+    timeZone: "UTC",
   });
 }
 
+// Use a fixed anchor for relative time so SSR and client agree. Seed faxes
+// were generated against 2026-04-23T14:32:00Z — using that as the "now"
+// keeps demo cards stable.
+const DEMO_NOW = new Date("2026-04-23T14:32:00Z").getTime();
+
 export function formatRelative(iso: string, nowIso?: string): string {
-  const now = nowIso ? new Date(nowIso).getTime() : Date.now();
+  const now = nowIso ? new Date(nowIso).getTime() : DEMO_NOW;
   const then = new Date(iso).getTime();
   const diff = Math.abs(now - then);
   const minutes = Math.floor(diff / 60000);
@@ -35,6 +43,7 @@ export function formatDate(iso: string): string {
     month: "short",
     day: "numeric",
     year: "numeric",
+    timeZone: "UTC",
   });
 }
 
@@ -43,15 +52,19 @@ export function formatDob(iso: string): string {
     month: "2-digit",
     day: "2-digit",
     year: "numeric",
+    timeZone: "UTC",
   });
 }
 
 export function calcAge(dobIso: string, refIso?: string): number {
+  // Anchor to the demo's "now" so server and client agree.
   const dob = new Date(dobIso);
-  const ref = refIso ? new Date(refIso) : new Date();
-  let age = ref.getFullYear() - dob.getFullYear();
-  const m = ref.getMonth() - dob.getMonth();
-  if (m < 0 || (m === 0 && ref.getDate() < dob.getDate())) age -= 1;
+  const ref = refIso
+    ? new Date(refIso)
+    : new Date("2026-04-23T14:32:00Z");
+  let age = ref.getUTCFullYear() - dob.getUTCFullYear();
+  const m = ref.getUTCMonth() - dob.getUTCMonth();
+  if (m < 0 || (m === 0 && ref.getUTCDate() < dob.getUTCDate())) age -= 1;
   return age;
 }
 

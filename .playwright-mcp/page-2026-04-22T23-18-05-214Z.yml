@@ -1,0 +1,764 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - img [ref=e8]
+          - searchbox "Search patients" [ref=e11]
+        - 'button "Switch practice (current: MDVIP Practice)" [ref=e12]':
+          - generic [ref=e14]: MDVIP Practice
+          - img [ref=e15]
+        - generic "User menu" [ref=e17]: MG
+    - generic [ref=e18]:
+      - complementary "Primary navigation" [ref=e19]:
+        - link "Cevi — go to Panel" [ref=e21] [cursor=pointer]:
+          - /url: /panel
+          - img "Cevi" [ref=e22]
+        - navigation [ref=e25]:
+          - link "Panel" [ref=e26] [cursor=pointer]:
+            - /url: /panel
+            - img [ref=e27]
+            - generic [ref=e32]: Panel
+          - link "Queue (current)" [ref=e33] [cursor=pointer]:
+            - /url: /queue
+            - img [ref=e34]
+            - generic [ref=e37]: Queue
+            - generic [ref=e38]: (current)
+          - link "Inbox" [ref=e39] [cursor=pointer]:
+            - /url: /inbox
+            - img [ref=e40]
+            - generic [ref=e43]: Inbox
+          - link "Patients" [ref=e44] [cursor=pointer]:
+            - /url: /patients
+            - img [ref=e45]
+            - generic [ref=e50]: Patients
+          - link "Physician voice" [ref=e51] [cursor=pointer]:
+            - /url: /physician-voice
+            - img [ref=e52]
+            - generic [ref=e55]: Physician voice
+          - link "Analytics" [ref=e56] [cursor=pointer]:
+            - /url: /analytics
+            - img [ref=e57]
+            - generic [ref=e59]: Analytics
+          - link "Audit" [ref=e60] [cursor=pointer]:
+            - /url: /audit
+            - img [ref=e61]
+            - generic [ref=e64]: Audit
+          - link "Settings" [ref=e65] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e66]
+            - generic [ref=e69]: Settings
+      - main [ref=e70]:
+        - generic [ref=e72]:
+          - generic [ref=e74]:
+            - heading "Queue" [level=1] [ref=e76]
+            - paragraph [ref=e77]: 22 opportunities · 12 drafted · 2 sent
+          - generic [ref=e78]:
+            - toolbar "Queue filters" [ref=e79]:
+              - button "Filter by status" [ref=e80]:
+                - generic [ref=e81]: "Status:"
+                - generic [ref=e82]: All
+                - img [ref=e83]
+              - button "Filter by trigger" [ref=e85]:
+                - generic [ref=e86]: "Trigger:"
+                - generic [ref=e87]: All
+                - img [ref=e88]
+              - button "Filter by classification" [ref=e90]:
+                - generic [ref=e91]: "Classification:"
+                - generic [ref=e92]: All
+                - img [ref=e93]
+            - toolbar "Queue actions" [ref=e95]:
+              - button "Refresh opportunities" [ref=e96]:
+                - img [ref=e97]
+                - generic [ref=e102]: Refresh opportunities
+              - button "Compose drafts" [ref=e103]:
+                - img [ref=e104]
+                - generic [ref=e107]: Compose drafts
+          - generic [ref=e108]:
+            - generic [ref=e110]:
+              - generic [ref=e111]:
+                - generic [ref=e112]:
+                  - generic [ref=e113]:
+                    - generic [ref=e114]:
+                      - generic "Sandra Jones" [ref=e115]
+                      - generic [ref=e116]: 62 · Dr. Grover
+                    - generic "Annual Wellness Visit" [ref=e117]
+                  - generic [ref=e118]:
+                    - generic [ref=e119]: High priority
+                    - generic [ref=e121]: Score 94%
+                - generic [ref=e123]:
+                  - generic [ref=e124]: S01 · AWP overdue
+                  - generic [ref=e125]: CMS G0439 · annual wellness
+                - tablist "Draft channel" [ref=e126]:
+                  - tab "SMS" [ref=e127]
+                  - tab "Email" [selected] [ref=e128]
+                  - tab "Cadence" [ref=e129]:
+                    - generic [ref=e130]:
+                      - img [ref=e131]
+                      - text: Cadence
+                - generic [ref=e135]:
+                  - generic [ref=e136]: Email draft
+                  - paragraph [ref=e137]: Your annual visit with Dr. Grover
+                  - paragraph [ref=e139]: "Sandra — it's been 18 months since your last wellness visit with Dr. Grover. The annual check helps us keep your screenings on schedule (mammogram, colonoscopy, DXA) and review your medication list before the year turns over. It's covered under your MDVIP membership. Book a 45-min slot: https://cevi.ai/b/o001."
+                - generic [ref=e140]:
+                  - generic [ref=e143]: Treatment · 88%
+                  - paragraph [ref=e145]: Last AWP 2024-09-12; 18 months overdue. Two screening services also past due (colonoscopy interval exceeded, DXA recheck due).
+              - generic [ref=e146]:
+                - button "Approve and send" [ref=e147] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e148] [cursor=pointer]
+                - button "Reject" [ref=e149] [cursor=pointer]
+                - button "Regenerate" [ref=e150] [cursor=pointer]
+            - generic [ref=e152]:
+              - generic [ref=e153]:
+                - generic [ref=e154]:
+                  - generic [ref=e155]:
+                    - generic [ref=e156]:
+                      - generic "Scott Brown" [ref=e157]
+                      - generic [ref=e158]: 56 · Dr. Sandhu
+                    - generic "Annual Wellness Visit" [ref=e159]
+                  - generic [ref=e160]:
+                    - generic [ref=e161]: High priority
+                    - generic [ref=e163]: Score 91%
+                - generic [ref=e165]:
+                  - generic [ref=e166]: S01 · AWP overdue
+                  - generic [ref=e167]: CMS G0439 · annual wellness
+                - tablist "Draft channel" [ref=e168]:
+                  - tab "SMS" [selected] [ref=e169]
+                  - tab "Email" [ref=e170]
+                  - tab "Cadence" [ref=e171]:
+                    - generic [ref=e172]:
+                      - img [ref=e173]
+                      - text: Cadence
+                - generic [ref=e177]:
+                  - generic [ref=e178]: SMS draft
+                  - paragraph [ref=e180]: "Hi Scott — Dr. Sandhu is due to see you for your annual. Fifteen months since your last visit. Pick a slot: https://cevi.ai/b/o002"
+                - generic [ref=e181]:
+                  - generic [ref=e182]:
+                    - generic [ref=e184]: Treatment · 90%
+                    - generic [ref=e186]: Needs human follow-up
+                  - paragraph [ref=e188]: Last AWP 2024-11-08 · 15 months overdue. Family hx of CAD, LDL 122 on last draw, due for BP recheck.
+              - generic [ref=e189]:
+                - button "Approve and send" [ref=e190] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e191] [cursor=pointer]
+                - button "Reject" [ref=e192] [cursor=pointer]
+                - button "Regenerate" [ref=e193] [cursor=pointer]
+            - generic [ref=e195]:
+              - generic [ref=e196]:
+                - generic [ref=e197]:
+                  - generic [ref=e198]:
+                    - generic [ref=e199]:
+                      - generic "Priya Desai" [ref=e200]
+                      - generic [ref=e201]: 49 · Dr. Patel
+                    - generic "Annual Wellness Visit" [ref=e202]
+                  - generic [ref=e204]: Score 76%
+                - generic [ref=e206]:
+                  - generic [ref=e207]: S01 · AWP overdue
+                  - generic [ref=e208]: CMS G0439 · annual wellness
+                - tablist "Draft channel" [ref=e209]:
+                  - tab "SMS" [selected] [ref=e210]
+                  - tab "Email" [ref=e211]
+                  - tab "Cadence" [ref=e212]:
+                    - generic [ref=e213]:
+                      - img [ref=e214]
+                      - text: Cadence
+                - generic [ref=e218]:
+                  - generic [ref=e219]: SMS draft
+                  - paragraph [ref=e221]: "Hi Priya — your annual visit with Dr. Patel is coming up. A 45-minute slot to refresh your plan for the year. Book: https://cevi.ai/b/o003"
+                - generic [ref=e222]:
+                  - generic [ref=e225]: Treatment · 84%
+                  - paragraph [ref=e227]: Last AWP 2024-11-14; due per MDVIP annual cadence. No active acute issues — pure preventive outreach.
+              - generic [ref=e228]:
+                - button "Approve and send" [ref=e229] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e230] [cursor=pointer]
+                - button "Reject" [ref=e231] [cursor=pointer]
+                - button "Regenerate" [ref=e232] [cursor=pointer]
+            - generic [ref=e234]:
+              - generic [ref=e235]:
+                - generic [ref=e236]:
+                  - generic [ref=e237]:
+                    - generic [ref=e238]:
+                      - generic "Harriet Winters" [ref=e239]
+                      - generic [ref=e240]: 69 · Dr. Patel
+                    - generic "Annual Wellness Visit" [ref=e241]
+                  - generic [ref=e243]: Score 71%
+                - generic [ref=e245]:
+                  - generic [ref=e246]: S01 · Annual Wellness Program approaching
+                  - generic [ref=e247]: MDVIP membership cadence + USPSTF annual preventive visit
+                - tablist "Draft channel" [ref=e248]:
+                  - tab "SMS" [ref=e249]
+                  - tab "Email" [selected] [ref=e250]
+                  - tab "Cadence" [ref=e251]:
+                    - generic [ref=e252]:
+                      - img [ref=e253]
+                      - text: Cadence
+                - generic [ref=e257]:
+                  - generic [ref=e258]: Email draft
+                  - paragraph [ref=e259]: Saving a spot for your annual
+                  - paragraph [ref=e261]: "Harriet — Dr. Patel's annual is approaching (your membership renews 03/22). We like to book 4–6 weeks ahead so you can pick the 9am or 10am slots you prefer. Reply with a window and we'll hold it. Or pick directly: https://cevi.ai/b/o004."
+                - generic [ref=e262]:
+                  - generic [ref=e265]: Care coordination · 82%
+                  - paragraph [ref=e267]: AWP due 2026-03-22; 5 weeks out. Harriet typically books morning slots — offering those first.
+              - generic [ref=e268]:
+                - button "Approve and send" [ref=e269] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e270] [cursor=pointer]
+                - button "Reject" [ref=e271] [cursor=pointer]
+                - button "Regenerate" [ref=e272] [cursor=pointer]
+            - generic [ref=e274]:
+              - generic [ref=e275]:
+                - generic [ref=e276]:
+                  - generic [ref=e277]:
+                    - generic [ref=e278]:
+                      - generic "Henry Whittaker" [ref=e279]
+                      - generic [ref=e280]: 68 · Dr. Grover
+                    - generic "Annual Wellness Visit" [ref=e281]
+                  - generic [ref=e283]: Score 68%
+                - generic [ref=e285]:
+                  - generic [ref=e286]: S01 · Annual Wellness Program approaching
+                  - generic [ref=e287]: MDVIP membership cadence + USPSTF annual preventive visit
+                - tablist "Draft channel" [ref=e288]:
+                  - tab "SMS" [selected] [ref=e289]
+                  - tab "Email" [ref=e290]
+                  - tab "Cadence" [ref=e291]:
+                    - generic [ref=e292]:
+                      - img [ref=e293]
+                      - text: Cadence
+                - generic [ref=e297]:
+                  - generic [ref=e298]: SMS draft
+                  - paragraph [ref=e300]: "Hi Henry — heads up, Dr. Grover's annual is due 01/14. We can hold a Tuesday 9am if that still works. Book: https://cevi.ai/b/o005"
+                - generic [ref=e301]:
+                  - generic [ref=e304]: Care coordination · 86%
+                  - paragraph [ref=e306]: Established Tuesday-9am preference; 4 weeks until renewal. Low-touch reminder.
+              - generic [ref=e307]:
+                - button "Approve and send" [ref=e308] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e309] [cursor=pointer]
+                - button "Reject" [ref=e310] [cursor=pointer]
+                - button "Regenerate" [ref=e311] [cursor=pointer]
+            - generic [ref=e313]:
+              - generic [ref=e314]:
+                - generic [ref=e315]:
+                  - generic [ref=e316]:
+                    - generic [ref=e317]:
+                      - generic "Harold Chen" [ref=e318]
+                      - generic [ref=e319]: 70 · Dr. Patel
+                    - generic "Cardiology follow-up" [ref=e320]
+                  - generic [ref=e321]:
+                    - generic [ref=e322]: Sent
+                    - generic [ref=e324]: High priority
+                    - generic [ref=e326]: Score 93%
+                - generic [ref=e328]:
+                  - generic [ref=e329]: S07 · Hypertension follow-up overdue
+                  - generic [ref=e330]: JNC-8 + AHA/ACC 2017 hypertension
+                - tablist "Draft channel" [ref=e331]:
+                  - tab "SMS" [ref=e332]
+                  - tab "Email" [selected] [ref=e333]
+                  - tab "Cadence" [ref=e334]:
+                    - generic [ref=e335]:
+                      - img [ref=e336]
+                      - text: Cadence
+                - generic [ref=e340]:
+                  - generic [ref=e341]: Email draft
+                  - paragraph [ref=e342]: Cardiology follow-up — pending from August
+                  - paragraph [ref=e344]: "Harold — your cardiology referral from the August visit (for the exercise-induced chest tightness) is still open. Dr. Alston has Thursday afternoons. It's a 30-minute visit plus a stress echo if indicated. Book: https://cevi.ai/b/o006."
+                - generic [ref=e345]:
+                  - generic [ref=e348]: Treatment · 96%
+                  - paragraph [ref=e350]: "Referral placed 2025-08-12; 8 months unscheduled. Reason: exertional chest discomfort, stable angina workup pending."
+              - generic [ref=e351]:
+                - button "Approve and send" [disabled]:
+                  - generic:
+                    - img
+                    - text: Sent
+                - button "Edit" [disabled]
+                - button "Reject" [disabled]
+                - button "Regenerate" [disabled]
+            - generic [ref=e353]:
+              - generic [ref=e354]:
+                - generic [ref=e355]:
+                  - generic [ref=e356]:
+                    - generic [ref=e357]:
+                      - generic "Magnus Halvorsen" [ref=e358]
+                      - generic [ref=e359]: 63 · Dr. Grover
+                    - generic "Dermatology referral" [ref=e360]
+                  - generic [ref=e362]: Score 79%
+                - generic [ref=e364]:
+                  - generic [ref=e365]: S02 · Wellness Program Plus candidate
+                  - generic [ref=e366]: USPSTF enhanced preventive (MDVIP Plus)
+                - tablist "Draft channel" [ref=e367]:
+                  - tab "SMS" [ref=e368]
+                  - tab "Email" [selected] [ref=e369]
+                  - tab "Cadence" [ref=e370]:
+                    - generic [ref=e371]:
+                      - img [ref=e372]
+                      - text: Cadence
+                - generic [ref=e376]:
+                  - generic [ref=e377]: Email draft
+                  - paragraph [ref=e378]: Derm referral — still waiting for an appointment
+                  - paragraph [ref=e380]: "Magnus — Dr. Grover's referral to Dr. Kapur's office for the shoulder lesion is still open. It's a short visit, and the referral notes say they want to take a look before the end of the quarter. Book: https://cevi.ai/b/o008."
+                - generic [ref=e381]:
+                  - generic [ref=e384]: Treatment · 91%
+                  - paragraph [ref=e386]: "Dermatology referral 2024-07-19; 9 months pending. Note: atypical-appearing shoulder lesion, biopsy candidate."
+              - generic [ref=e387]:
+                - button "Approve and send" [ref=e388] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e389] [cursor=pointer]
+                - button "Reject" [ref=e390] [cursor=pointer]
+                - button "Regenerate" [ref=e391] [cursor=pointer]
+            - generic [ref=e393]:
+              - generic [ref=e394]:
+                - generic [ref=e395]:
+                  - generic [ref=e396]:
+                    - generic [ref=e397]:
+                      - generic "Rajesh Mehta" [ref=e398]
+                      - generic [ref=e399]: 58 · Dr. Patel
+                    - generic "Diabetes management recheck" [ref=e400]
+                  - generic [ref=e402]: Score 81%
+                - generic [ref=e404]:
+                  - generic [ref=e405]: S08 · Diabetes management cadence overdue
+                  - generic [ref=e406]: ADA Standards of Care 2024 (A1C cadence)
+                - tablist "Draft channel" [ref=e407]:
+                  - tab "SMS" [selected] [ref=e408]
+                  - tab "Email" [ref=e409]
+                  - tab "Cadence" [ref=e410]:
+                    - generic [ref=e411]:
+                      - img [ref=e412]
+                      - text: Cadence
+                - generic [ref=e416]:
+                  - generic [ref=e417]: SMS draft
+                  - paragraph [ref=e419]: "Hi Rajesh — your last HbA1c was in May and Dr. Patel likes to recheck every 6 months with your metformin. Quick lab + a 15-min visit. Book: https://cevi.ai/b/o009"
+                - generic [ref=e420]:
+                  - generic [ref=e423]: Treatment · 96%
+                  - paragraph [ref=e425]: T2DM on metformin 1000mg BID; last HbA1c 6.8 on 2025-05-10; ADA recommends q6-month recheck when not at goal or newly adjusted.
+              - generic [ref=e426]:
+                - button "Approve and send" [ref=e427] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e428] [cursor=pointer]
+                - button "Reject" [ref=e429] [cursor=pointer]
+                - button "Regenerate" [ref=e430] [cursor=pointer]
+            - generic [ref=e432]:
+              - generic [ref=e433]:
+                - generic [ref=e434]:
+                  - generic [ref=e435]:
+                    - generic [ref=e436]:
+                      - generic "Marisol Alvarez" [ref=e437]
+                      - generic [ref=e438]: 60 · Dr. Patel
+                    - generic "Lipid panel + cardiovascular recheck" [ref=e439]
+                  - generic [ref=e440]:
+                    - generic [ref=e441]: Sent
+                    - generic [ref=e443]: Score 72%
+                - generic [ref=e445]:
+                  - generic [ref=e446]: S09 · Lipid management follow-up
+                  - generic [ref=e447]: AHA/ACC 2018 Cholesterol Guidelines
+                - tablist "Draft channel" [ref=e448]:
+                  - tab "SMS" [ref=e449]
+                  - tab "Email" [selected] [ref=e450]
+                  - tab "Cadence" [ref=e451]:
+                    - generic [ref=e452]:
+                      - img [ref=e453]
+                      - text: Cadence
+                - generic [ref=e457]:
+                  - generic [ref=e458]: Email draft
+                  - paragraph [ref=e459]: Lipid panel recheck
+                  - paragraph [ref=e461]: "Marisol — your most recent lipid panel was September 2024, with LDL 138 on rosuvastatin 10mg. Dr. Patel wanted to recheck to see whether we're trending into the sub-100 target or need to adjust. The draw is at your usual lab; the visit is 15 minutes after results. Book: https://cevi.ai/b/o010."
+                - generic [ref=e462]:
+                  - generic [ref=e465]: Treatment · 93%
+                  - paragraph [ref=e467]: Hyperlipidemia on rosuvastatin 10mg; last LDL 138 on 2024-09-22; annual recheck due, titration candidate if > 130.
+              - generic [ref=e468]:
+                - button "Approve and send" [disabled]:
+                  - generic:
+                    - img
+                    - text: Sent
+                - button "Edit" [disabled]
+                - button "Reject" [disabled]
+                - button "Regenerate" [disabled]
+            - generic [ref=e470]:
+              - generic [ref=e471]:
+                - generic [ref=e472]:
+                  - generic [ref=e473]:
+                    - generic [ref=e474]:
+                      - generic "Thomas Langdon" [ref=e475]
+                      - generic [ref=e476]: 62 · Dr. Sandhu
+                    - generic "CKD recheck · eGFR + albumin" [ref=e477]
+                  - generic [ref=e479]: Score 78%
+                - generic [ref=e481]:
+                  - generic [ref=e482]: S08 · Chronic disease recheck — eGFR cadence
+                  - generic [ref=e483]: ADA Standards of Care 2024 + KDIGO 2024
+                - tablist "Draft channel" [ref=e484]:
+                  - tab "SMS" [selected] [ref=e485]
+                  - tab "Email" [ref=e486]
+                  - tab "Cadence" [ref=e487]:
+                    - generic [ref=e488]:
+                      - img [ref=e489]
+                      - text: Cadence
+                - generic [ref=e493]:
+                  - generic [ref=e494]: SMS draft
+                  - paragraph [ref=e496]: "Hi Thomas — your eGFR is due for a recheck. Dr. Sandhu wants to keep an eye on the lisinopril dose. Quick draw: https://cevi.ai/b/o011"
+                - generic [ref=e497]:
+                  - generic [ref=e500]: Treatment · 92%
+                  - paragraph [ref=e502]: CKD Stage 2; last eGFR 64 (2025-08-27); on lisinopril 20mg; q6-month KDIGO cadence now 2 months past due.
+              - generic [ref=e503]:
+                - button "Approve and send" [ref=e504] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e505] [cursor=pointer]
+                - button "Reject" [ref=e506] [cursor=pointer]
+                - button "Regenerate" [ref=e507] [cursor=pointer]
+            - generic [ref=e509]:
+              - generic [ref=e510]:
+                - generic [ref=e511]:
+                  - generic [ref=e512]:
+                    - generic [ref=e513]:
+                      - generic "Michael Chen" [ref=e514]
+                      - generic [ref=e515]: 52 · Dr. Patel
+                    - generic "Prediabetes counseling + repeat A1c" [ref=e516]
+                  - generic [ref=e517]:
+                    - generic [ref=e518]: High priority
+                    - generic [ref=e520]: Score 89%
+                - generic [ref=e522]:
+                  - generic [ref=e523]: S08 · Diabetes management cadence overdue
+                  - generic [ref=e524]: ADA Standards of Care 2024 (A1C cadence)
+                - tablist "Draft channel" [ref=e525]:
+                  - tab "SMS" [selected] [ref=e526]
+                  - tab "Email" [ref=e527]
+                  - tab "Cadence" [ref=e528]:
+                    - generic [ref=e529]:
+                      - img [ref=e530]
+                      - text: Cadence
+                - generic [ref=e534]:
+                  - generic [ref=e535]: SMS draft
+                  - paragraph [ref=e537]: "Hi Michael — your August A1c came back 6.2, just into prediabetic range. Dr. Patel wants to recheck in 3 months. Book: https://cevi.ai/b/o013"
+                - generic [ref=e538]:
+                  - generic [ref=e541]: Treatment · 97%
+                  - paragraph [ref=e543]: A1c 6.2 on 2025-08-22 flagged 'prediabetes'; no follow-up on the chart. ADA recommends 3-month repeat + lifestyle counseling.
+              - generic [ref=e544]:
+                - button "Approve and send" [ref=e545] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e546] [cursor=pointer]
+                - button "Reject" [ref=e547] [cursor=pointer]
+                - button "Regenerate" [ref=e548] [cursor=pointer]
+            - generic [ref=e550]:
+              - generic [ref=e551]:
+                - generic [ref=e552]:
+                  - generic [ref=e553]:
+                    - generic [ref=e554]:
+                      - generic "Frank Dubrowski" [ref=e555]
+                      - generic [ref=e556]: 72 · Dr. Patel
+                    - generic "Lipid panel + cardiovascular recheck" [ref=e557]
+                  - generic [ref=e558]:
+                    - generic [ref=e559]: High priority
+                    - generic [ref=e561]: Score 92%
+                - generic [ref=e563]:
+                  - generic [ref=e564]: S09 · Lipid management follow-up
+                  - generic [ref=e565]: AHA/ACC 2018 Cholesterol Guidelines
+                - tablist "Draft channel" [ref=e566]:
+                  - tab "SMS" [ref=e567]
+                  - tab "Email" [selected] [ref=e568]
+                  - tab "Cadence" [ref=e569]:
+                    - generic [ref=e570]:
+                      - img [ref=e571]
+                      - text: Cadence
+                - generic [ref=e575]:
+                  - generic [ref=e576]: Email draft
+                  - paragraph [ref=e577]: Lipid result follow-up — elevated LDL
+                  - paragraph [ref=e579]: "Frank — your August LDL was 168 on atorvastatin 20mg. Dr. Patel wants to talk through dose adjustment options in a 20-minute visit. No lab needed before the visit; we'll recheck after any change. Book: https://cevi.ai/b/o014."
+                - generic [ref=e580]:
+                  - generic [ref=e583]: Treatment · 96%
+                  - paragraph [ref=e585]: LDL 168 on 2025-08-05 with documented CAD; on atorvastatin 20mg; no f/u scheduled. Titration candidate per AHA.
+              - generic [ref=e586]:
+                - button "Approve and send" [ref=e587] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e588] [cursor=pointer]
+                - button "Reject" [ref=e589] [cursor=pointer]
+                - button "Regenerate" [ref=e590] [cursor=pointer]
+            - generic [ref=e592]:
+              - generic [ref=e593]:
+                - generic [ref=e594]:
+                  - generic [ref=e595]:
+                    - generic [ref=e596]:
+                      - generic "Isaac Greenberg" [ref=e597]
+                      - generic [ref=e598]: 65 · Dr. Grover
+                    - generic "Heart-failure follow-up" [ref=e599]
+                  - generic [ref=e600]:
+                    - generic [ref=e601]: High priority
+                    - generic [ref=e603]: Score 88%
+                - generic [ref=e605]:
+                  - generic [ref=e606]: S07 · Hypertension follow-up overdue
+                  - generic [ref=e607]: JNC-8 + AHA/ACC 2017 hypertension
+                - tablist "Draft channel" [ref=e608]:
+                  - tab "SMS" [ref=e609]
+                  - tab "Email" [selected] [ref=e610]
+                  - tab "Cadence" [ref=e611]:
+                    - generic [ref=e612]:
+                      - img [ref=e613]
+                      - text: Cadence
+                - generic [ref=e617]:
+                  - generic [ref=e618]: Email draft
+                  - paragraph [ref=e619]: Heart-failure follow-up — Dr. Grover
+                  - paragraph [ref=e621]: "Isaac — Dr. Grover wants to keep the 3-month cadence on your HF follow-ups. We'll draw a BNP first, then do a 20-minute visit to review symptoms, weight trend, and meds. Book: https://cevi.ai/b/o017."
+                - generic [ref=e622]:
+                  - generic [ref=e625]: Treatment · 95%
+                  - paragraph [ref=e627]: HFrEF EF 42%; on sacubitril-valsartan + metoprolol; last BNP 340 (2025-09-01); q3-month cadence now due.
+              - generic [ref=e628]:
+                - button "Approve and send" [ref=e629] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e630] [cursor=pointer]
+                - button "Reject" [ref=e631] [cursor=pointer]
+                - button "Regenerate" [ref=e632] [cursor=pointer]
+            - generic [ref=e634]:
+              - generic [ref=e635]:
+                - generic [ref=e636]:
+                  - generic [ref=e637]:
+                    - generic [ref=e638]:
+                      - generic "Rosalind Cartwright" [ref=e639]
+                      - generic [ref=e640]: 61 · Dr. Patel
+                    - generic "CKD recheck · eGFR + albumin" [ref=e641]
+                  - generic [ref=e643]: Score 82%
+                - generic [ref=e645]:
+                  - generic [ref=e646]: S08 · Diabetes management cadence overdue
+                  - generic [ref=e647]: ADA Standards of Care 2024 + KDIGO 2024
+                - tablist "Draft channel" [ref=e648]:
+                  - tab "SMS" [selected] [ref=e649]
+                  - tab "Email" [ref=e650]
+                  - tab "Cadence" [ref=e651]:
+                    - generic [ref=e652]:
+                      - img [ref=e653]
+                      - text: Cadence
+                - generic [ref=e657]:
+                  - generic [ref=e658]: SMS draft
+                  - paragraph [ref=e660]: "Hi Rosalind — it's been 7 months since your last kidney check. Dr. Patel wants a quick BMP + albumin. Book: https://cevi.ai/b/o018"
+                - generic [ref=e661]:
+                  - generic [ref=e664]: Treatment · 91%
+                  - paragraph [ref=e666]: CKD Stage 3a; eGFR 52 on 2024-11-04; q6-month KDIGO cadence past due.
+              - generic [ref=e667]:
+                - button "Approve and send" [ref=e668] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e669] [cursor=pointer]
+                - button "Reject" [ref=e670] [cursor=pointer]
+                - button "Regenerate" [ref=e671] [cursor=pointer]
+            - generic [ref=e673]:
+              - generic [ref=e674]:
+                - generic [ref=e675]:
+                  - generic [ref=e676]:
+                    - generic [ref=e677]:
+                      - generic "Daphne Carrington" [ref=e678]
+                      - generic [ref=e679]: 55 · Dr. Grover
+                    - generic "MDVIP Women's Health Program" [ref=e680]
+                  - generic [ref=e682]: Score 74%
+                - generic [ref=e684]:
+                  - generic [ref=e685]: S03 · Women's Health Program candidate
+                  - generic [ref=e686]: USPSTF preventive + ACOG Well-Woman Visit
+                - tablist "Draft channel" [ref=e687]:
+                  - tab "SMS" [ref=e688]
+                  - tab "Email" [selected] [ref=e689]
+                  - tab "Cadence" [ref=e690]:
+                    - generic [ref=e691]:
+                      - img [ref=e692]
+                      - text: Cadence
+                - generic [ref=e696]:
+                  - generic [ref=e697]: Email draft
+                  - paragraph [ref=e698]: An option from Dr. Grover — Women's Health
+                  - paragraph [ref=e700]: "Daphne — Dr. Grover's office wanted to share the Women's Health program. At 55, it's a common add-on for MDVIP members: a 45-minute visit that pairs a DXA baseline, a hormone screen, and a plan for the mammogram you're due for. Opt-in, and we can split it across two visits if easier. Learn more: https://cevi.ai/b/o019."
+                - generic [ref=e701]:
+                  - generic [ref=e704]: Marketing · 81%
+                  - paragraph [ref=e706]: No DXA on file; mammogram 14 months overdue; premenopausal. Marketing-classified — soft invite only.
+              - generic [ref=e707]:
+                - button "Approve and send" [ref=e708] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e709] [cursor=pointer]
+                - button "Reject" [ref=e710] [cursor=pointer]
+                - button "Regenerate" [ref=e711] [cursor=pointer]
+            - generic [ref=e713]:
+              - generic [ref=e714]:
+                - generic [ref=e715]:
+                  - generic [ref=e716]:
+                    - generic [ref=e717]:
+                      - generic "Juliette Laurent" [ref=e718]
+                      - generic [ref=e719]: 43 · Dr. Patel
+                    - generic "MDVIP Women's Health Program" [ref=e720]
+                  - generic [ref=e722]: Score 69%
+                - generic [ref=e724]:
+                  - generic [ref=e725]: S03 · Women's Health Program candidate
+                  - generic [ref=e726]: USPSTF preventive + ACOG Well-Woman Visit
+                - tablist "Draft channel" [ref=e727]:
+                  - tab "SMS" [selected] [ref=e728]
+                  - tab "Email" [ref=e729]
+                  - tab "Cadence" [ref=e730]:
+                    - generic [ref=e731]:
+                      - img [ref=e732]
+                      - text: Cadence
+                - generic [ref=e736]:
+                  - generic [ref=e737]: SMS draft
+                  - paragraph [ref=e739]: "Hi Juliette — Dr. Patel thought you might be interested in the Women's Health program. Hormone panel + sleep screen + body comp. Learn more: https://cevi.ai/b/o020"
+                - generic [ref=e740]:
+                  - generic [ref=e743]: Marketing · 79%
+                  - paragraph [ref=e745]: Age-appropriate Women's Health candidate; asymptomatic. Marketing pathway — not urgent clinical outreach.
+              - generic [ref=e746]:
+                - button "Approve and send" [ref=e747] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e748] [cursor=pointer]
+                - button "Reject" [ref=e749] [cursor=pointer]
+                - button "Regenerate" [ref=e750] [cursor=pointer]
+            - generic [ref=e752]:
+              - generic [ref=e753]:
+                - generic [ref=e754]:
+                  - generic [ref=e755]:
+                    - generic [ref=e756]:
+                      - generic "Michael Chen" [ref=e757]
+                      - generic [ref=e758]: 52 · Dr. Patel
+                    - generic "MDVIP Men's Health Program" [ref=e759]
+                  - generic [ref=e760]:
+                    - generic [ref=e761]: High priority
+                    - generic [ref=e763]: Score 87%
+                - generic [ref=e765]:
+                  - generic [ref=e766]: S04 · Men's Health Program candidate
+                  - generic [ref=e767]: Endocrine Society 2018 testosterone + USPSTF preventive
+                - tablist "Draft channel" [ref=e768]:
+                  - tab "SMS" [selected] [ref=e769]
+                  - tab "Email" [ref=e770]
+                  - tab "Cadence" [ref=e771]:
+                    - generic [ref=e772]:
+                      - img [ref=e773]
+                      - text: Cadence
+                - generic [ref=e777]:
+                  - generic [ref=e778]: SMS draft
+                  - paragraph [ref=e780]: "Hi Michael — your total T from August was 268 ng/dL, below Dr. Patel's target for your age. She wanted to check in before the quarter closes. Pick a 20-min slot: https://cevi.ai/b/o021"
+                - generic [ref=e781]:
+                  - generic [ref=e784]: Care coordination · 92%
+                  - paragraph [ref=e786]: Low morning T + symptom cluster; age 52; no T-recheck in 9 months; Men's Health indication clean (no prostate ca, no sleep apnea on chart).
+              - generic [ref=e787]:
+                - button "Approve and send" [ref=e788] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e789] [cursor=pointer]
+                - button "Reject" [ref=e790] [cursor=pointer]
+                - button "Regenerate" [ref=e791] [cursor=pointer]
+            - generic [ref=e793]:
+              - generic [ref=e794]:
+                - generic [ref=e795]:
+                  - generic [ref=e796]:
+                    - generic [ref=e797]:
+                      - generic "William Okafor" [ref=e798]
+                      - generic [ref=e799]: 55 · Dr. Grover
+                    - generic "MDVIP Men's Health Program" [ref=e800]
+                  - generic [ref=e802]: Score 68%
+                - generic [ref=e804]:
+                  - generic [ref=e805]: S04 · Men's Health Program candidate
+                  - generic [ref=e806]: Endocrine Society 2018 testosterone + USPSTF preventive
+                - tablist "Draft channel" [ref=e807]:
+                  - tab "SMS" [ref=e808]
+                  - tab "Email" [selected] [ref=e809]
+                  - tab "Cadence" [ref=e810]:
+                    - generic [ref=e811]:
+                      - img [ref=e812]
+                      - text: Cadence
+                - generic [ref=e816]:
+                  - generic [ref=e817]: Email draft
+                  - paragraph [ref=e818]: An option worth considering — Men's Health
+                  - paragraph [ref=e820]: "William — Dr. Grover's office wanted to share the Men's Health program as an option. At 55 it's a common add-on for MDVIP members: a single 45-minute visit pairs a hormone panel, a screening sleep assessment, and body composition. It's opt-in, and it's something we can stagger across a couple of visits if that's easier. Read more / book: https://cevi.ai/b/o022."
+                - generic [ref=e821]:
+                  - generic [ref=e824]: Marketing · 78%
+                  - paragraph [ref=e826]: No labs suggestive of hypogonadism on file; asymptomatic. Classified marketing — treat as soft invite, not urgent clinical outreach.
+              - generic [ref=e827]:
+                - button "Approve and send" [ref=e828] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e829] [cursor=pointer]
+                - button "Reject" [ref=e830] [cursor=pointer]
+                - button "Regenerate" [ref=e831] [cursor=pointer]
+            - generic [ref=e833]:
+              - generic [ref=e834]:
+                - generic [ref=e835]:
+                  - generic [ref=e836]:
+                    - generic [ref=e837]:
+                      - generic "Charles Abernathy" [ref=e838]
+                      - generic [ref=e839]: 70 · Dr. Grover
+                    - generic "Coronary calcium + LDCT combined visit" [ref=e840]
+                  - generic [ref=e841]:
+                    - generic [ref=e842]: High priority
+                    - generic [ref=e844]: Score 86%
+                - generic [ref=e846]:
+                  - generic [ref=e847]: S06 · Prenuvo whole-body MRI candidate
+                  - generic [ref=e848]: NCCN + ACR appropriateness criteria (whole-body MRI)
+                - status [ref=e849]:
+                  - img [ref=e851]
+                  - paragraph [ref=e854]: Not yet composed
+                  - paragraph [ref=e855]: Click Compose draftsto generate an SMS + email pair grounded in this patient's chart.
+                - paragraph [ref=e856]: 70M, 28 pack-year history, quit 2019; T9 eligible per USPSTF and ACC/AHA. Requires clinician-initiated pre-authoring per practice settings.
+              - generic [ref=e857]:
+                - button "Approve and send — compose a draft first" [disabled]: Approve & Send
+                - button "Edit" [disabled]
+                - button "Reject" [ref=e858] [cursor=pointer]
+                - button "Regenerate" [disabled]
+            - generic [ref=e860]:
+              - generic [ref=e861]:
+                - generic [ref=e862]:
+                  - generic [ref=e863]:
+                    - generic [ref=e864]:
+                      - generic "Margot Verlander" [ref=e865]
+                      - generic [ref=e866]: 68 · Dr. Grover
+                    - generic "Multi-cancer early-detection screen" [ref=e867]
+                  - generic [ref=e869]: Score 79%
+                - generic [ref=e871]:
+                  - generic [ref=e872]: S05 · Galleri MCED candidate
+                  - generic [ref=e873]: USPSTF + NCCN multi-cancer early detection (Galleri MCED)
+                - status [ref=e874]:
+                  - img [ref=e876]
+                  - paragraph [ref=e879]: Not yet composed
+                  - paragraph [ref=e880]: Click Compose draftsto generate an SMS + email pair grounded in this patient's chart.
+                - paragraph [ref=e881]: 68F, first-degree relative breast ca. NCCN eligible. Per T9 policy requires clinician authoring — currently pending Dr. Grover review.
+              - generic [ref=e882]:
+                - button "Approve and send — compose a draft first" [disabled]: Approve & Send
+                - button "Edit" [disabled]
+                - button "Reject" [ref=e883] [cursor=pointer]
+                - button "Regenerate" [disabled]
+            - generic [ref=e885]:
+              - generic [ref=e886]:
+                - generic [ref=e887]:
+                  - generic [ref=e888]:
+                    - generic [ref=e889]:
+                      - generic "Leonora Pratt" [ref=e890]
+                      - generic [ref=e891]: 68 · Dr. Patel
+                    - generic "Member check-in" [ref=e892]
+                  - generic [ref=e894]: Score 73%
+                - generic [ref=e896]:
+                  - generic [ref=e897]: S01 · Annual Wellness Program overdue (renewal risk)
+                  - generic [ref=e898]: MDVIP membership cadence + USPSTF annual preventive visit
+                - tablist "Draft channel" [ref=e899]:
+                  - tab "SMS" [ref=e900]
+                  - tab "Email" [selected] [ref=e901]
+                  - tab "Cadence" [ref=e902]:
+                    - generic [ref=e903]:
+                      - img [ref=e904]
+                      - text: Cadence
+                - generic [ref=e908]:
+                  - generic [ref=e909]: Email draft
+                  - paragraph [ref=e910]: A check-in from Dr. Patel's office
+                  - paragraph [ref=e912]: "Leonora — Dr. Patel wanted to send a quick check-in. It's been 18 months since your last visit, and she just wanted to make sure nothing's getting in the way of booking. Happy to schedule a 10-minute call or a full visit — whichever is easier. Book: https://cevi.ai/b/o027 or reply and we'll sort it."
+                - generic [ref=e913]:
+                  - generic [ref=e916]: Care coordination · 77%
+                  - paragraph [ref=e918]: No visits in 18 months; portal logins trailing off; renewal in 60 days. Pre-renewal soft touch.
+              - generic [ref=e919]:
+                - button "Approve and send" [ref=e920] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e921] [cursor=pointer]
+                - button "Reject" [ref=e922] [cursor=pointer]
+                - button "Regenerate" [ref=e923] [cursor=pointer]
+            - generic [ref=e925]:
+              - generic [ref=e926]:
+                - generic [ref=e927]:
+                  - generic [ref=e928]:
+                    - generic [ref=e929]:
+                      - generic "Percival Ashcroft" [ref=e930]
+                      - generic [ref=e931]: 72 · Dr. Patel
+                    - generic "Member check-in" [ref=e932]
+                  - generic [ref=e934]: Score 71%
+                - generic [ref=e936]:
+                  - generic [ref=e937]: S01 · Annual Wellness Program overdue (renewal risk)
+                  - generic [ref=e938]: MDVIP membership cadence + USPSTF annual preventive visit
+                - tablist "Draft channel" [ref=e939]:
+                  - tab "SMS" [ref=e940]
+                  - tab "Email" [selected] [ref=e941]
+                  - tab "Cadence" [ref=e942]:
+                    - generic [ref=e943]:
+                      - img [ref=e944]
+                      - text: Cadence
+                - generic [ref=e948]:
+                  - generic [ref=e949]: Email draft
+                  - paragraph [ref=e950]: Dr. Patel checking in
+                  - paragraph [ref=e952]: "Percival — Dr. Patel wanted to send a quick note. It's been a stretch since your last visit and she's aware the schedule hasn't been easy to navigate. If there's a day and time that would work — even a phone call — we'll set it up. Reply here, or pick a slot: https://cevi.ai/b/o028."
+                - generic [ref=e953]:
+                  - generic [ref=e954]:
+                    - generic [ref=e956]: Care coordination · 82%
+                    - generic [ref=e958]: Needs human follow-up
+                  - paragraph [ref=e960]: No visits since 2024-09-04; portal login dormant; membership expires 2025-10-16. Retention-critical.
+              - generic [ref=e961]:
+                - button "Approve and send" [ref=e962] [cursor=pointer]: Approve & Send
+                - button "Edit" [ref=e963] [cursor=pointer]
+                - button "Reject" [ref=e964] [cursor=pointer]
+                - button "Regenerate" [ref=e965] [cursor=pointer]
+  - alert [ref=e966]

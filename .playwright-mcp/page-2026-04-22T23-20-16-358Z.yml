@@ -1,0 +1,116 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "Cevi home" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img "Cevi" [ref=e6]
+          - generic [ref=e10]:
+            - text: Transcend Medical
+            - text: Group
+        - link "Audit" [ref=e11] [cursor=pointer]:
+          - /url: /audit
+          - img [ref=e12]
+          - text: Audit
+        - link "Upload a fax" [ref=e15] [cursor=pointer]:
+          - /url: /upload
+          - img [ref=e16]
+          - text: Upload a fax
+        - generic [ref=e20]: eCW connected
+        - generic "Dr. Todd Nguyen" [ref=e22]: TN
+    - main [ref=e23]:
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - generic [ref=e26]: Upload a fax
+          - heading "Drop your own fax. Watch Cevi handle it." [level=1] [ref=e27]
+          - paragraph [ref=e28]: Upload a PDF, image, or paste OCR text. Cevi AI classifies the document, matches the patient against your directory, extracts diagnoses and medications, and routes it through the right workflow — all in under ten seconds. The result lands in your inbox, persisted in Supabase, with a full audit trail.
+        - generic [ref=e29]:
+          - generic [ref=e30]:
+            - generic [ref=e32]:
+              - button "A fax Lab, consult, referral, prior auth, records, Rx refill" [ref=e33]:
+                - generic [ref=e34]:
+                  - img [ref=e35]
+                  - generic [ref=e38]: A fax
+                - generic [ref=e39]: Lab, consult, referral, prior auth, records, Rx refill
+              - button "A paper EOB New Saves your biller from hand-keying each claim line" [ref=e40]:
+                - generic [ref=e41]:
+                  - img [ref=e42]
+                  - generic [ref=e45]: A paper EOB
+                  - generic [ref=e46]: New
+                - generic [ref=e47]: Saves your biller from hand-keying each claim line
+            - generic [ref=e48]:
+              - button "Paste OCR" [ref=e49]:
+                - img [ref=e50]
+                - text: Paste OCR
+              - button "Upload PDF / image" [ref=e55]:
+                - img [ref=e56]
+                - text: Upload PDF / image
+            - generic [ref=e59]:
+              - generic [ref=e62]:
+                - img [ref=e64]
+                - generic [ref=e69]:
+                  - generic [ref=e70]: Paste OCR text
+                  - generic [ref=e71]: For faxes already OCR'd by your fax provider
+              - textbox "Paste the fax OCR text here…" [ref=e73]
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - text: Sender hint (optional)
+                - textbox "e.g. Baylor Cardiology, BCBS PA" [ref=e77]
+              - generic [ref=e78]:
+                - text: Receiving clinic
+                - combobox [ref=e79]:
+                  - option "Arlington" [selected]
+                  - option "Pantego"
+                  - option "Grand Prairie"
+                  - option "River Oaks"
+            - generic [ref=e80]:
+              - generic [ref=e81]: Cevi tags it and drops it in your inbox in under ten seconds.
+              - button "Tag and route" [disabled]:
+                - text: Tag and route
+                - generic:
+                  - img
+          - complementary [ref=e82]:
+            - generic [ref=e83]:
+              - generic [ref=e85]:
+                - img [ref=e87]
+                - generic [ref=e90]:
+                  - generic [ref=e91]: Try a sample
+                  - generic [ref=e92]: Synthetic — no real PHI
+              - generic [ref=e93]:
+                - button "Critical lab result Quest BMP · K+ 6.4 critical high" [ref=e94]:
+                  - generic [ref=e95]:
+                    - img [ref=e97]
+                    - generic [ref=e99]:
+                      - generic [ref=e100]: Critical lab result
+                      - generic [ref=e101]: Quest BMP · K+ 6.4 critical high
+                - button "Inbound referral Orthopedic post-op PCP co-management" [ref=e102]:
+                  - generic [ref=e103]:
+                    - img [ref=e105]
+                    - generic [ref=e109]:
+                      - generic [ref=e110]: Inbound referral
+                      - generic [ref=e111]: Orthopedic post-op PCP co-management
+            - generic [ref=e112]:
+              - generic [ref=e115]: What happens next
+              - list [ref=e117]:
+                - listitem [ref=e118]:
+                  - generic [ref=e119]: "1"
+                  - generic [ref=e120]: Read the fax (OCR + vision)
+                - listitem [ref=e121]:
+                  - generic [ref=e122]: "2"
+                  - generic [ref=e123]: Classify — lab, consult, PA, etc.
+                - listitem [ref=e124]:
+                  - generic [ref=e125]: "3"
+                  - generic [ref=e126]: Match to your patient directory
+                - listitem [ref=e127]:
+                  - generic [ref=e128]: "4"
+                  - generic [ref=e129]: Structure diagnoses, Rx, urgency
+                - listitem [ref=e130]:
+                  - generic [ref=e131]: "5"
+                  - generic [ref=e132]: Route per your workflow rules
+                - listitem [ref=e133]:
+                  - generic [ref=e134]: "6"
+                  - generic [ref=e135]: Write to eClinicalWorks chart
+              - generic [ref=e137]:
+                - img [ref=e138]
+                - text: "Typical end-to-end: 3–8 seconds"
+  - alert [ref=e140]

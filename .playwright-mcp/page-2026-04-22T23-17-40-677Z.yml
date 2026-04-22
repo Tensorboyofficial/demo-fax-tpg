@@ -1,0 +1,838 @@
+- generic [active] [ref=e1]:
+  - link "Skip to main content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e6]:
+        - generic [ref=e7]:
+          - img [ref=e8]
+          - searchbox "Search patients" [ref=e11]
+        - 'button "Switch practice (current: MDVIP Practice)" [ref=e12]':
+          - generic [ref=e14]: MDVIP Practice
+          - img [ref=e15]
+        - generic "User menu" [ref=e17]: MG
+    - generic [ref=e18]:
+      - complementary "Primary navigation" [ref=e19]:
+        - link "Cevi — go to Panel" [ref=e21] [cursor=pointer]:
+          - /url: /panel
+          - img "Cevi" [ref=e22]
+        - navigation [ref=e25]:
+          - link "Panel (current)" [ref=e26] [cursor=pointer]:
+            - /url: /panel
+            - img [ref=e27]
+            - generic [ref=e32]: Panel
+            - generic [ref=e33]: (current)
+          - link "Queue" [ref=e34] [cursor=pointer]:
+            - /url: /queue
+            - img [ref=e35]
+            - generic [ref=e38]: Queue
+          - link "Inbox" [ref=e39] [cursor=pointer]:
+            - /url: /inbox
+            - img [ref=e40]
+            - generic [ref=e43]: Inbox
+          - link "Patients" [ref=e44] [cursor=pointer]:
+            - /url: /patients
+            - img [ref=e45]
+            - generic [ref=e50]: Patients
+          - link "Physician voice" [ref=e51] [cursor=pointer]:
+            - /url: /physician-voice
+            - img [ref=e52]
+            - generic [ref=e55]: Physician voice
+          - link "Analytics" [ref=e56] [cursor=pointer]:
+            - /url: /analytics
+            - img [ref=e57]
+            - generic [ref=e59]: Analytics
+          - link "Audit" [ref=e60] [cursor=pointer]:
+            - /url: /audit
+            - img [ref=e61]
+            - generic [ref=e64]: Audit
+          - link "Settings" [ref=e65] [cursor=pointer]:
+            - /url: /settings
+            - img [ref=e66]
+            - generic [ref=e69]: Settings
+      - main [ref=e70]:
+        - generic [ref=e72]:
+          - generic [ref=e73]:
+            - heading "Panel" [level=1] [ref=e75]
+            - paragraph [ref=e76]: 64 patients · 89 open opportunities
+          - table [ref=e79]:
+            - rowgroup [ref=e80]:
+              - row "Patient Age Physician Status Last visit Next AWP Opps LTV" [ref=e81]:
+                - columnheader "Patient" [ref=e82]
+                - columnheader "Age" [ref=e83]
+                - columnheader "Physician" [ref=e84]
+                - columnheader "Status" [ref=e85]
+                - columnheader "Last visit" [ref=e86]
+                - columnheader "Next AWP" [ref=e87]
+                - columnheader "Opps" [ref=e88]
+                - columnheader "LTV" [ref=e89]
+            - rowgroup [ref=e90]:
+              - row "Eleanor Whitfield 67 Dr. Sandhu Active 2026-02-04 2027-02-04 0 $21,600" [ref=e91]:
+                - cell "Eleanor Whitfield" [ref=e92]:
+                  - link "Eleanor Whitfield" [ref=e93] [cursor=pointer]:
+                    - /url: /patient/p001
+                - cell "67" [ref=e94]
+                - cell "Dr. Sandhu" [ref=e95]
+                - cell "Active" [ref=e96]:
+                  - generic [ref=e97]: Active
+                - cell "2026-02-04" [ref=e99]
+                - cell "2027-02-04" [ref=e100]
+                - cell "0" [ref=e101]
+                - cell "$21,600" [ref=e102]
+              - row "Jordan Rivera 41 Dr. Sandhu Active 2026-01-18 2027-01-18 1 $4,200" [ref=e103]:
+                - cell "Jordan Rivera" [ref=e104]:
+                  - link "Jordan Rivera" [ref=e105] [cursor=pointer]:
+                    - /url: /patient/p002
+                - cell "41" [ref=e106]
+                - cell "Dr. Sandhu" [ref=e107]
+                - cell "Active" [ref=e108]:
+                  - generic [ref=e109]: Active
+                - cell "2026-01-18" [ref=e111]
+                - cell "2027-01-18" [ref=e112]
+                - cell "1" [ref=e113]
+                - cell "$4,200" [ref=e114]
+              - row "William Okafor 55 Dr. Grover Active 2026-03-21 2027-03-21 2 $11,200" [ref=e115]:
+                - cell "William Okafor" [ref=e116]:
+                  - link "William Okafor" [ref=e117] [cursor=pointer]:
+                    - /url: /patient/p003
+                - cell "55" [ref=e118]
+                - cell "Dr. Grover" [ref=e119]
+                - cell "Active" [ref=e120]:
+                  - generic [ref=e121]: Active
+                - cell "2026-03-21" [ref=e123]
+                - cell "2027-03-21" [ref=e124]
+                - cell "2" [ref=e125]
+                - cell "$11,200" [ref=e126]
+              - row "Daniel Kowalski 46 Dr. Sandhu Active 2026-02-27 2027-02-27 0 $6,800" [ref=e127]:
+                - cell "Daniel Kowalski" [ref=e128]:
+                  - link "Daniel Kowalski" [ref=e129] [cursor=pointer]:
+                    - /url: /patient/p004
+                - cell "46" [ref=e130]
+                - cell "Dr. Sandhu" [ref=e131]
+                - cell "Active" [ref=e132]:
+                  - generic [ref=e133]: Active
+                - cell "2026-02-27" [ref=e135]
+                - cell "2027-02-27" [ref=e136]
+                - cell "0" [ref=e137]
+                - cell "$6,800" [ref=e138]
+              - row "Patricia Brown 72 Dr. Patel Active 2026-03-11 2027-03-11 1 $18,400" [ref=e139]:
+                - cell "Patricia Brown" [ref=e140]:
+                  - link "Patricia Brown" [ref=e141] [cursor=pointer]:
+                    - /url: /patient/p005
+                - cell "72" [ref=e142]
+                - cell "Dr. Patel" [ref=e143]
+                - cell "Active" [ref=e144]:
+                  - generic [ref=e145]: Active
+                - cell "2026-03-11" [ref=e147]
+                - cell "2027-03-11" [ref=e148]
+                - cell "1" [ref=e149]
+                - cell "$18,400" [ref=e150]
+              - row "Robert Ng 63 Dr. Grover Active 2026-02-14 2027-02-14 0 $14,200" [ref=e151]:
+                - cell "Robert Ng" [ref=e152]:
+                  - link "Robert Ng" [ref=e153] [cursor=pointer]:
+                    - /url: /patient/p006
+                - cell "63" [ref=e154]
+                - cell "Dr. Grover" [ref=e155]
+                - cell "Active" [ref=e156]:
+                  - generic [ref=e157]: Active
+                - cell "2026-02-14" [ref=e159]
+                - cell "2027-02-14" [ref=e160]
+                - cell "0" [ref=e161]
+                - cell "$14,200" [ref=e162]
+              - row "Aisha Obi 44 Dr. Patel Active 2026-02-02 2027-02-02 0 $9,400" [ref=e163]:
+                - cell "Aisha Obi" [ref=e164]:
+                  - link "Aisha Obi" [ref=e165] [cursor=pointer]:
+                    - /url: /patient/p009
+                - cell "44" [ref=e166]
+                - cell "Dr. Patel" [ref=e167]
+                - cell "Active" [ref=e168]:
+                  - generic [ref=e169]: Active
+                - cell "2026-02-02" [ref=e171]
+                - cell "2027-02-02" [ref=e172]
+                - cell "0" [ref=e173]
+                - cell "$9,400" [ref=e174]
+              - row "Marguerite Dupont 69 Dr. Sandhu Active 2026-01-28 2027-01-28 0 $19,200" [ref=e175]:
+                - cell "Marguerite Dupont" [ref=e176]:
+                  - link "Marguerite Dupont" [ref=e177] [cursor=pointer]:
+                    - /url: /patient/p011
+                - cell "69" [ref=e178]
+                - cell "Dr. Sandhu" [ref=e179]
+                - cell "Active" [ref=e180]:
+                  - generic [ref=e181]: Active
+                - cell "2026-01-28" [ref=e183]
+                - cell "2027-01-28" [ref=e184]
+                - cell "0" [ref=e185]
+                - cell "$19,200" [ref=e186]
+              - row "Ingrid Nilsson 56 Dr. Grover Active 2026-03-02 2027-03-02 1 $13,600" [ref=e187]:
+                - cell "Ingrid Nilsson" [ref=e188]:
+                  - link "Ingrid Nilsson" [ref=e189] [cursor=pointer]:
+                    - /url: /patient/p013
+                - cell "56" [ref=e190]
+                - cell "Dr. Grover" [ref=e191]
+                - cell "Active" [ref=e192]:
+                  - generic [ref=e193]: Active
+                - cell "2026-03-02" [ref=e195]
+                - cell "2027-03-02" [ref=e196]
+                - cell "1" [ref=e197]
+                - cell "$13,600" [ref=e198]
+              - row "Catherine Vaughn 61 Dr. Patel Active 2026-02-18 2027-02-18 1 $16,400" [ref=e199]:
+                - cell "Catherine Vaughn" [ref=e200]:
+                  - link "Catherine Vaughn" [ref=e201] [cursor=pointer]:
+                    - /url: /patient/p015
+                - cell "61" [ref=e202]
+                - cell "Dr. Patel" [ref=e203]
+                - cell "Active" [ref=e204]:
+                  - generic [ref=e205]: Active
+                - cell "2026-02-18" [ref=e207]
+                - cell "2027-02-18" [ref=e208]
+                - cell "1" [ref=e209]
+                - cell "$16,400" [ref=e210]
+              - row "Omar Haddad 50 Dr. Sandhu Active 2026-03-08 2027-03-08 0 $11,600" [ref=e211]:
+                - cell "Omar Haddad" [ref=e212]:
+                  - link "Omar Haddad" [ref=e213] [cursor=pointer]:
+                    - /url: /patient/p016
+                - cell "50" [ref=e214]
+                - cell "Dr. Sandhu" [ref=e215]
+                - cell "Active" [ref=e216]:
+                  - generic [ref=e217]: Active
+                - cell "2026-03-08" [ref=e219]
+                - cell "2027-03-08" [ref=e220]
+                - cell "0" [ref=e221]
+                - cell "$11,600" [ref=e222]
+              - row "Henry Whittaker 68 Dr. Grover Active 2026-01-14 2027-01-14 0 $22,400" [ref=e223]:
+                - cell "Henry Whittaker" [ref=e224]:
+                  - link "Henry Whittaker" [ref=e225] [cursor=pointer]:
+                    - /url: /patient/p018
+                - cell "68" [ref=e226]
+                - cell "Dr. Grover" [ref=e227]
+                - cell "Active" [ref=e228]:
+                  - generic [ref=e229]: Active
+                - cell "2026-01-14" [ref=e231]
+                - cell "2027-01-14" [ref=e232]
+                - cell "0" [ref=e233]
+                - cell "$22,400" [ref=e234]
+              - row "Theodore Kim 45 Dr. Patel Active 2026-02-07 2027-02-07 1 $8,400" [ref=e235]:
+                - cell "Theodore Kim" [ref=e236]:
+                  - link "Theodore Kim" [ref=e237] [cursor=pointer]:
+                    - /url: /patient/p020
+                - cell "45" [ref=e238]
+                - cell "Dr. Patel" [ref=e239]
+                - cell "Active" [ref=e240]:
+                  - generic [ref=e241]: Active
+                - cell "2026-02-07" [ref=e243]
+                - cell "2027-02-07" [ref=e244]
+                - cell "1" [ref=e245]
+                - cell "$8,400" [ref=e246]
+              - row "Beatrice Fontaine 71 Dr. Sandhu Active 2026-03-22 2027-03-22 0 $20,800" [ref=e247]:
+                - cell "Beatrice Fontaine" [ref=e248]:
+                  - link "Beatrice Fontaine" [ref=e249] [cursor=pointer]:
+                    - /url: /patient/p021
+                - cell "71" [ref=e250]
+                - cell "Dr. Sandhu" [ref=e251]
+                - cell "Active" [ref=e252]:
+                  - generic [ref=e253]: Active
+                - cell "2026-03-22" [ref=e255]
+                - cell "2027-03-22" [ref=e256]
+                - cell "0" [ref=e257]
+                - cell "$20,800" [ref=e258]
+              - row "Margaret O'Brien 64 Dr. Grover Active 2026-01-24 2027-01-24 0 $17,600" [ref=e259]:
+                - cell "Margaret O'Brien" [ref=e260]:
+                  - link "Margaret O'Brien" [ref=e261] [cursor=pointer]:
+                    - /url: /patient/p023
+                - cell "64" [ref=e262]
+                - cell "Dr. Grover" [ref=e263]
+                - cell "Active" [ref=e264]:
+                  - generic [ref=e265]: Active
+                - cell "2026-01-24" [ref=e267]
+                - cell "2027-01-24" [ref=e268]
+                - cell "0" [ref=e269]
+                - cell "$17,600" [ref=e270]
+              - row "Francesca Ricci 66 Dr. Patel Active 2026-02-13 2027-02-13 0 $18,800" [ref=e271]:
+                - cell "Francesca Ricci" [ref=e272]:
+                  - link "Francesca Ricci" [ref=e273] [cursor=pointer]:
+                    - /url: /patient/p025
+                - cell "66" [ref=e274]
+                - cell "Dr. Patel" [ref=e275]
+                - cell "Active" [ref=e276]:
+                  - generic [ref=e277]: Active
+                - cell "2026-02-13" [ref=e279]
+                - cell "2027-02-13" [ref=e280]
+                - cell "0" [ref=e281]
+                - cell "$18,800" [ref=e282]
+              - row "Gregory Pratt 47 Dr. Sandhu Active 2026-03-16 2027-03-16 1 $10,200" [ref=e283]:
+                - cell "Gregory Pratt" [ref=e284]:
+                  - link "Gregory Pratt" [ref=e285] [cursor=pointer]:
+                    - /url: /patient/p026
+                - cell "47" [ref=e286]
+                - cell "Dr. Sandhu" [ref=e287]
+                - cell "Active" [ref=e288]:
+                  - generic [ref=e289]: Active
+                - cell "2026-03-16" [ref=e291]
+                - cell "2027-03-16" [ref=e292]
+                - cell "1" [ref=e293]
+                - cell "$10,200" [ref=e294]
+              - row "Charles Abernathy 70 Dr. Grover Active 2026-03-04 2027-03-04 2 $24,200" [ref=e295]:
+                - cell "Charles Abernathy" [ref=e296]:
+                  - link "Charles Abernathy" [ref=e297] [cursor=pointer]:
+                    - /url: /patient/p028
+                - cell "70" [ref=e298]
+                - cell "Dr. Grover" [ref=e299]
+                - cell "Active" [ref=e300]:
+                  - generic [ref=e301]: Active
+                - cell "2026-03-04" [ref=e303]
+                - cell "2027-03-04" [ref=e304]
+                - cell "2" [ref=e305]
+                - cell "$24,200" [ref=e306]
+              - row "Dmitri Volkov 59 Dr. Patel Active 2026-02-19 2027-02-19 1 $15,600" [ref=e307]:
+                - cell "Dmitri Volkov" [ref=e308]:
+                  - link "Dmitri Volkov" [ref=e309] [cursor=pointer]:
+                    - /url: /patient/p030
+                - cell "59" [ref=e310]
+                - cell "Dr. Patel" [ref=e311]
+                - cell "Active" [ref=e312]:
+                  - generic [ref=e313]: Active
+                - cell "2026-02-19" [ref=e315]
+                - cell "2027-02-19" [ref=e316]
+                - cell "1" [ref=e317]
+                - cell "$15,600" [ref=e318]
+              - row "Clara Lindqvist 62 Dr. Sandhu Active 2026-01-09 2027-01-09 0 $17,200" [ref=e319]:
+                - cell "Clara Lindqvist" [ref=e320]:
+                  - link "Clara Lindqvist" [ref=e321] [cursor=pointer]:
+                    - /url: /patient/p031
+                - cell "62" [ref=e322]
+                - cell "Dr. Sandhu" [ref=e323]
+                - cell "Active" [ref=e324]:
+                  - generic [ref=e325]: Active
+                - cell "2026-01-09" [ref=e327]
+                - cell "2027-01-09" [ref=e328]
+                - cell "0" [ref=e329]
+                - cell "$17,200" [ref=e330]
+              - row "Yasmin El-Sayed 51 Dr. Grover Active 2026-02-06 2027-02-06 0 $11,800" [ref=e331]:
+                - cell "Yasmin El-Sayed" [ref=e332]:
+                  - link "Yasmin El-Sayed" [ref=e333] [cursor=pointer]:
+                    - /url: /patient/p033
+                - cell "51" [ref=e334]
+                - cell "Dr. Grover" [ref=e335]
+                - cell "Active" [ref=e336]:
+                  - generic [ref=e337]: Active
+                - cell "2026-02-06" [ref=e339]
+                - cell "2027-02-06" [ref=e340]
+                - cell "0" [ref=e341]
+                - cell "$11,800" [ref=e342]
+              - row "Juliette Laurent 43 Dr. Patel Active 2026-02-24 2027-02-24 0 $9,800" [ref=e343]:
+                - cell "Juliette Laurent" [ref=e344]:
+                  - link "Juliette Laurent" [ref=e345] [cursor=pointer]:
+                    - /url: /patient/p035
+                - cell "43" [ref=e346]
+                - cell "Dr. Patel" [ref=e347]
+                - cell "Active" [ref=e348]:
+                  - generic [ref=e349]: Active
+                - cell "2026-02-24" [ref=e351]
+                - cell "2027-02-24" [ref=e352]
+                - cell "0" [ref=e353]
+                - cell "$9,800" [ref=e354]
+              - row "Rafael Morales 57 Dr. Sandhu Active 2026-03-18 2027-03-18 2 $13,000" [ref=e355]:
+                - cell "Rafael Morales" [ref=e356]:
+                  - link "Rafael Morales" [ref=e357] [cursor=pointer]:
+                    - /url: /patient/p036
+                - cell "57" [ref=e358]
+                - cell "Dr. Sandhu" [ref=e359]
+                - cell "Active" [ref=e360]:
+                  - generic [ref=e361]: Active
+                - cell "2026-03-18" [ref=e363]
+                - cell "2027-03-18" [ref=e364]
+                - cell "2" [ref=e365]
+                - cell "$13,000" [ref=e366]
+              - row "Benjamin Carter 36 Dr. Grover Active 2026-03-20 2027-03-20 1 $5,400" [ref=e367]:
+                - cell "Benjamin Carter" [ref=e368]:
+                  - link "Benjamin Carter" [ref=e369] [cursor=pointer]:
+                    - /url: /patient/p038
+                - cell "36" [ref=e370]
+                - cell "Dr. Grover" [ref=e371]
+                - cell "Active" [ref=e372]:
+                  - generic [ref=e373]: Active
+                - cell "2026-03-20" [ref=e375]
+                - cell "2027-03-20" [ref=e376]
+                - cell "1" [ref=e377]
+                - cell "$5,400" [ref=e378]
+              - row "Edward Thornton 49 Dr. Patel Active 2026-03-09 2027-03-09 1 $10,600" [ref=e379]:
+                - cell "Edward Thornton" [ref=e380]:
+                  - link "Edward Thornton" [ref=e381] [cursor=pointer]:
+                    - /url: /patient/p040
+                - cell "49" [ref=e382]
+                - cell "Dr. Patel" [ref=e383]
+                - cell "Active" [ref=e384]:
+                  - generic [ref=e385]: Active
+                - cell "2026-03-09" [ref=e387]
+                - cell "2027-03-09" [ref=e388]
+                - cell "1" [ref=e389]
+                - cell "$10,600" [ref=e390]
+              - row "Rajesh Mehta 58 Dr. Patel At risk 2025-11-02 2026-05-10 2 $8,200" [ref=e391]:
+                - cell "Rajesh Mehta" [ref=e392]:
+                  - link "Rajesh Mehta" [ref=e393] [cursor=pointer]:
+                    - /url: /patient/p041
+                - cell "58" [ref=e394]
+                - cell "Dr. Patel" [ref=e395]
+                - cell "At risk" [ref=e396]:
+                  - generic [ref=e397]: At risk
+                - cell "2025-11-02" [ref=e399]
+                - cell "2026-05-10" [ref=e400]
+                - cell "2" [ref=e401]
+                - cell "$8,200" [ref=e402]
+              - row "Priya Desai 49 Dr. Patel At risk 2025-09-30 2026-04-15 2 $9,100" [ref=e403]:
+                - cell "Priya Desai" [ref=e404]:
+                  - link "Priya Desai" [ref=e405] [cursor=pointer]:
+                    - /url: /patient/p042
+                - cell "49" [ref=e406]
+                - cell "Dr. Patel" [ref=e407]
+                - cell "At risk" [ref=e408]:
+                  - generic [ref=e409]: At risk
+                - cell "2025-09-30" [ref=e411]
+                - cell "2026-04-15" [ref=e412]
+                - cell "2" [ref=e413]
+                - cell "$9,100" [ref=e414]
+              - row "Marisol Alvarez 60 Dr. Patel At risk 2025-10-08 2026-04-22 3 $13,400" [ref=e415]:
+                - cell "Marisol Alvarez" [ref=e416]:
+                  - link "Marisol Alvarez" [ref=e417] [cursor=pointer]:
+                    - /url: /patient/p043
+                - cell "60" [ref=e418]
+                - cell "Dr. Patel" [ref=e419]
+                - cell "At risk" [ref=e420]:
+                  - generic [ref=e421]: At risk
+                - cell "2025-10-08" [ref=e423]
+                - cell "2026-04-22" [ref=e424]
+                - cell "3" [ref=e425]
+                - cell "$13,400" [ref=e426]
+              - row "Thomas Langdon 62 Dr. Sandhu At risk 2025-08-27 2026-03-27 2 $11,400" [ref=e427]:
+                - cell "Thomas Langdon" [ref=e428]:
+                  - link "Thomas Langdon" [ref=e429] [cursor=pointer]:
+                    - /url: /patient/p044
+                - cell "62" [ref=e430]
+                - cell "Dr. Sandhu" [ref=e431]
+                - cell "At risk" [ref=e432]:
+                  - generic [ref=e433]: At risk
+                - cell "2025-08-27" [ref=e435]
+                - cell "2026-03-27" [ref=e436]
+                - cell "2" [ref=e437]
+                - cell "$11,400" [ref=e438]
+              - row "Daphne Carrington 55 Dr. Grover At risk 2025-09-15 2026-04-02 1 $12,600" [ref=e439]:
+                - cell "Daphne Carrington" [ref=e440]:
+                  - link "Daphne Carrington" [ref=e441] [cursor=pointer]:
+                    - /url: /patient/p045
+                - cell "55" [ref=e442]
+                - cell "Dr. Grover" [ref=e443]
+                - cell "At risk" [ref=e444]:
+                  - generic [ref=e445]: At risk
+                - cell "2025-09-15" [ref=e447]
+                - cell "2026-04-02" [ref=e448]
+                - cell "1" [ref=e449]
+                - cell "$12,600" [ref=e450]
+              - row "Harold Chen 70 Dr. Patel At risk 2025-08-12 2026-03-14 4 $21,800" [ref=e451]:
+                - cell "Harold Chen" [ref=e452]:
+                  - link "Harold Chen" [ref=e453] [cursor=pointer]:
+                    - /url: /patient/p048
+                - cell "70" [ref=e454]
+                - cell "Dr. Patel" [ref=e455]
+                - cell "At risk" [ref=e456]:
+                  - generic [ref=e457]: At risk
+                - cell "2025-08-12" [ref=e459]
+                - cell "2026-03-14" [ref=e460]
+                - cell "4" [ref=e461]
+                - cell "$21,800" [ref=e462]
+              - row "Elena Kouris 52 Dr. Sandhu At risk 2025-10-22 2026-04-28 1 $10,400" [ref=e463]:
+                - cell "Elena Kouris" [ref=e464]:
+                  - link "Elena Kouris" [ref=e465] [cursor=pointer]:
+                    - /url: /patient/p049
+                - cell "52" [ref=e466]
+                - cell "Dr. Sandhu" [ref=e467]
+                - cell "At risk" [ref=e468]:
+                  - generic [ref=e469]: At risk
+                - cell "2025-10-22" [ref=e471]
+                - cell "2026-04-28" [ref=e472]
+                - cell "1" [ref=e473]
+                - cell "$10,400" [ref=e474]
+              - row "Marcus Okonkwo 48 Dr. Grover At risk 2025-09-08 2026-03-30 2 $8,800" [ref=e475]:
+                - cell "Marcus Okonkwo" [ref=e476]:
+                  - link "Marcus Okonkwo" [ref=e477] [cursor=pointer]:
+                    - /url: /patient/p050
+                - cell "48" [ref=e478]
+                - cell "Dr. Grover" [ref=e479]
+                - cell "At risk" [ref=e480]:
+                  - generic [ref=e481]: At risk
+                - cell "2025-09-08" [ref=e483]
+                - cell "2026-03-30" [ref=e484]
+                - cell "2" [ref=e485]
+                - cell "$8,800" [ref=e486]
+              - row "Harriet Winters 69 Dr. Patel At risk 2025-08-19 2026-03-22 2 $17,200" [ref=e487]:
+                - cell "Harriet Winters" [ref=e488]:
+                  - link "Harriet Winters" [ref=e489] [cursor=pointer]:
+                    - /url: /patient/p053
+                - cell "69" [ref=e490]
+                - cell "Dr. Patel" [ref=e491]
+                - cell "At risk" [ref=e492]:
+                  - generic [ref=e493]: At risk
+                - cell "2025-08-19" [ref=e495]
+                - cell "2026-03-22" [ref=e496]
+                - cell "2" [ref=e497]
+                - cell "$17,200" [ref=e498]
+              - row "Javier Mendoza 41 Dr. Sandhu At risk 2025-11-06 2026-05-12 1 $6,800" [ref=e499]:
+                - cell "Javier Mendoza" [ref=e500]:
+                  - link "Javier Mendoza" [ref=e501] [cursor=pointer]:
+                    - /url: /patient/p054
+                - cell "41" [ref=e502]
+                - cell "Dr. Sandhu" [ref=e503]
+                - cell "At risk" [ref=e504]:
+                  - generic [ref=e505]: At risk
+                - cell "2025-11-06" [ref=e507]
+                - cell "2026-05-12" [ref=e508]
+                - cell "1" [ref=e509]
+                - cell "$6,800" [ref=e510]
+              - row "Renée Beaumont 59 Dr. Grover At risk 2025-09-20 2026-04-08 2 $14,000" [ref=e511]:
+                - cell "Renée Beaumont" [ref=e512]:
+                  - link "Renée Beaumont" [ref=e513] [cursor=pointer]:
+                    - /url: /patient/p055
+                - cell "59" [ref=e514]
+                - cell "Dr. Grover" [ref=e515]
+                - cell "At risk" [ref=e516]:
+                  - generic [ref=e517]: At risk
+                - cell "2025-09-20" [ref=e519]
+                - cell "2026-04-08" [ref=e520]
+                - cell "2" [ref=e521]
+                - cell "$14,000" [ref=e522]
+              - row "Frank Dubrowski 72 Dr. Patel At risk 2025-08-05 2026-03-07 3 $20,400" [ref=e523]:
+                - cell "Frank Dubrowski" [ref=e524]:
+                  - link "Frank Dubrowski" [ref=e525] [cursor=pointer]:
+                    - /url: /patient/p058
+                - cell "72" [ref=e526]
+                - cell "Dr. Patel" [ref=e527]
+                - cell "At risk" [ref=e528]:
+                  - generic [ref=e529]: At risk
+                - cell "2025-08-05" [ref=e531]
+                - cell "2026-03-07" [ref=e532]
+                - cell "3" [ref=e533]
+                - cell "$20,400" [ref=e534]
+              - row "Nadia Akhtar 38 Dr. Sandhu At risk 2025-11-12 2026-05-16 1 $5,600" [ref=e535]:
+                - cell "Nadia Akhtar" [ref=e536]:
+                  - link "Nadia Akhtar" [ref=e537] [cursor=pointer]:
+                    - /url: /patient/p059
+                - cell "38" [ref=e538]
+                - cell "Dr. Sandhu" [ref=e539]
+                - cell "At risk" [ref=e540]:
+                  - generic [ref=e541]: At risk
+                - cell "2025-11-12" [ref=e543]
+                - cell "2026-05-16" [ref=e544]
+                - cell "1" [ref=e545]
+                - cell "$5,600" [ref=e546]
+              - row "Isaac Greenberg 65 Dr. Grover At risk 2025-09-01 2026-03-16 2 $16,400" [ref=e547]:
+                - cell "Isaac Greenberg" [ref=e548]:
+                  - link "Isaac Greenberg" [ref=e549] [cursor=pointer]:
+                    - /url: /patient/p060
+                - cell "65" [ref=e550]
+                - cell "Dr. Grover" [ref=e551]
+                - cell "At risk" [ref=e552]:
+                  - generic [ref=e553]: At risk
+                - cell "2025-09-01" [ref=e555]
+                - cell "2026-03-16" [ref=e556]
+                - cell "2" [ref=e557]
+                - cell "$16,400" [ref=e558]
+              - row "Tabitha Sterling 61 Dr. Patel At risk 2025-09-11 2026-03-24 2 $15,400" [ref=e559]:
+                - cell "Tabitha Sterling" [ref=e560]:
+                  - link "Tabitha Sterling" [ref=e561] [cursor=pointer]:
+                    - /url: /patient/p063
+                - cell "61" [ref=e562]
+                - cell "Dr. Patel" [ref=e563]
+                - cell "At risk" [ref=e564]:
+                  - generic [ref=e565]: At risk
+                - cell "2025-09-11" [ref=e567]
+                - cell "2026-03-24" [ref=e568]
+                - cell "2" [ref=e569]
+                - cell "$15,400" [ref=e570]
+              - row "Declan O'Rourke 57 Dr. Sandhu At risk 2025-10-16 2026-04-20 1 $11,600" [ref=e571]:
+                - cell "Declan O'Rourke" [ref=e572]:
+                  - link "Declan O'Rourke" [ref=e573] [cursor=pointer]:
+                    - /url: /patient/p064
+                - cell "57" [ref=e574]
+                - cell "Dr. Sandhu" [ref=e575]
+                - cell "At risk" [ref=e576]:
+                  - generic [ref=e577]: At risk
+                - cell "2025-10-16" [ref=e579]
+                - cell "2026-04-20" [ref=e580]
+                - cell "1" [ref=e581]
+                - cell "$11,600" [ref=e582]
+              - row "Margot Verlander 68 Dr. Grover At risk 2025-08-22 2026-03-19 2 $18,600" [ref=e583]:
+                - cell "Margot Verlander" [ref=e584]:
+                  - link "Margot Verlander" [ref=e585] [cursor=pointer]:
+                    - /url: /patient/p065
+                - cell "68" [ref=e586]
+                - cell "Dr. Grover" [ref=e587]
+                - cell "At risk" [ref=e588]:
+                  - generic [ref=e589]: At risk
+                - cell "2025-08-22" [ref=e591]
+                - cell "2026-03-19" [ref=e592]
+                - cell "2" [ref=e593]
+                - cell "$18,600" [ref=e594]
+              - row "Bartholomew Quinn 75 Dr. Patel At risk 2025-07-30 2026-03-01 2 $23,400" [ref=e595]:
+                - cell "Bartholomew Quinn" [ref=e596]:
+                  - link "Bartholomew Quinn" [ref=e597] [cursor=pointer]:
+                    - /url: /patient/p068
+                - cell "75" [ref=e598]
+                - cell "Dr. Patel" [ref=e599]
+                - cell "At risk" [ref=e600]:
+                  - generic [ref=e601]: At risk
+                - cell "2025-07-30" [ref=e603]
+                - cell "2026-03-01" [ref=e604]
+                - cell "2" [ref=e605]
+                - cell "$23,400" [ref=e606]
+              - row "Celeste Novak 42 Dr. Sandhu At risk 2025-11-18 2026-05-22 1 $7,000" [ref=e607]:
+                - cell "Celeste Novak" [ref=e608]:
+                  - link "Celeste Novak" [ref=e609] [cursor=pointer]:
+                    - /url: /patient/p069
+                - cell "42" [ref=e610]
+                - cell "Dr. Sandhu" [ref=e611]
+                - cell "At risk" [ref=e612]:
+                  - generic [ref=e613]: At risk
+                - cell "2025-11-18" [ref=e615]
+                - cell "2026-05-22" [ref=e616]
+                - cell "1" [ref=e617]
+                - cell "$7,000" [ref=e618]
+              - row "Ignatius Coleman 66 Dr. Grover At risk 2025-08-31 2026-03-10 2 $17,800" [ref=e619]:
+                - cell "Ignatius Coleman" [ref=e620]:
+                  - link "Ignatius Coleman" [ref=e621] [cursor=pointer]:
+                    - /url: /patient/p070
+                - cell "66" [ref=e622]
+                - cell "Dr. Grover" [ref=e623]
+                - cell "At risk" [ref=e624]:
+                  - generic [ref=e625]: At risk
+                - cell "2025-08-31" [ref=e627]
+                - cell "2026-03-10" [ref=e628]
+                - cell "2" [ref=e629]
+                - cell "$17,800" [ref=e630]
+              - row "Michael Chen 52 Dr. Patel Lapsed 2025-08-14 2026-03-01 2 $12,400" [ref=e631]:
+                - cell "Michael Chen" [ref=e632]:
+                  - link "Michael Chen" [ref=e633] [cursor=pointer]:
+                    - /url: /patient/p071
+                - cell "52" [ref=e634]
+                - cell "Dr. Patel" [ref=e635]
+                - cell "Lapsed" [ref=e636]:
+                  - generic [ref=e637]: Lapsed
+                - cell "2025-08-14" [ref=e639]
+                - cell "2026-03-01" [ref=e640]
+                - cell "2" [ref=e641]
+                - cell "$12,400" [ref=e642]
+              - row "Sandra Jones 62 Dr. Grover Lapsed 2024-09-12 2025-09-12 3 $15,800" [ref=e643]:
+                - cell "Sandra Jones" [ref=e644]:
+                  - link "Sandra Jones" [ref=e645] [cursor=pointer]:
+                    - /url: /patient/p072
+                - cell "62" [ref=e646]
+                - cell "Dr. Grover" [ref=e647]
+                - cell "Lapsed" [ref=e648]:
+                  - generic [ref=e649]: Lapsed
+                - cell "2024-09-12" [ref=e651]
+                - cell "2025-09-12" [ref=e652]
+                - cell "3" [ref=e653]
+                - cell "$15,800" [ref=e654]
+              - row "Scott Brown 56 Dr. Sandhu Lapsed 2024-11-08 2025-11-08 4 $16,200" [ref=e655]:
+                - cell "Scott Brown" [ref=e656]:
+                  - link "Scott Brown" [ref=e657] [cursor=pointer]:
+                    - /url: /patient/p073
+                - cell "56" [ref=e658]
+                - cell "Dr. Sandhu" [ref=e659]
+                - cell "Lapsed" [ref=e660]:
+                  - generic [ref=e661]: Lapsed
+                - cell "2024-11-08" [ref=e663]
+                - cell "2025-11-08" [ref=e664]
+                - cell "4" [ref=e665]
+                - cell "$16,200" [ref=e666]
+              - row "Leonora Pratt 68 Dr. Patel Lapsed 2024-10-16 2025-10-16 2 $19,400" [ref=e667]:
+                - cell "Leonora Pratt" [ref=e668]:
+                  - link "Leonora Pratt" [ref=e669] [cursor=pointer]:
+                    - /url: /patient/p074
+                - cell "68" [ref=e670]
+                - cell "Dr. Patel" [ref=e671]
+                - cell "Lapsed" [ref=e672]:
+                  - generic [ref=e673]: Lapsed
+                - cell "2024-10-16" [ref=e675]
+                - cell "2025-10-16" [ref=e676]
+                - cell "2" [ref=e677]
+                - cell "$19,400" [ref=e678]
+              - row "Magnus Halvorsen 63 Dr. Grover Lapsed 2024-07-19 2025-07-19 4 $17,600" [ref=e679]:
+                - cell "Magnus Halvorsen" [ref=e680]:
+                  - link "Magnus Halvorsen" [ref=e681] [cursor=pointer]:
+                    - /url: /patient/p077
+                - cell "63" [ref=e682]
+                - cell "Dr. Grover" [ref=e683]
+                - cell "Lapsed" [ref=e684]:
+                  - generic [ref=e685]: Lapsed
+                - cell "2024-07-19" [ref=e687]
+                - cell "2025-07-19" [ref=e688]
+                - cell "4" [ref=e689]
+                - cell "$17,600" [ref=e690]
+              - row "Constance Fairbanks 71 Dr. Sandhu Lapsed 2024-09-28 2025-09-28 2 $21,200" [ref=e691]:
+                - cell "Constance Fairbanks" [ref=e692]:
+                  - link "Constance Fairbanks" [ref=e693] [cursor=pointer]:
+                    - /url: /patient/p078
+                - cell "71" [ref=e694]
+                - cell "Dr. Sandhu" [ref=e695]
+                - cell "Lapsed" [ref=e696]:
+                  - generic [ref=e697]: Lapsed
+                - cell "2024-09-28" [ref=e699]
+                - cell "2025-09-28" [ref=e700]
+                - cell "2" [ref=e701]
+                - cell "$21,200" [ref=e702]
+              - row "Rashid Bahtiyar 47 Dr. Patel Lapsed 2024-11-22 2025-11-22 3 $9,600" [ref=e703]:
+                - cell "Rashid Bahtiyar" [ref=e704]:
+                  - link "Rashid Bahtiyar" [ref=e705] [cursor=pointer]:
+                    - /url: /patient/p079
+                - cell "47" [ref=e706]
+                - cell "Dr. Patel" [ref=e707]
+                - cell "Lapsed" [ref=e708]:
+                  - generic [ref=e709]: Lapsed
+                - cell "2024-11-22" [ref=e711]
+                - cell "2025-11-22" [ref=e712]
+                - cell "3" [ref=e713]
+                - cell "$9,600" [ref=e714]
+              - row "Wilhelmina Brandt 74 Dr. Grover Lapsed 2024-07-30 2025-07-30 4 $22,600" [ref=e715]:
+                - cell "Wilhelmina Brandt" [ref=e716]:
+                  - link "Wilhelmina Brandt" [ref=e717] [cursor=pointer]:
+                    - /url: /patient/p082
+                - cell "74" [ref=e718]
+                - cell "Dr. Grover" [ref=e719]
+                - cell "Lapsed" [ref=e720]:
+                  - generic [ref=e721]: Lapsed
+                - cell "2024-07-30" [ref=e723]
+                - cell "2025-07-30" [ref=e724]
+                - cell "4" [ref=e725]
+                - cell "$22,600" [ref=e726]
+              - row "Santiago Alarcón 50 Dr. Sandhu Lapsed 2024-12-11 2025-12-11 1 $10,400" [ref=e727]:
+                - cell "Santiago Alarcón" [ref=e728]:
+                  - link "Santiago Alarcón" [ref=e729] [cursor=pointer]:
+                    - /url: /patient/p083
+                - cell "50" [ref=e730]
+                - cell "Dr. Sandhu" [ref=e731]
+                - cell "Lapsed" [ref=e732]:
+                  - generic [ref=e733]: Lapsed
+                - cell "2024-12-11" [ref=e735]
+                - cell "2025-12-11" [ref=e736]
+                - cell "1" [ref=e737]
+                - cell "$10,400" [ref=e738]
+              - row "Rosalind Cartwright 61 Dr. Patel Lapsed 2024-11-04 2025-11-04 3 $14,600" [ref=e739]:
+                - cell "Rosalind Cartwright" [ref=e740]:
+                  - link "Rosalind Cartwright" [ref=e741] [cursor=pointer]:
+                    - /url: /patient/p084
+                - cell "61" [ref=e742]
+                - cell "Dr. Patel" [ref=e743]
+                - cell "Lapsed" [ref=e744]:
+                  - generic [ref=e745]: Lapsed
+                - cell "2024-11-04" [ref=e747]
+                - cell "2025-11-04" [ref=e748]
+                - cell "3" [ref=e749]
+                - cell "$14,600" [ref=e750]
+              - row "Ulysses Pembrook 69 Dr. Grover Lapsed 2024-08-07 2025-08-07 3 $19,800" [ref=e751]:
+                - cell "Ulysses Pembrook" [ref=e752]:
+                  - link "Ulysses Pembrook" [ref=e753] [cursor=pointer]:
+                    - /url: /patient/p087
+                - cell "69" [ref=e754]
+                - cell "Dr. Grover" [ref=e755]
+                - cell "Lapsed" [ref=e756]:
+                  - generic [ref=e757]: Lapsed
+                - cell "2024-08-07" [ref=e759]
+                - cell "2025-08-07" [ref=e760]
+                - cell "3" [ref=e761]
+                - cell "$19,800" [ref=e762]
+              - row "Cordelia Vaughn 55 Dr. Sandhu Lapsed 2024-11-15 2025-11-15 1 $12,000" [ref=e763]:
+                - cell "Cordelia Vaughn" [ref=e764]:
+                  - link "Cordelia Vaughn" [ref=e765] [cursor=pointer]:
+                    - /url: /patient/p088
+                - cell "55" [ref=e766]
+                - cell "Dr. Sandhu" [ref=e767]
+                - cell "Lapsed" [ref=e768]:
+                  - generic [ref=e769]: Lapsed
+                - cell "2024-11-15" [ref=e771]
+                - cell "2025-11-15" [ref=e772]
+                - cell "1" [ref=e773]
+                - cell "$12,000" [ref=e774]
+              - row "Percival Ashcroft 72 Dr. Patel Lapsed 2024-09-04 2025-09-04 4 $20,200" [ref=e775]:
+                - cell "Percival Ashcroft" [ref=e776]:
+                  - link "Percival Ashcroft" [ref=e777] [cursor=pointer]:
+                    - /url: /patient/p089
+                - cell "72" [ref=e778]
+                - cell "Dr. Patel" [ref=e779]
+                - cell "Lapsed" [ref=e780]:
+                  - generic [ref=e781]: Lapsed
+                - cell "2024-09-04" [ref=e783]
+                - cell "2025-09-04" [ref=e784]
+                - cell "4" [ref=e785]
+                - cell "$20,200" [ref=e786]
+              - row "Harriet Blackwood 71 Dr. Grover Churned 2023-06-19 2024-06-19 0 $18,900" [ref=e787]:
+                - cell "Harriet Blackwood" [ref=e788]:
+                  - link "Harriet Blackwood" [ref=e789] [cursor=pointer]:
+                    - /url: /patient/p091
+                - cell "71" [ref=e790]
+                - cell "Dr. Grover" [ref=e791]
+                - cell "Churned" [ref=e792]:
+                  - generic [ref=e793]: Churned
+                - cell "2023-06-19" [ref=e795]
+                - cell "2024-06-19" [ref=e796]
+                - cell "0" [ref=e797]
+                - cell "$18,900" [ref=e798]
+              - row "Lester Hoffmann 76 Dr. Patel Churned 2023-08-11 2024-08-11 0 $22,800" [ref=e799]:
+                - cell "Lester Hoffmann" [ref=e800]:
+                  - link "Lester Hoffmann" [ref=e801] [cursor=pointer]:
+                    - /url: /patient/p092
+                - cell "76" [ref=e802]
+                - cell "Dr. Patel" [ref=e803]
+                - cell "Churned" [ref=e804]:
+                  - generic [ref=e805]: Churned
+                - cell "2023-08-11" [ref=e807]
+                - cell "2024-08-11" [ref=e808]
+                - cell "0" [ref=e809]
+                - cell "$22,800" [ref=e810]
+              - row "Miriam Fitzroy 63 Dr. Sandhu Churned 2023-11-24 2024-11-24 0 $14,200" [ref=e811]:
+                - cell "Miriam Fitzroy" [ref=e812]:
+                  - link "Miriam Fitzroy" [ref=e813] [cursor=pointer]:
+                    - /url: /patient/p093
+                - cell "63" [ref=e814]
+                - cell "Dr. Sandhu" [ref=e815]
+                - cell "Churned" [ref=e816]:
+                  - generic [ref=e817]: Churned
+                - cell "2023-11-24" [ref=e819]
+                - cell "2024-11-24" [ref=e820]
+                - cell "0" [ref=e821]
+                - cell "$14,200" [ref=e822]
+              - row "Osvaldo Menendez 74 Dr. Grover Churned 2023-05-28 2024-05-28 0 $20,100" [ref=e823]:
+                - cell "Osvaldo Menendez" [ref=e824]:
+                  - link "Osvaldo Menendez" [ref=e825] [cursor=pointer]:
+                    - /url: /patient/p096
+                - cell "74" [ref=e826]
+                - cell "Dr. Grover" [ref=e827]
+                - cell "Churned" [ref=e828]:
+                  - generic [ref=e829]: Churned
+                - cell "2023-05-28" [ref=e831]
+                - cell "2024-05-28" [ref=e832]
+                - cell "0" [ref=e833]
+                - cell "$20,100" [ref=e834]
+              - row "Mathilda Bergström 70 Dr. Patel Churned 2023-12-02 2024-12-02 0 $17,800" [ref=e835]:
+                - cell "Mathilda Bergström" [ref=e836]:
+                  - link "Mathilda Bergström" [ref=e837] [cursor=pointer]:
+                    - /url: /patient/p097
+                - cell "70" [ref=e838]
+                - cell "Dr. Patel" [ref=e839]
+                - cell "Churned" [ref=e840]:
+                  - generic [ref=e841]: Churned
+                - cell "2023-12-02" [ref=e843]
+                - cell "2024-12-02" [ref=e844]
+                - cell "0" [ref=e845]
+                - cell "$17,800" [ref=e846]
+              - row "Kasimir Laine 82 Dr. Sandhu Churned 2023-04-16 2024-04-16 0 $24,800" [ref=e847]:
+                - cell "Kasimir Laine" [ref=e848]:
+                  - link "Kasimir Laine" [ref=e849] [cursor=pointer]:
+                    - /url: /patient/p098
+                - cell "82" [ref=e850]
+                - cell "Dr. Sandhu" [ref=e851]
+                - cell "Churned" [ref=e852]:
+                  - generic [ref=e853]: Churned
+                - cell "2023-04-16" [ref=e855]
+                - cell "2024-04-16" [ref=e856]
+                - cell "0" [ref=e857]
+                - cell "$24,800" [ref=e858]
+  - alert [ref=e859]

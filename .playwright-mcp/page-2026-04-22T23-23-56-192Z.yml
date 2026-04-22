@@ -1,0 +1,680 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "Cevi home" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img "Cevi" [ref=e6]
+          - generic [ref=e10]:
+            - text: Transcend Medical
+            - text: Group
+        - link "Audit" [ref=e11] [cursor=pointer]:
+          - /url: /audit
+          - img [ref=e12]
+          - text: Audit
+        - link "Upload a fax" [ref=e15] [cursor=pointer]:
+          - /url: /upload
+          - img [ref=e16]
+          - text: Upload a fax
+        - generic [ref=e20]: eCW connected
+        - generic "Dr. Todd Nguyen" [ref=e22]: TN
+    - main [ref=e23]:
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - heading "Inbox" [level=1] [ref=e27]
+            - generic [ref=e28]: 15 faxes · 13 auto-routed · 2 need review · 1 critical
+          - link "Upload a fax" [ref=e29] [cursor=pointer]:
+            - /url: /upload
+            - img [ref=e30]
+            - text: Upload a fax
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - generic [ref=e35]:
+              - button "All" [ref=e36]
+              - button "Specialist" [ref=e37]
+              - button "Lab" [ref=e38]
+              - button "Prior Auth" [ref=e39]
+              - button "Referrals" [ref=e40]
+              - button "Rx" [ref=e41]
+              - button "Records" [ref=e42]
+              - button "Imaging" [ref=e43]
+              - button "Unclassified" [ref=e44]
+            - generic [ref=e45]:
+              - generic [ref=e46]: Status
+              - combobox [ref=e47]:
+                - option "All statuses" [selected]
+                - option "Needs review"
+                - option "Auto-routed"
+                - option "Completed"
+          - table [ref=e49]:
+            - rowgroup [ref=e50]:
+              - row "Received From Type Patient Clinic Confidence Status Routed Pg" [ref=e51]:
+                - columnheader "Received" [ref=e52]
+                - columnheader "From" [ref=e53]
+                - columnheader "Type" [ref=e54]
+                - columnheader "Patient" [ref=e55]
+                - columnheader "Clinic" [ref=e56]
+                - columnheader "Confidence" [ref=e57]
+                - columnheader "Status" [ref=e58]
+                - columnheader "Routed" [ref=e59]
+                - columnheader "Pg" [ref=e60]
+            - rowgroup [ref=e61]:
+              - row "15h ago critical Quest Diagnostics — Irving Metroplex Service Center 972-465-0900 Lab Result Priya Ramanathan MRN-004233 · DOB 11/03/85 Pantego 98% Auto-routed Alicia Harbison 2 pg" [ref=e62] [cursor=pointer]:
+                - cell "15h ago critical" [ref=e63]:
+                  - link "15h ago critical" [ref=e64]:
+                    - /url: /inbox/FAX-20260423-002
+                    - generic [ref=e65]: 15h ago
+                    - generic [ref=e66]: critical
+                - cell "Quest Diagnostics — Irving Metroplex Service Center 972-465-0900" [ref=e68]:
+                  - link "Quest Diagnostics — Irving Metroplex Service Center 972-465-0900" [ref=e69]:
+                    - /url: /inbox/FAX-20260423-002
+                    - generic [ref=e70]: Quest Diagnostics — Irving Metroplex Service Center
+                    - generic [ref=e71]: 972-465-0900
+                - cell "Lab Result" [ref=e72]:
+                  - link "Lab Result" [ref=e73]:
+                    - /url: /inbox/FAX-20260423-002
+                    - generic [ref=e75]:
+                      - img [ref=e76]
+                      - text: Lab Result
+                - cell "Priya Ramanathan MRN-004233 · DOB 11/03/85" [ref=e78]:
+                  - link "Priya Ramanathan MRN-004233 · DOB 11/03/85" [ref=e79]:
+                    - /url: /inbox/FAX-20260423-002
+                    - generic [ref=e80]: Priya Ramanathan
+                    - generic [ref=e81]: MRN-004233 · DOB 11/03/85
+                - cell "Pantego" [ref=e82]:
+                  - link "Pantego" [ref=e83]:
+                    - /url: /inbox/FAX-20260423-002
+                    - generic [ref=e86]: Pantego
+                - cell "98%" [ref=e87]:
+                  - link "98%" [ref=e88]:
+                    - /url: /inbox/FAX-20260423-002
+                    - generic [ref=e92]: 98%
+                - cell "Auto-routed" [ref=e93]:
+                  - link "Auto-routed" [ref=e94]:
+                    - /url: /inbox/FAX-20260423-002
+                    - generic [ref=e95]: Auto-routed
+                - cell "Alicia Harbison" [ref=e97]:
+                  - link "Alicia Harbison" [ref=e98]:
+                    - /url: /inbox/FAX-20260423-002
+                    - generic [ref=e99]: Alicia Harbison
+                - cell "2 pg" [ref=e100]:
+                  - link "2 pg" [ref=e101]:
+                    - /url: /inbox/FAX-20260423-002
+                    - generic [ref=e102]: 2 pg
+              - row "15h ago Baylor Scott & White Heart & Vascular — Fort Worth 682-885-4100 Specialist Maria Gonzalez MRN-004218 · DOB 07/14/62 Arlington 99% Auto-routed Todd Thang Nguyen 6 pg" [ref=e103] [cursor=pointer]:
+                - cell "15h ago" [ref=e104]:
+                  - link "15h ago" [ref=e105]:
+                    - /url: /inbox/FAX-20260423-001
+                    - generic [ref=e106]: 15h ago
+                - cell "Baylor Scott & White Heart & Vascular — Fort Worth 682-885-4100" [ref=e107]:
+                  - link "Baylor Scott & White Heart & Vascular — Fort Worth 682-885-4100" [ref=e108]:
+                    - /url: /inbox/FAX-20260423-001
+                    - generic [ref=e109]: Baylor Scott & White Heart & Vascular — Fort Worth
+                    - generic [ref=e110]: 682-885-4100
+                - cell "Specialist" [ref=e111]:
+                  - link "Specialist" [ref=e112]:
+                    - /url: /inbox/FAX-20260423-001
+                    - generic [ref=e114]:
+                      - img [ref=e115]
+                      - text: Specialist
+                - cell "Maria Gonzalez MRN-004218 · DOB 07/14/62" [ref=e118]:
+                  - link "Maria Gonzalez MRN-004218 · DOB 07/14/62" [ref=e119]:
+                    - /url: /inbox/FAX-20260423-001
+                    - generic [ref=e120]: Maria Gonzalez
+                    - generic [ref=e121]: MRN-004218 · DOB 07/14/62
+                - cell "Arlington" [ref=e122]:
+                  - link "Arlington" [ref=e123]:
+                    - /url: /inbox/FAX-20260423-001
+                    - generic [ref=e126]: Arlington
+                - cell "99%" [ref=e127]:
+                  - link "99%" [ref=e128]:
+                    - /url: /inbox/FAX-20260423-001
+                    - generic [ref=e132]: 99%
+                - cell "Auto-routed" [ref=e133]:
+                  - link "Auto-routed" [ref=e134]:
+                    - /url: /inbox/FAX-20260423-001
+                    - generic [ref=e135]: Auto-routed
+                - cell "Todd Thang Nguyen" [ref=e137]:
+                  - link "Todd Thang Nguyen" [ref=e138]:
+                    - /url: /inbox/FAX-20260423-001
+                    - generic [ref=e139]: Todd Thang Nguyen
+                - cell "6 pg" [ref=e140]:
+                  - link "6 pg" [ref=e141]:
+                    - /url: /inbox/FAX-20260423-001
+                    - generic [ref=e142]: 6 pg
+              - row "14h ago urgent BCBS of Texas — Utilization Management 800-441-9188 Prior Auth James Whitfield MRN-004221 · DOB 03/22/47 Arlington 97% Auto-routed Prior Authorization 3 pg" [ref=e143] [cursor=pointer]:
+                - cell "14h ago urgent" [ref=e144]:
+                  - link "14h ago urgent" [ref=e145]:
+                    - /url: /inbox/FAX-20260423-003
+                    - generic [ref=e146]: 14h ago
+                    - generic [ref=e147]: urgent
+                - cell "BCBS of Texas — Utilization Management 800-441-9188" [ref=e149]:
+                  - link "BCBS of Texas — Utilization Management 800-441-9188" [ref=e150]:
+                    - /url: /inbox/FAX-20260423-003
+                    - generic [ref=e151]: BCBS of Texas — Utilization Management
+                    - generic [ref=e152]: 800-441-9188
+                - cell "Prior Auth" [ref=e153]:
+                  - link "Prior Auth" [ref=e154]:
+                    - /url: /inbox/FAX-20260423-003
+                    - generic [ref=e156]:
+                      - img [ref=e157]
+                      - text: Prior Auth
+                - cell "James Whitfield MRN-004221 · DOB 03/22/47" [ref=e160]:
+                  - link "James Whitfield MRN-004221 · DOB 03/22/47" [ref=e161]:
+                    - /url: /inbox/FAX-20260423-003
+                    - generic [ref=e162]: James Whitfield
+                    - generic [ref=e163]: MRN-004221 · DOB 03/22/47
+                - cell "Arlington" [ref=e164]:
+                  - link "Arlington" [ref=e165]:
+                    - /url: /inbox/FAX-20260423-003
+                    - generic [ref=e168]: Arlington
+                - cell "97%" [ref=e169]:
+                  - link "97%" [ref=e170]:
+                    - /url: /inbox/FAX-20260423-003
+                    - generic [ref=e174]: 97%
+                - cell "Auto-routed" [ref=e175]:
+                  - link "Auto-routed" [ref=e176]:
+                    - /url: /inbox/FAX-20260423-003
+                    - generic [ref=e177]: Auto-routed
+                - cell "Prior Authorization" [ref=e179]:
+                  - link "Prior Authorization" [ref=e180]:
+                    - /url: /inbox/FAX-20260423-003
+                    - generic [ref=e181]: Prior Authorization
+                - cell "3 pg" [ref=e182]:
+                  - link "3 pg" [ref=e183]:
+                    - /url: /inbox/FAX-20260423-003
+                    - generic [ref=e184]: 3 pg
+              - row "13h ago Arlington Orthopedic Associates 817-548-2100 Referral Robert Harlan MRN-004245 · DOB 09/08/55 Grand Prairie 94% Auto-routed Referral Management 2 pg" [ref=e185] [cursor=pointer]:
+                - cell "13h ago" [ref=e186]:
+                  - link "13h ago" [ref=e187]:
+                    - /url: /inbox/FAX-20260423-004
+                    - generic [ref=e188]: 13h ago
+                - cell "Arlington Orthopedic Associates 817-548-2100" [ref=e189]:
+                  - link "Arlington Orthopedic Associates 817-548-2100" [ref=e190]:
+                    - /url: /inbox/FAX-20260423-004
+                    - generic [ref=e191]: Arlington Orthopedic Associates
+                    - generic [ref=e192]: 817-548-2100
+                - cell "Referral" [ref=e193]:
+                  - link "Referral" [ref=e194]:
+                    - /url: /inbox/FAX-20260423-004
+                    - generic [ref=e196]:
+                      - img [ref=e197]
+                      - text: Referral
+                - cell "Robert Harlan MRN-004245 · DOB 09/08/55" [ref=e201]:
+                  - link "Robert Harlan MRN-004245 · DOB 09/08/55" [ref=e202]:
+                    - /url: /inbox/FAX-20260423-004
+                    - generic [ref=e203]: Robert Harlan
+                    - generic [ref=e204]: MRN-004245 · DOB 09/08/55
+                - cell "Grand Prairie" [ref=e205]:
+                  - link "Grand Prairie" [ref=e206]:
+                    - /url: /inbox/FAX-20260423-004
+                    - generic [ref=e209]: Grand Prairie
+                - cell "94%" [ref=e210]:
+                  - link "94%" [ref=e211]:
+                    - /url: /inbox/FAX-20260423-004
+                    - generic [ref=e215]: 94%
+                - cell "Auto-routed" [ref=e216]:
+                  - link "Auto-routed" [ref=e217]:
+                    - /url: /inbox/FAX-20260423-004
+                    - generic [ref=e218]: Auto-routed
+                - cell "Referral Management" [ref=e220]:
+                  - link "Referral Management" [ref=e221]:
+                    - /url: /inbox/FAX-20260423-004
+                    - generic [ref=e222]: Referral Management
+                - cell "2 pg" [ref=e223]:
+                  - link "2 pg" [ref=e224]:
+                    - /url: /inbox/FAX-20260423-004
+                    - generic [ref=e225]: 2 pg
+              - row "12h ago Anderson & Hughes LLP, Attorneys at Law 214-871-2000 Records Req Ashley Benavides MRN-004267 · DOB 02/19/78 Arlington 96% Auto-routed Medical Records 4 pg" [ref=e226] [cursor=pointer]:
+                - cell "12h ago" [ref=e227]:
+                  - link "12h ago" [ref=e228]:
+                    - /url: /inbox/FAX-20260423-005
+                    - generic [ref=e229]: 12h ago
+                - cell "Anderson & Hughes LLP, Attorneys at Law 214-871-2000" [ref=e230]:
+                  - link "Anderson & Hughes LLP, Attorneys at Law 214-871-2000" [ref=e231]:
+                    - /url: /inbox/FAX-20260423-005
+                    - generic [ref=e232]: Anderson & Hughes LLP, Attorneys at Law
+                    - generic [ref=e233]: 214-871-2000
+                - cell "Records Req" [ref=e234]:
+                  - link "Records Req" [ref=e235]:
+                    - /url: /inbox/FAX-20260423-005
+                    - generic [ref=e237]:
+                      - img [ref=e238]
+                      - text: Records Req
+                - cell "Ashley Benavides MRN-004267 · DOB 02/19/78" [ref=e243]:
+                  - link "Ashley Benavides MRN-004267 · DOB 02/19/78" [ref=e244]:
+                    - /url: /inbox/FAX-20260423-005
+                    - generic [ref=e245]: Ashley Benavides
+                    - generic [ref=e246]: MRN-004267 · DOB 02/19/78
+                - cell "Arlington" [ref=e247]:
+                  - link "Arlington" [ref=e248]:
+                    - /url: /inbox/FAX-20260423-005
+                    - generic [ref=e251]: Arlington
+                - cell "96%" [ref=e252]:
+                  - link "96%" [ref=e253]:
+                    - /url: /inbox/FAX-20260423-005
+                    - generic [ref=e257]: 96%
+                - cell "Auto-routed" [ref=e258]:
+                  - link "Auto-routed" [ref=e259]:
+                    - /url: /inbox/FAX-20260423-005
+                    - generic [ref=e260]: Auto-routed
+                - cell "Medical Records" [ref=e262]:
+                  - link "Medical Records" [ref=e263]:
+                    - /url: /inbox/FAX-20260423-005
+                    - generic [ref=e264]: Medical Records
+                - cell "4 pg" [ref=e265]:
+                  - link "4 pg" [ref=e266]:
+                    - /url: /inbox/FAX-20260423-005
+                    - generic [ref=e267]: 4 pg
+              - 'row "11h ago CVS Pharmacy #4215 — Arlington 817-460-5500 Rx Refill Hector Ibarra MRN-004312 · DOB 04/11/70 Arlington 97% Auto-routed Prescription Routing 1 pg" [ref=e268] [cursor=pointer]':
+                - cell "11h ago" [ref=e269]:
+                  - link "11h ago" [ref=e270]:
+                    - /url: /inbox/FAX-20260423-006
+                    - generic [ref=e271]: 11h ago
+                - 'cell "CVS Pharmacy #4215 — Arlington 817-460-5500" [ref=e272]':
+                  - 'link "CVS Pharmacy #4215 — Arlington 817-460-5500" [ref=e273]':
+                    - /url: /inbox/FAX-20260423-006
+                    - generic [ref=e274]: "CVS Pharmacy #4215 — Arlington"
+                    - generic [ref=e275]: 817-460-5500
+                - cell "Rx Refill" [ref=e276]:
+                  - link "Rx Refill" [ref=e277]:
+                    - /url: /inbox/FAX-20260423-006
+                    - generic [ref=e279]:
+                      - img [ref=e280]
+                      - text: Rx Refill
+                - cell "Hector Ibarra MRN-004312 · DOB 04/11/70" [ref=e283]:
+                  - link "Hector Ibarra MRN-004312 · DOB 04/11/70" [ref=e284]:
+                    - /url: /inbox/FAX-20260423-006
+                    - generic [ref=e285]: Hector Ibarra
+                    - generic [ref=e286]: MRN-004312 · DOB 04/11/70
+                - cell "Arlington" [ref=e287]:
+                  - link "Arlington" [ref=e288]:
+                    - /url: /inbox/FAX-20260423-006
+                    - generic [ref=e291]: Arlington
+                - cell "97%" [ref=e292]:
+                  - link "97%" [ref=e293]:
+                    - /url: /inbox/FAX-20260423-006
+                    - generic [ref=e297]: 97%
+                - cell "Auto-routed" [ref=e298]:
+                  - link "Auto-routed" [ref=e299]:
+                    - /url: /inbox/FAX-20260423-006
+                    - generic [ref=e300]: Auto-routed
+                - cell "Prescription Routing" [ref=e302]:
+                  - link "Prescription Routing" [ref=e303]:
+                    - /url: /inbox/FAX-20260423-006
+                    - generic [ref=e304]: Prescription Routing
+                - cell "1 pg" [ref=e305]:
+                  - link "1 pg" [ref=e306]:
+                    - /url: /inbox/FAX-20260423-006
+                    - generic [ref=e307]: 1 pg
+              - row "10h ago UT Southwestern GI Associates 214-645-8300 Specialist Margaret Sullivan MRN-004301 · DOB 12/02/68 Pantego 97% Auto-routed Alicia Harbison 5 pg" [ref=e308] [cursor=pointer]:
+                - cell "10h ago" [ref=e309]:
+                  - link "10h ago" [ref=e310]:
+                    - /url: /inbox/FAX-20260423-007
+                    - generic [ref=e311]: 10h ago
+                - cell "UT Southwestern GI Associates 214-645-8300" [ref=e312]:
+                  - link "UT Southwestern GI Associates 214-645-8300" [ref=e313]:
+                    - /url: /inbox/FAX-20260423-007
+                    - generic [ref=e314]: UT Southwestern GI Associates
+                    - generic [ref=e315]: 214-645-8300
+                - cell "Specialist" [ref=e316]:
+                  - link "Specialist" [ref=e317]:
+                    - /url: /inbox/FAX-20260423-007
+                    - generic [ref=e319]:
+                      - img [ref=e320]
+                      - text: Specialist
+                - cell "Margaret Sullivan MRN-004301 · DOB 12/02/68" [ref=e323]:
+                  - link "Margaret Sullivan MRN-004301 · DOB 12/02/68" [ref=e324]:
+                    - /url: /inbox/FAX-20260423-007
+                    - generic [ref=e325]: Margaret Sullivan
+                    - generic [ref=e326]: MRN-004301 · DOB 12/02/68
+                - cell "Pantego" [ref=e327]:
+                  - link "Pantego" [ref=e328]:
+                    - /url: /inbox/FAX-20260423-007
+                    - generic [ref=e331]: Pantego
+                - cell "97%" [ref=e332]:
+                  - link "97%" [ref=e333]:
+                    - /url: /inbox/FAX-20260423-007
+                    - generic [ref=e337]: 97%
+                - cell "Auto-routed" [ref=e338]:
+                  - link "Auto-routed" [ref=e339]:
+                    - /url: /inbox/FAX-20260423-007
+                    - generic [ref=e340]: Auto-routed
+                - cell "Alicia Harbison" [ref=e342]:
+                  - link "Alicia Harbison" [ref=e343]:
+                    - /url: /inbox/FAX-20260423-007
+                    - generic [ref=e344]: Alicia Harbison
+                - cell "5 pg" [ref=e345]:
+                  - link "5 pg" [ref=e346]:
+                    - /url: /inbox/FAX-20260423-007
+                    - generic [ref=e347]: 5 pg
+              - row "8h ago LabCorp 800-845-6167 Lab Result Daniel Okafor MRN-004289 · DOB 06/30/91 River Oaks 99% Auto-routed Marcus O'Donnell 2 pg" [ref=e348] [cursor=pointer]:
+                - cell "8h ago" [ref=e349]:
+                  - link "8h ago" [ref=e350]:
+                    - /url: /inbox/FAX-20260423-008
+                    - generic [ref=e351]: 8h ago
+                - cell "LabCorp 800-845-6167" [ref=e352]:
+                  - link "LabCorp 800-845-6167" [ref=e353]:
+                    - /url: /inbox/FAX-20260423-008
+                    - generic [ref=e354]: LabCorp
+                    - generic [ref=e355]: 800-845-6167
+                - cell "Lab Result" [ref=e356]:
+                  - link "Lab Result" [ref=e357]:
+                    - /url: /inbox/FAX-20260423-008
+                    - generic [ref=e359]:
+                      - img [ref=e360]
+                      - text: Lab Result
+                - cell "Daniel Okafor MRN-004289 · DOB 06/30/91" [ref=e362]:
+                  - link "Daniel Okafor MRN-004289 · DOB 06/30/91" [ref=e363]:
+                    - /url: /inbox/FAX-20260423-008
+                    - generic [ref=e364]: Daniel Okafor
+                    - generic [ref=e365]: MRN-004289 · DOB 06/30/91
+                - cell "River Oaks" [ref=e366]:
+                  - link "River Oaks" [ref=e367]:
+                    - /url: /inbox/FAX-20260423-008
+                    - generic [ref=e370]: River Oaks
+                - cell "99%" [ref=e371]:
+                  - link "99%" [ref=e372]:
+                    - /url: /inbox/FAX-20260423-008
+                    - generic [ref=e376]: 99%
+                - cell "Auto-routed" [ref=e377]:
+                  - link "Auto-routed" [ref=e378]:
+                    - /url: /inbox/FAX-20260423-008
+                    - generic [ref=e379]: Auto-routed
+                - cell "Marcus O'Donnell" [ref=e381]:
+                  - link "Marcus O'Donnell" [ref=e382]:
+                    - /url: /inbox/FAX-20260423-008
+                    - generic [ref=e383]: Marcus O'Donnell
+                - cell "2 pg" [ref=e384]:
+                  - link "2 pg" [ref=e385]:
+                    - /url: /inbox/FAX-20260423-008
+                    - generic [ref=e386]: 2 pg
+              - row "7h ago USCIS Texas Service Center 214-655-5384 Unclassified Yuki Tanaka MRN-004334 · DOB 10/25/83 Grand Prairie 82% Needs review — 8 pg" [ref=e387] [cursor=pointer]:
+                - cell "7h ago" [ref=e388]:
+                  - link "7h ago" [ref=e389]:
+                    - /url: /inbox/FAX-20260423-009
+                    - generic [ref=e390]: 7h ago
+                - cell "USCIS Texas Service Center 214-655-5384" [ref=e391]:
+                  - link "USCIS Texas Service Center 214-655-5384" [ref=e392]:
+                    - /url: /inbox/FAX-20260423-009
+                    - generic [ref=e393]: USCIS Texas Service Center
+                    - generic [ref=e394]: 214-655-5384
+                - cell "Unclassified" [ref=e395]:
+                  - link "Unclassified" [ref=e396]:
+                    - /url: /inbox/FAX-20260423-009
+                    - generic [ref=e398]:
+                      - img [ref=e399]
+                      - text: Unclassified
+                - cell "Yuki Tanaka MRN-004334 · DOB 10/25/83" [ref=e402]:
+                  - link "Yuki Tanaka MRN-004334 · DOB 10/25/83" [ref=e403]:
+                    - /url: /inbox/FAX-20260423-009
+                    - generic [ref=e404]: Yuki Tanaka
+                    - generic [ref=e405]: MRN-004334 · DOB 10/25/83
+                - cell "Grand Prairie" [ref=e406]:
+                  - link "Grand Prairie" [ref=e407]:
+                    - /url: /inbox/FAX-20260423-009
+                    - generic [ref=e410]: Grand Prairie
+                - cell "82%" [ref=e411]:
+                  - link "82%" [ref=e412]:
+                    - /url: /inbox/FAX-20260423-009
+                    - generic [ref=e416]: 82%
+                - cell "Needs review" [ref=e417]:
+                  - link "Needs review" [ref=e418]:
+                    - /url: /inbox/FAX-20260423-009
+                    - generic [ref=e419]: Needs review
+                - cell "—" [ref=e421]:
+                  - link "—" [ref=e422]:
+                    - /url: /inbox/FAX-20260423-009
+                    - generic [ref=e423]: —
+                - cell "8 pg" [ref=e424]:
+                  - link "8 pg" [ref=e425]:
+                    - /url: /inbox/FAX-20260423-009
+                    - generic [ref=e426]: 8 pg
+              - row "4h ago Unreadable sender Unknown Unclassified M_RG_RET ?ULLIV_N Needs human review Unknown — Needs review — 1 pg" [ref=e427] [cursor=pointer]:
+                - cell "4h ago" [ref=e428]:
+                  - link "4h ago" [ref=e429]:
+                    - /url: /inbox/FAX-20260423-010
+                    - generic [ref=e430]: 4h ago
+                - cell "Unreadable sender Unknown" [ref=e431]:
+                  - link "Unreadable sender Unknown" [ref=e432]:
+                    - /url: /inbox/FAX-20260423-010
+                    - generic [ref=e433]: Unreadable sender
+                    - generic [ref=e434]: Unknown
+                - cell "Unclassified" [ref=e435]:
+                  - link "Unclassified" [ref=e436]:
+                    - /url: /inbox/FAX-20260423-010
+                    - generic [ref=e438]:
+                      - img [ref=e439]
+                      - text: Unclassified
+                - cell "M_RG_RET ?ULLIV_N Needs human review" [ref=e442]:
+                  - link "M_RG_RET ?ULLIV_N Needs human review" [ref=e443]:
+                    - /url: /inbox/FAX-20260423-010
+                    - generic [ref=e444]: M_RG_RET ?ULLIV_N
+                    - generic [ref=e445]: Needs human review
+                - cell "Unknown" [ref=e446]:
+                  - link "Unknown" [ref=e447]:
+                    - /url: /inbox/FAX-20260423-010
+                    - generic [ref=e450]: Unknown
+                - cell "—" [ref=e451]:
+                  - link "—" [ref=e452]:
+                    - /url: /inbox/FAX-20260423-010
+                - cell "Needs review" [ref=e453]:
+                  - link "Needs review" [ref=e454]:
+                    - /url: /inbox/FAX-20260423-010
+                    - generic [ref=e455]: Needs review
+                - cell "—" [ref=e457]:
+                  - link "—" [ref=e458]:
+                    - /url: /inbox/FAX-20260423-010
+                    - generic [ref=e459]: —
+                - cell "1 pg" [ref=e460]:
+                  - link "1 pg" [ref=e461]:
+                    - /url: /inbox/FAX-20260423-010
+                    - generic [ref=e462]: 1 pg
+              - row "2h ago Arlington Diagnostic Imaging 817-275-4100 Imaging Fatima Al-Rashid MRN-004378 · DOB 08/07/79 River Oaks 98% Auto-routed Marcus O'Donnell 3 pg" [ref=e463] [cursor=pointer]:
+                - cell "2h ago" [ref=e464]:
+                  - link "2h ago" [ref=e465]:
+                    - /url: /inbox/FAX-20260423-011
+                    - generic [ref=e466]: 2h ago
+                - cell "Arlington Diagnostic Imaging 817-275-4100" [ref=e467]:
+                  - link "Arlington Diagnostic Imaging 817-275-4100" [ref=e468]:
+                    - /url: /inbox/FAX-20260423-011
+                    - generic [ref=e469]: Arlington Diagnostic Imaging
+                    - generic [ref=e470]: 817-275-4100
+                - cell "Imaging" [ref=e471]:
+                  - link "Imaging" [ref=e472]:
+                    - /url: /inbox/FAX-20260423-011
+                    - generic [ref=e474]:
+                      - img [ref=e475]
+                      - text: Imaging
+                - cell "Fatima Al-Rashid MRN-004378 · DOB 08/07/79" [ref=e479]:
+                  - link "Fatima Al-Rashid MRN-004378 · DOB 08/07/79" [ref=e480]:
+                    - /url: /inbox/FAX-20260423-011
+                    - generic [ref=e481]: Fatima Al-Rashid
+                    - generic [ref=e482]: MRN-004378 · DOB 08/07/79
+                - cell "River Oaks" [ref=e483]:
+                  - link "River Oaks" [ref=e484]:
+                    - /url: /inbox/FAX-20260423-011
+                    - generic [ref=e487]: River Oaks
+                - cell "98%" [ref=e488]:
+                  - link "98%" [ref=e489]:
+                    - /url: /inbox/FAX-20260423-011
+                    - generic [ref=e493]: 98%
+                - cell "Auto-routed" [ref=e494]:
+                  - link "Auto-routed" [ref=e495]:
+                    - /url: /inbox/FAX-20260423-011
+                    - generic [ref=e496]: Auto-routed
+                - cell "Marcus O'Donnell" [ref=e498]:
+                  - link "Marcus O'Donnell" [ref=e499]:
+                    - /url: /inbox/FAX-20260423-011
+                    - generic [ref=e500]: Marcus O'Donnell
+                - cell "3 pg" [ref=e501]:
+                  - link "3 pg" [ref=e502]:
+                    - /url: /inbox/FAX-20260423-011
+                    - generic [ref=e503]: 3 pg
+              - row "8m ago BCBS of Texas — Utilization Management 800-441-9188 Prior Auth Willis McGraw MRN-004389 · DOB 05/29/44 Pantego 98% Completed Prior Authorization 1 pg" [ref=e504] [cursor=pointer]:
+                - cell "8m ago" [ref=e505]:
+                  - link "8m ago" [ref=e506]:
+                    - /url: /inbox/FAX-20260423-012
+                    - generic [ref=e507]: 8m ago
+                - cell "BCBS of Texas — Utilization Management 800-441-9188" [ref=e508]:
+                  - link "BCBS of Texas — Utilization Management 800-441-9188" [ref=e509]:
+                    - /url: /inbox/FAX-20260423-012
+                    - generic [ref=e510]: BCBS of Texas — Utilization Management
+                    - generic [ref=e511]: 800-441-9188
+                - cell "Prior Auth" [ref=e512]:
+                  - link "Prior Auth" [ref=e513]:
+                    - /url: /inbox/FAX-20260423-012
+                    - generic [ref=e515]:
+                      - img [ref=e516]
+                      - text: Prior Auth
+                - cell "Willis McGraw MRN-004389 · DOB 05/29/44" [ref=e519]:
+                  - link "Willis McGraw MRN-004389 · DOB 05/29/44" [ref=e520]:
+                    - /url: /inbox/FAX-20260423-012
+                    - generic [ref=e521]: Willis McGraw
+                    - generic [ref=e522]: MRN-004389 · DOB 05/29/44
+                - cell "Pantego" [ref=e523]:
+                  - link "Pantego" [ref=e524]:
+                    - /url: /inbox/FAX-20260423-012
+                    - generic [ref=e527]: Pantego
+                - cell "98%" [ref=e528]:
+                  - link "98%" [ref=e529]:
+                    - /url: /inbox/FAX-20260423-012
+                    - generic [ref=e533]: 98%
+                - cell "Completed" [ref=e534]:
+                  - link "Completed" [ref=e535]:
+                    - /url: /inbox/FAX-20260423-012
+                    - generic [ref=e536]: Completed
+                - cell "Prior Authorization" [ref=e537]:
+                  - link "Prior Authorization" [ref=e538]:
+                    - /url: /inbox/FAX-20260423-012
+                    - generic [ref=e539]: Prior Authorization
+                - cell "1 pg" [ref=e540]:
+                  - link "1 pg" [ref=e541]:
+                    - /url: /inbox/FAX-20260423-012
+                    - generic [ref=e542]: 1 pg
+              - row "2h ago Dallas Nephrology Associates 214-358-2300 Specialist Derrick Boon MRN-004415 · DOB 09/03/60 Grand Prairie 96% Auto-routed Todd Thang Nguyen 3 pg" [ref=e543] [cursor=pointer]:
+                - cell "2h ago" [ref=e544]:
+                  - link "2h ago" [ref=e545]:
+                    - /url: /inbox/FAX-20260423-013
+                    - generic [ref=e546]: 2h ago
+                - cell "Dallas Nephrology Associates 214-358-2300" [ref=e547]:
+                  - link "Dallas Nephrology Associates 214-358-2300" [ref=e548]:
+                    - /url: /inbox/FAX-20260423-013
+                    - generic [ref=e549]: Dallas Nephrology Associates
+                    - generic [ref=e550]: 214-358-2300
+                - cell "Specialist" [ref=e551]:
+                  - link "Specialist" [ref=e552]:
+                    - /url: /inbox/FAX-20260423-013
+                    - generic [ref=e554]:
+                      - img [ref=e555]
+                      - text: Specialist
+                - cell "Derrick Boon MRN-004415 · DOB 09/03/60" [ref=e558]:
+                  - link "Derrick Boon MRN-004415 · DOB 09/03/60" [ref=e559]:
+                    - /url: /inbox/FAX-20260423-013
+                    - generic [ref=e560]: Derrick Boon
+                    - generic [ref=e561]: MRN-004415 · DOB 09/03/60
+                - cell "Grand Prairie" [ref=e562]:
+                  - link "Grand Prairie" [ref=e563]:
+                    - /url: /inbox/FAX-20260423-013
+                    - generic [ref=e566]: Grand Prairie
+                - cell "96%" [ref=e567]:
+                  - link "96%" [ref=e568]:
+                    - /url: /inbox/FAX-20260423-013
+                    - generic [ref=e572]: 96%
+                - cell "Auto-routed" [ref=e573]:
+                  - link "Auto-routed" [ref=e574]:
+                    - /url: /inbox/FAX-20260423-013
+                    - generic [ref=e575]: Auto-routed
+                - cell "Todd Thang Nguyen" [ref=e577]:
+                  - link "Todd Thang Nguyen" [ref=e578]:
+                    - /url: /inbox/FAX-20260423-013
+                    - generic [ref=e579]: Todd Thang Nguyen
+                - cell "3 pg" [ref=e580]:
+                  - link "3 pg" [ref=e581]:
+                    - /url: /inbox/FAX-20260423-013
+                    - generic [ref=e582]: 3 pg
+              - row "6h ago Quest Diagnostics 972-465-0900 Lab Result Sofia Castellanos MRN-004402 · DOB 11/14/95 Arlington 98% Auto-routed Alicia Harbison 2 pg" [ref=e583] [cursor=pointer]:
+                - cell "6h ago" [ref=e584]:
+                  - link "6h ago" [ref=e585]:
+                    - /url: /inbox/FAX-20260423-014
+                    - generic [ref=e586]: 6h ago
+                - cell "Quest Diagnostics 972-465-0900" [ref=e587]:
+                  - link "Quest Diagnostics 972-465-0900" [ref=e588]:
+                    - /url: /inbox/FAX-20260423-014
+                    - generic [ref=e589]: Quest Diagnostics
+                    - generic [ref=e590]: 972-465-0900
+                - cell "Lab Result" [ref=e591]:
+                  - link "Lab Result" [ref=e592]:
+                    - /url: /inbox/FAX-20260423-014
+                    - generic [ref=e594]:
+                      - img [ref=e595]
+                      - text: Lab Result
+                - cell "Sofia Castellanos MRN-004402 · DOB 11/14/95" [ref=e597]:
+                  - link "Sofia Castellanos MRN-004402 · DOB 11/14/95" [ref=e598]:
+                    - /url: /inbox/FAX-20260423-014
+                    - generic [ref=e599]: Sofia Castellanos
+                    - generic [ref=e600]: MRN-004402 · DOB 11/14/95
+                - cell "Arlington" [ref=e601]:
+                  - link "Arlington" [ref=e602]:
+                    - /url: /inbox/FAX-20260423-014
+                    - generic [ref=e605]: Arlington
+                - cell "98%" [ref=e606]:
+                  - link "98%" [ref=e607]:
+                    - /url: /inbox/FAX-20260423-014
+                    - generic [ref=e611]: 98%
+                - cell "Auto-routed" [ref=e612]:
+                  - link "Auto-routed" [ref=e613]:
+                    - /url: /inbox/FAX-20260423-014
+                    - generic [ref=e614]: Auto-routed
+                - cell "Alicia Harbison" [ref=e616]:
+                  - link "Alicia Harbison" [ref=e617]:
+                    - /url: /inbox/FAX-20260423-014
+                    - generic [ref=e618]: Alicia Harbison
+                - cell "2 pg" [ref=e619]:
+                  - link "2 pg" [ref=e620]:
+                    - /url: /inbox/FAX-20260423-014
+                    - generic [ref=e621]: 2 pg
+              - row "12h ago Tarrant Orthopedic Associates 817-923-4400 Referral Angela Fritz MRN-004437 · DOB 03/17/72 Arlington 95% Auto-routed Referral Management 2 pg" [ref=e622] [cursor=pointer]:
+                - cell "12h ago" [ref=e623]:
+                  - link "12h ago" [ref=e624]:
+                    - /url: /inbox/FAX-20260423-015
+                    - generic [ref=e625]: 12h ago
+                - cell "Tarrant Orthopedic Associates 817-923-4400" [ref=e626]:
+                  - link "Tarrant Orthopedic Associates 817-923-4400" [ref=e627]:
+                    - /url: /inbox/FAX-20260423-015
+                    - generic [ref=e628]: Tarrant Orthopedic Associates
+                    - generic [ref=e629]: 817-923-4400
+                - cell "Referral" [ref=e630]:
+                  - link "Referral" [ref=e631]:
+                    - /url: /inbox/FAX-20260423-015
+                    - generic [ref=e633]:
+                      - img [ref=e634]
+                      - text: Referral
+                - cell "Angela Fritz MRN-004437 · DOB 03/17/72" [ref=e638]:
+                  - link "Angela Fritz MRN-004437 · DOB 03/17/72" [ref=e639]:
+                    - /url: /inbox/FAX-20260423-015
+                    - generic [ref=e640]: Angela Fritz
+                    - generic [ref=e641]: MRN-004437 · DOB 03/17/72
+                - cell "Arlington" [ref=e642]:
+                  - link "Arlington" [ref=e643]:
+                    - /url: /inbox/FAX-20260423-015
+                    - generic [ref=e646]: Arlington
+                - cell "95%" [ref=e647]:
+                  - link "95%" [ref=e648]:
+                    - /url: /inbox/FAX-20260423-015
+                    - generic [ref=e652]: 95%
+                - cell "Auto-routed" [ref=e653]:
+                  - link "Auto-routed" [ref=e654]:
+                    - /url: /inbox/FAX-20260423-015
+                    - generic [ref=e655]: Auto-routed
+                - cell "Referral Management" [ref=e657]:
+                  - link "Referral Management" [ref=e658]:
+                    - /url: /inbox/FAX-20260423-015
+                    - generic [ref=e659]: Referral Management
+                - cell "2 pg" [ref=e660]:
+                  - link "2 pg" [ref=e661]:
+                    - /url: /inbox/FAX-20260423-015
+                    - generic [ref=e662]: 2 pg
+          - generic [ref=e664]: Showing 15 of 15 faxes · synced from Medsender 30s ago
+  - alert [ref=e665]

@@ -59,6 +59,7 @@ export function FaxPreview({ fax, className }: Props) {
           RECEIVED
           <div className="text-[8px] tracking-[0.1em] font-semibold text-center mt-0.5">
             {new Date(fax.receivedAt).toLocaleDateString("en-US", {
+              timeZone: "UTC",
               month: "short",
               day: "numeric",
               year: "numeric",

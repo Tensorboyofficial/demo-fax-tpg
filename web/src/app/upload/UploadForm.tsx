@@ -169,6 +169,8 @@ export function UploadForm() {
         fd.append("tier", "smart");
         const r = await uploadFax(fd);
         setFaxResult(r);
+        // Upload always caches in process memory as a fallback, so the detail
+        // route can render even when Supabase persistence fails.
         if (r.ok) {
           window.setTimeout(() => router.push(`/inbox/${r.faxId}`), 1500);
         }
@@ -553,18 +555,30 @@ export function UploadForm() {
                   </div>
                   {!faxResult.persisted && faxResult.persistError && (
                     <div className="mt-3 p-3 rounded-md bg-[var(--cevi-accent-light)] border border-[var(--cevi-accent)]/20 text-[11px] text-[var(--cevi-accent)]">
-                      Database note: {faxResult.persistError}. Apply{" "}
-                      <code>web/supabase/schema.sql</code> to unlock persistence.
+                      <strong className="font-semibold">Supabase schema not applied yet.</strong>{" "}
+                      Cevi classified the fax live, but the result wasn't saved to the inbox.
+                      Apply <code className="font-mono">web/supabase/schema.sql</code> in
+                      your Supabase SQL Editor to enable persistence across sessions.
                     </div>
                   )}
                 </CardContent>
                 <CardFooter>
-                  <Link
-                    href={`/inbox/${faxResult.faxId}`}
-                    className="text-[12px] font-semibold text-[var(--cevi-accent)] hover:underline inline-flex items-center gap-1"
-                  >
-                    Open fax <ArrowRight className="h-3 w-3" strokeWidth={2} />
-                  </Link>
+                  {faxResult.persisted ? (
+                    <Link
+                      href={`/inbox/${faxResult.faxId}`}
+                      className="text-[12px] font-semibold text-[var(--cevi-accent)] hover:underline inline-flex items-center gap-1"
+                    >
+                      Open fax <ArrowRight className="h-3 w-3" strokeWidth={2} />
+                    </Link>
+                  ) : (
+                    <Link
+                      href="/"
+                      className="text-[12px] font-semibold text-[var(--cevi-accent)] hover:underline inline-flex items-center gap-1"
+                    >
+                      See example faxes in the inbox{" "}
+                      <ArrowRight className="h-3 w-3" strokeWidth={2} />
+                    </Link>
+                  )}
                 </CardFooter>
               </>
             ) : (

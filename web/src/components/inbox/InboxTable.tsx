@@ -103,7 +103,7 @@ function patientLabel(fax: Fax): { primary: string; secondary: string } {
   if (!p) return { primary: "Unknown", secondary: "" };
   return {
     primary: `${p.firstName} ${p.lastName}`,
-    secondary: `${p.mrn} · DOB ${new Date(p.dob).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "2-digit" })}`,
+    secondary: `${p.mrn} · DOB ${new Date(p.dob).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "2-digit", timeZone: "UTC" })}`,
   };
 }
 
