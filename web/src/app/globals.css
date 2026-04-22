@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+:root {
+  /* ── Brand ── */
+  --cevi-accent: #E35336;
+  --cevi-accent-hover: #D04A2E;
+  --cevi-accent-light: #FEF7F5;
+  --cevi-accent-bg: #FDF5EC;
+
+  /* ── Text ── */
+  --cevi-text: #1a1a1a;
+  --cevi-text-secondary: #333333;
+  --cevi-text-tertiary: #555555;
+  --cevi-text-muted: #77736D;
+  --cevi-text-faint: #9A9A96;
+
+  /* ── Surfaces & borders ── */
+  --cevi-bg: #FFFFFF;
+  --cevi-surface: #F6F4F2;
+  --cevi-surface-warm: #FAFAF8;
+  --cevi-border: #E3E2DE;
+  --cevi-border-light: #EDECEA;
+  --cevi-link-underline: #C0BFBA;
+
+  /* ── Success / Error ── */
+  --cevi-success: #2D7A54;
+  --cevi-success-light: #EDFAF3;
+  --cevi-error: #E35336;
+  --cevi-error-light: #FEF7F5;
+
+  /* ── Desert Mirage (categorical) ── */
+  --cevi-coral: #F4845F;
+  --cevi-coral-light: #FEF0EC;
+  --cevi-amber: #F7B267;
+  --cevi-amber-light: #FEF4E6;
+  --cevi-jade: #7EC4A5;
+  --cevi-jade-light: #EDFAF3;
+  --cevi-sand: #D4A574;
+  --cevi-sand-light: #FDF5EC;
+  --cevi-teal: #6CB4C4;
+  --cevi-teal-light: #EFF8FA;
+
+  /* ── Spacing ── */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* ── Radius ── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow-focus: 0 0 0 3px rgba(227, 83, 54, 0.08);
+}
+
+@theme inline {
+  --color-background: var(--cevi-bg);
+  --color-foreground: var(--cevi-text);
+  --font-sans: var(--font-dm-sans), -apple-system, system-ui, sans-serif;
+  --font-serif: var(--font-eb-garamond), Georgia, serif;
+  --font-mono: "SF Mono", ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--cevi-bg);
+  color: var(--cevi-text);
+  font-family: var(--font-dm-sans), -apple-system, system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+*:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--radius-md);
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  border-color: var(--cevi-text) !important;
+  outline: none;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  transition-property: color, background-color, border-color, box-shadow, opacity;
+  transition-duration: 100ms;
+  transition-timing-function: ease-out;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #e5e5e5 transparent;
+}
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #e5e5e5;
+  border-radius: 9999px;
+}
+
+/* "Faxed document" effect for preview panels — grayscale, slight contrast, subtle noise feel */
+.fax-paper {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.015) 0,
+      rgba(0, 0, 0, 0.015) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    linear-gradient(180deg, #fbfaf7 0%, #f5f3ee 100%);
+  color: #2a2722;
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.06);
+  filter: contrast(1.02);
+}
+
+.fax-paper-header {
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.25);
+}
+
+@keyframes fax-arrive {
+  0% {
+    opacity: 0;
+    transform: translateY(-6px);
+    background-color: var(--cevi-accent-light);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(0);
+    background-color: var(--cevi-accent-light);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    background-color: transparent;
+  }
+}
+
+.fax-arrive {
+  animation: fax-arrive 800ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

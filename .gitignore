@@ -1,0 +1,23 @@
+# Monorepo-level ignores
+.DS_Store
+*.log
+
+# Node + Next.js (web/)
+web/node_modules
+web/.next
+web/out
+web/.vercel
+web/next-env.d.ts
+web/*.tsbuildinfo
+
+# Env files — NEVER commit
+web/.env
+web/.env.local
+web/.env.*.local
+
+# Build artifacts
+web/build
+web/dist
+
+# Misc
+.claude
