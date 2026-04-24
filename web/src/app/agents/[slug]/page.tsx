@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { Stat } from "@/components/ui/stat";
-import { Badge, statusBadgeVariant, urgencyBadgeVariant } from "@/components/ui/badge";
-import { ConfidenceMeter } from "@/components/inbox/ConfidenceMeter";
-import { AgentHeaderActions } from "@/components/agents/AgentHeaderActions";
-import { agentByKey } from "@/data/agents";
-import { faxes, getFaxesByAgent } from "@/data/faxes";
-import { getPatientById, patientFullName } from "@/data/patients";
-import { formatRelative, formatDob, cn } from "@/lib/utils";
+import { Stat } from "@/frontend/components/ui/stat";
+import { Badge, statusBadgeVariant, urgencyBadgeVariant } from "@/frontend/components/ui/badge";
+import { ConfidenceMeter } from "@/frontend/components/composed/confidence-meter";
+import { AgentHeaderActions } from "@/frontend/components/features/agent/agent-header-actions";
+import { agentByKey } from "@/data/seed/agents";
+import { faxes, getFaxesByAgent } from "@/data/seed/faxes";
+import { getPatientById, patientFullName } from "@/data/seed/patients";
+import { formatRelative, formatDob, cn } from "@/shared/utils";
 
 const SLUG_TO_KEY: Record<string, "referrals" | "prior_auth" | "lab_results" | "rx_refills" | "records"> = {
   referrals: "referrals",

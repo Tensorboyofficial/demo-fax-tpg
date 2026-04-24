@@ -1,4 +1,4 @@
-import { AuditTable } from "./AuditTable";
+import { AuditTable } from "@/frontend/components/features/audit/audit-table";
 
 export const metadata = {
   title: "Audit Trail · Cevi",

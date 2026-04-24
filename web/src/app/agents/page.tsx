@@ -1,6 +1,6 @@
-import { AgentCard } from "@/components/agents/AgentCard";
-import { Stat } from "@/components/ui/stat";
-import { agents } from "@/data/agents";
+import { AgentCard } from "@/frontend/components/features/agent/agent-card";
+import { Stat } from "@/frontend/components/ui/stat";
+import { agents } from "@/data/seed/agents";
 import { Stethoscope, ShieldCheck, FlaskConical, Pill, FileText } from "lucide-react";
 
 export const metadata = {

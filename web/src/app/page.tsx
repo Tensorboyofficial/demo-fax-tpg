@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { InboxTable } from "@/components/inbox/InboxTable";
-import { getAllFaxes } from "@/lib/data-merge";
+import { InboxTable } from "@/frontend/components/features/fax/inbox-table";
+import { getAllFaxes } from "@/backend/services/data-merge.service";
 import { UploadCloud } from "lucide-react";
 
 export const dynamic = "force-dynamic";

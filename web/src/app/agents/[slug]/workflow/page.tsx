@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, GitBranch } from "lucide-react";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { IconBox } from "@/components/ui/icon-box";
-import { WorkflowEditor } from "@/components/agents/WorkflowEditor";
-import { agentByKey } from "@/data/agents";
-import type { AgentKey } from "@/lib/types";
+import { Card, CardHeader, CardContent, CardFooter } from "@/frontend/components/ui/card";
+import { Badge } from "@/frontend/components/ui/badge";
+import { IconBox } from "@/frontend/components/ui/icon-box";
+import { WorkflowEditor } from "@/frontend/components/features/agent/workflow-editor";
+import { agentByKey } from "@/data/seed/agents";
+import type { AgentKey } from "@/shared/types";
 
 const SLUG_TO_KEY: Record<string, AgentKey> = {
   referrals: "referrals",

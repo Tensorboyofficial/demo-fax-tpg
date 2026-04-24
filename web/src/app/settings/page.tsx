@@ -1,6 +1,6 @@
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { IconBox } from "@/components/ui/icon-box";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardContent } from "@/frontend/components/ui/card";
+import { IconBox } from "@/frontend/components/ui/icon-box";
+import { Badge } from "@/frontend/components/ui/badge";
 import { Settings as SettingsIcon, ShieldCheck, Bell, Users, Lock } from "lucide-react";
 
 export const metadata = {

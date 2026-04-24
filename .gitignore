@@ -2,6 +2,11 @@
 .DS_Store
 *.log
 
+#Temporary files
+/docs/
+/temp/
+/CLAUDE.md
+
 # Node + Next.js (web/)
 web/node_modules
 web/.next

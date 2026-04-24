@@ -1,6 +1,6 @@
 "use server";
 
-import { insertCriticalAck } from "@/lib/supabase/userFaxes";
+import { insertCriticalAck } from "@/backend/repositories/supabase/supabase-writes";
 
 export interface AckResult {
   ok: boolean;
