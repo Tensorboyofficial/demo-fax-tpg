@@ -1,4 +1,4 @@
-import { UploadForm } from "./UploadForm";
+import { UploadForm } from "@/frontend/components/features/upload/upload-form";
 
 export const metadata = {
   title: "Upload · Cevi",

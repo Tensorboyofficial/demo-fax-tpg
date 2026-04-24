@@ -1,10 +1,10 @@
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { IconBox } from "@/components/ui/icon-box";
-import { integrations } from "@/data/integrations";
+import { Card, CardHeader, CardContent, CardFooter } from "@/frontend/components/ui/card";
+import { Badge } from "@/frontend/components/ui/badge";
+import { Button } from "@/frontend/components/ui/button";
+import { IconBox } from "@/frontend/components/ui/icon-box";
+import { integrations } from "@/data/seed/integrations";
 import { Plug, CheckCircle2, CircleDashed } from "lucide-react";
-import type { Integration } from "@/lib/types";
+import type { Integration } from "@/shared/types";
 
 export const metadata = {
   title: "Integrations · Cevi",

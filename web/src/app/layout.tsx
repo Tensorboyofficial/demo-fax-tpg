@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans, EB_Garamond } from "next/font/google";
 import "./globals.css";
-import { AppShell } from "@/components/shell/AppShell";
+import { AppShell } from "@/frontend/components/layout/app-shell";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],

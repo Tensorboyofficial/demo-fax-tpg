@@ -1,4 +1,4 @@
-import { DemoStage } from "./DemoStage";
+import { DemoStage } from "@/frontend/components/features/demo/demo-stage";
 
 export const metadata = {
   title: "Live Demo · Cevi for Transcend Medical Group",

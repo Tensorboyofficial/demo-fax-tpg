@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, Receipt } from "lucide-react";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
-import { IconBox } from "@/components/ui/icon-box";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardHeader, CardContent, CardFooter } from "@/frontend/components/ui/card";
+import { IconBox } from "@/frontend/components/ui/icon-box";
+import { Badge } from "@/frontend/components/ui/badge";
 
 export const metadata = {
   title: "Paper EOB · Cevi",

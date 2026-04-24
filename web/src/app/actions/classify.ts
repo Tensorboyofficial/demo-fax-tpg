@@ -1,9 +1,9 @@
 "use server";
 
-import { getAnthropic, MODELS, MODEL_LABELS, type ModelTier } from "@/lib/claude";
-import { getFaxById } from "@/data/faxes";
-import { guardRate } from "@/lib/rate-limit";
-import type { ExtractedFields, FaxType } from "@/lib/types";
+import { getAnthropic, MODELS, MODEL_LABELS, type ModelTier } from "@/backend/config/models.config";
+import { getFaxById } from "@/data/seed/faxes";
+import { guardRate } from "@/backend/middleware/rate-limiter";
+import type { ExtractedFields, FaxType } from "@/shared/types";
 
 export interface ClassifyResult {
   ok: true;
@@ -27,38 +27,9 @@ export interface ClassifyError {
   latencyMs: number;
 }
 
-const SYSTEM_PROMPT = `You are Cevi's medical fax triage AI. You are HIPAA-compliant and operate on OCR'd healthcare faxes at Transcend Medical Group, a multi-location primary care practice on eClinicalWorks.
+import { PROMPTS_CONFIG } from "@/backend/config/prompts.config";
 
-Given OCR text from a single inbound fax, you MUST return a single JSON object with EXACTLY this shape (no prose, no markdown fences):
-
-{
-  "type": "referral" | "lab_result" | "prior_auth" | "records_request" | "rx_refill" | "specialist_consult" | "imaging_report" | "unknown",
-  "typeConfidence": number between 0.0 and 1.0,
-  "urgency": "routine" | "urgent" | "stat" | "critical",
-  "extracted": {
-    "sendingProvider": string?,
-    "sendingOrg": string?,
-    "documentDate": string? (YYYY-MM-DD),
-    "patientNameOnDoc": string?,
-    "patientDobOnDoc": string? (MM/DD/YYYY),
-    "patientMrnOnDoc": string?,
-    "diagnoses": string[]?,
-    "recommendations": string[]?,
-    "medications": string[]?,
-    "icd10": string[]?,
-    "cpt": string[]?,
-    "summary": string (2-3 sentence clinical summary)
-  },
-  "aiSummary": string (one sentence, operator-facing, ~20 words)
-}
-
-Rules:
-- Classification thresholds: use 0.98+ only when type is obvious (exact lab panels, PA letters, Rx refill forms). Use 0.7-0.85 when uncertain.
-- "critical" urgency is reserved for lab panels with values flagged CRITICAL, STAT radiology with hemorrhage/PE, or explicit "time-sensitive" patient safety events.
-- Prefer "urgent" for abnormal findings that need action today but are not life-threatening.
-- Do not invent data. If a field is not present in the OCR text, omit it.
-- Respect medical abbreviations; use ICD-10 codes verbatim if present.
-- Return ONLY the JSON object. Nothing before, nothing after.`;
+const SYSTEM_PROMPT = PROMPTS_CONFIG.classification;
 
 export async function classifyFax(
   id: string,

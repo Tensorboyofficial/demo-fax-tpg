@@ -1,7 +1,7 @@
-import { Stat } from "@/components/ui/stat";
-import { Button } from "@/components/ui/button";
-import { InboxTable } from "@/components/inbox/InboxTable";
-import { getAllFaxes } from "@/lib/data-merge";
+import { Stat } from "@/frontend/components/ui/stat";
+import { Button } from "@/frontend/components/ui/button";
+import { InboxTable } from "@/frontend/components/features/fax/inbox-table";
+import { getAllFaxes } from "@/backend/services/data-merge.service";
 import { Download, Filter, UploadCloud } from "lucide-react";
 import Link from "next/link";
 

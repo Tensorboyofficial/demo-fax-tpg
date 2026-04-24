@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { getFaxByIdMerged, getEventsForFax } from "@/lib/data-merge";
-import { DetailShell } from "@/components/detail/DetailShell";
+import { getFaxByIdMerged, getEventsForFax } from "@/backend/services/data-merge.service";
+import { DetailShell } from "@/frontend/components/features/fax/detail-shell";
 
 export const dynamic = "force-dynamic";
 

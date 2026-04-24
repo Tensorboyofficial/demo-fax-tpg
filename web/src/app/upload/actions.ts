@@ -1,17 +1,19 @@
 "use server";
 
-import { getAnthropic, MODELS, MODEL_LABELS, type ModelTier } from "@/lib/claude";
-import { insertUploadedFax } from "@/lib/supabase/userFaxes";
-import { saveFaxInMemory } from "@/lib/memory-store";
-import { matchPatient } from "@/lib/matching";
-import { guardRate } from "@/lib/rate-limit";
+import { getAnthropic, MODELS, MODEL_LABELS, type ModelTier } from "@/backend/config/models.config";
+import { PROMPTS_CONFIG } from "@/backend/config/prompts.config";
+import { insertUploadedFax } from "@/backend/repositories/supabase/supabase-writes";
+import { saveFaxInMemory } from "@/backend/repositories/memory/memory-fax.repository";
+import { matchPatient } from "@/backend/services/matching.service";
+import { RoutingService } from "@/backend/services/routing.service";
+import { guardRate } from "@/backend/middleware/rate-limiter";
 import type {
   ExtractedFields,
   Fax,
   FaxEvent,
   FaxType,
   Urgency,
-} from "@/lib/types";
+} from "@/shared/types";
 
 export interface UploadResult {
   ok: true;
@@ -29,38 +31,8 @@ export interface UploadError {
   error: string;
 }
 
-const SYSTEM_PROMPT = `You are Cevi's medical fax triage AI. You are HIPAA-compliant and work for Transcend Medical Group (multi-location primary care on eClinicalWorks).
-
-Given a fax (as image/PDF pages, or OCR text), return a single JSON object with EXACTLY this shape — no prose, no markdown fences:
-
-{
-  "type": "referral" | "lab_result" | "prior_auth" | "records_request" | "rx_refill" | "specialist_consult" | "imaging_report" | "unknown",
-  "typeConfidence": number 0..1,
-  "urgency": "routine" | "urgent" | "stat" | "critical",
-  "extracted": {
-    "sendingProvider": string?,
-    "sendingOrg": string?,
-    "documentDate": string? (YYYY-MM-DD),
-    "patientNameOnDoc": string?,
-    "patientDobOnDoc": string? (MM/DD/YYYY),
-    "patientMrnOnDoc": string?,
-    "diagnoses": string[]?,
-    "recommendations": string[]?,
-    "medications": string[]?,
-    "icd10": string[]?,
-    "cpt": string[]?,
-    "summary": string (2-3 sentence clinical summary)
-  },
-  "aiSummary": string (one sentence, ~20 words, operator-facing),
-  "ocrTextExcerpt": string (first ~200 chars of the fax content for audit)
-}
-
-Rules:
-- "critical" urgency is reserved for labs with values flagged CRITICAL, STAT radiology with hemorrhage/PE, or explicit "time-sensitive" patient safety events.
-- "urgent" for abnormal findings that need action today but are not life-threatening.
-- Don't invent data. Omit fields that aren't present.
-- Use ICD-10 codes verbatim from the document.
-- Return ONLY the JSON object.`;
+const SYSTEM_PROMPT = PROMPTS_CONFIG.upload;
+const router = new RoutingService();
 
 function genId(prefix: string): string {
   const ts = Date.now().toString(36);
@@ -73,68 +45,12 @@ function inferRouting(
   urgency: Urgency,
   matchedPatientId: string | null,
 ): { routedTo: string | null; routedReason: string | null; status: Fax["status"] } {
-  if (!matchedPatientId) {
-    return {
-      routedTo: null,
-      routedReason:
-        "Patient match below 80% confidence — routed to Review queue for operator confirmation.",
-      status: "needs_review",
-    };
-  }
-  if (urgency === "critical" || urgency === "stat") {
-    return {
-      routedTo: "agent:lab_results",
-      routedReason:
-        "Critical / STAT result — routed to Lab Results agent with SMS dispatch to on-call nurse.",
-      status: "auto_routed",
-    };
-  }
-  switch (type) {
-    case "referral":
-      return {
-        routedTo: "agent:referrals",
-        routedReason: "Inbound referral → Referrals agent; Healow slot held.",
-        status: "auto_routed",
-      };
-    case "prior_auth":
-      return {
-        routedTo: "agent:prior_auth",
-        routedReason: "Payer PA request → Prior Auth agent; clinical justification drafted.",
-        status: "auto_routed",
-      };
-    case "records_request":
-      return {
-        routedTo: "agent:records",
-        routedReason: "Records request → Records agent; ROI ticket created.",
-        status: "auto_routed",
-      };
-    case "rx_refill":
-      return {
-        routedTo: "agent:rx_refills",
-        routedReason: "Refill request → Rx agent; draft approval prepared for e-signature.",
-        status: "auto_routed",
-      };
-    case "lab_result":
-    case "imaging_report":
-      return {
-        routedTo: "P-001",
-        routedReason: "Patient's PCP inbox (auto).",
-        status: "auto_routed",
-      };
-    case "specialist_consult":
-      return {
-        routedTo: "P-001",
-        routedReason: "Specialist report → PCP results inbox.",
-        status: "auto_routed",
-      };
-    default:
-      return {
-        routedTo: null,
-        routedReason:
-          "Document type unclear — routed to Review queue for operator confirmation.",
-        status: "needs_review",
-      };
-  }
+  const decision = router.route({ type, urgency, matchedPatientId });
+  return {
+    routedTo: decision.routedTo,
+    routedReason: decision.routedReason,
+    status: decision.status,
+  };
 }
 
 type UploadContentBlock =

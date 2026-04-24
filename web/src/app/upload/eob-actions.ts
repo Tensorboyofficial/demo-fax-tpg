@@ -1,7 +1,8 @@
 "use server";
 
-import { getAnthropic, MODELS, MODEL_LABELS } from "@/lib/claude";
-import { guardRate } from "@/lib/rate-limit";
+import { getAnthropic, MODELS, MODEL_LABELS } from "@/backend/config/models.config";
+import { PROMPTS_CONFIG } from "@/backend/config/prompts.config";
+import { guardRate } from "@/backend/middleware/rate-limiter";
 
 export interface EobClaim {
   patient: string;
@@ -36,40 +37,7 @@ export interface EobError {
   latencyMs: number;
 }
 
-const SYSTEM_PROMPT = `You are Cevi's paper-EOB extraction AI. A paper EOB (Explanation of Benefits) has been scanned or OCR'd. Your job: extract the check-level metadata and every claim line-item into a structured JSON object so the practice biller can post them into their billing system without re-typing.
-
-Return ONLY a JSON object with EXACTLY this shape (no prose, no markdown fences):
-
-{
-  "payer": string (the insurance company, e.g. "BCBS of Texas"),
-  "checkNumber": string?,
-  "checkDate": string? (YYYY-MM-DD),
-  "checkAmount": number? (total check amount in dollars),
-  "claims": [
-    {
-      "patient": string (last, first or however the EOB shows it),
-      "patientAccount": string?,
-      "dos": string (YYYY-MM-DD),
-      "cpt": string (CPT / HCPCS code),
-      "description": string?,
-      "billed": number,
-      "allowed": number,
-      "paid": number,
-      "adjustment": number,
-      "patientResponsibility": number,
-      "denialCodes": string[]?
-    }
-  ]
-}
-
-Rules:
-- All dollar fields in USD as plain numbers (e.g. 125.50, not "$125.50").
-- If a line has a denial code (like CO-45, PR-1), include it in denialCodes.
-- Use YYYY-MM-DD for dates. If only MM/DD is shown, include the check year.
-- Skip lines that are not claim rows (subtotals, footers, explanations).
-- If the EOB is single-patient / single-claim, return a claims array of length 1.
-- Omit optional fields you cannot see; do not invent values.
-- Return ONLY the JSON object.`;
+const SYSTEM_PROMPT = PROMPTS_CONFIG.eob;
 
 type EobContentBlock =
   | { type: "text"; text: string }

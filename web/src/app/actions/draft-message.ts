@@ -1,11 +1,11 @@
 "use server";
 
-import { getAnthropic, MODELS, MODEL_LABELS } from "@/lib/claude";
-import { getFaxById } from "@/data/faxes";
-import { getUploadedFaxById, insertPatientMessage } from "@/lib/supabase/userFaxes";
-import { getPatientById, patientFullName } from "@/data/patients";
-import { getProviderById } from "@/data/providers";
-import { guardRate } from "@/lib/rate-limit";
+import { getAnthropic, MODELS, MODEL_LABELS } from "@/backend/config/models.config";
+import { getFaxById } from "@/data/seed/faxes";
+import { getUploadedFaxById, insertPatientMessage } from "@/backend/repositories/supabase/supabase-writes";
+import { getPatientById, patientFullName } from "@/data/seed/patients";
+import { getProviderById } from "@/data/seed/providers";
+import { guardRate } from "@/backend/middleware/rate-limiter";
 
 export interface DraftResult {
   ok: true;
@@ -23,24 +23,9 @@ export interface DraftError {
   latencyMs: number;
 }
 
-const SYSTEM_PROMPT = `You are Cevi's patient-communication assistant. You help a primary-care doctor draft a reassuring, precise, HIPAA-compliant patient-facing message based on a fax (lab result, imaging, or specialist consult).
+import { PROMPTS_CONFIG } from "@/backend/config/prompts.config";
 
-Hard requirements:
-- Grade 4–6 reading level (short sentences, common words; no jargon without a plain-English gloss).
-- Warm, calm tone. Never alarming. Never dismissive.
-- Never include critical abnormal values without a clear "what to do" step.
-- Never include personally identifying info not already in the fax (no SSN, no insurance IDs, no DOB).
-- Address the patient by first name. Sign off with the PCP's name, provided below.
-- DO NOT recommend specific doses or new prescriptions — surface what the specialist/lab said, plus the PCP's next step.
-- If there is any critical finding, the message must include a "please call us today at 817-860-2700" line.
-
-Return a single JSON object:
-{
-  "subject": string  (≤ 60 chars; plain english),
-  "body": string     (markdown plain text, 4–8 short paragraphs; include an opening line, the news, what it means, what we recommend, and a warm sign-off)
-}
-
-Return ONLY the JSON object. No preamble, no markdown fences.`;
+const SYSTEM_PROMPT = PROMPTS_CONFIG.patientMessage;
 
 export async function draftPatientMessage(payload: {
   faxId: string;
