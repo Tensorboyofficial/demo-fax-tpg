@@ -19,19 +19,11 @@ const SidebarContext = createContext<SidebarState>({
 });
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
-  const [collapsed, setCollapsed] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("cevi_sidebar_collapsed") === "true";
-    }
-    return false;
-  });
+  const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
   const toggle = useCallback(() => {
-    setCollapsed((c) => {
-      const next = !c;
-      localStorage.setItem("cevi_sidebar_collapsed", String(next));
-      return next;
-    });
+    setCollapsed((c) => !c);
   }, []);
   const openMobile = useCallback(() => setMobileOpen(true), []);
   const closeMobile = useCallback(() => setMobileOpen(false), []);
