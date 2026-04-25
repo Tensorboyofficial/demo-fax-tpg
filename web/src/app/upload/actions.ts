@@ -350,7 +350,7 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
     const id = genId("FAX-UP");
     const nowIso = new Date().toISOString();
 
-    // Save uploaded file to public/uploads/ for document viewer
+    // Save uploaded file for document viewer
     let fileUrl: string | undefined;
     if (mode !== "text") {
       const file = formData.get("file") as File;
@@ -360,11 +360,31 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
           : file.type === "image/jpeg" ? ".jpg"
           : ".webp";
         const filename = `${id}${ext}`.toLowerCase();
-        const uploadsDir = path.join(process.cwd(), "public", "uploads");
-        if (!existsSync(uploadsDir)) mkdirSync(uploadsDir, { recursive: true });
         const buffer = Buffer.from(await file.arrayBuffer());
-        writeFileSync(path.join(uploadsDir, filename), buffer);
-        fileUrl = `/uploads/${filename}`;
+
+        // Try Supabase Storage first (use service role key for upload permissions)
+        const { createClient } = await import("@supabase/supabase-js");
+        const sbUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const sbKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+        const supabase = sbUrl && sbKey ? createClient(sbUrl, sbKey, { auth: { persistSession: false } }) : null;
+        if (supabase) {
+          const { data, error } = await supabase.storage
+            .from("fax-uploads")
+            .upload(filename, buffer, { contentType: file.type, upsert: true });
+          if (!error && data) {
+            const { data: urlData } = supabase.storage
+              .from("fax-uploads")
+              .getPublicUrl(filename);
+            fileUrl = urlData.publicUrl;
+          }
+        }
+        // Local fallback (dev without Supabase)
+        if (!fileUrl) {
+          const uploadsDir = path.join(process.cwd(), "public", "uploads");
+          if (!existsSync(uploadsDir)) mkdirSync(uploadsDir, { recursive: true });
+          writeFileSync(path.join(uploadsDir, filename), buffer);
+          fileUrl = `/uploads/${filename}`;
+        }
       }
     }
 
@@ -392,6 +412,8 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
         summary: parsed.extracted?.summary,
         // Merge the full structured extraction into extracted so the detail page can use it
         ...(structuredExtraction ? { structuredExtraction } : {}),
+        // Store fileUrl in extracted JSONB as fallback (in case file_url column doesn't exist yet)
+        ...(fileUrl ? { fileUrl } : {}),
       },
       routedTo: routing.routedTo,
       routedReason: routing.routedReason,

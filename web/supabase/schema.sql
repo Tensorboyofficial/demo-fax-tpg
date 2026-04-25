@@ -58,6 +58,7 @@ create table if not exists public.user_faxes (
   is_user_uploaded boolean not null default true,
   source_kind text default 'upload',
   created_by text default 'anon',
+  file_url text,
   created_at timestamptz not null default now()
 );
 

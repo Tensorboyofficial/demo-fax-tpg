@@ -66,7 +66,7 @@ export function rowToFax(row: UserFaxRow): Fax {
     aiSummary: row.ai_summary ?? undefined,
     modelUsed: row.model_used ?? undefined,
     isHero: false,
-    fileUrl: row.file_url ?? undefined,
+    fileUrl: row.file_url ?? (row.extracted as Record<string, unknown>)?.fileUrl as string ?? undefined,
   };
 }
 

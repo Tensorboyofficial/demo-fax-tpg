@@ -394,7 +394,7 @@ export function DetailShell({ fax, initialEvents }: Props) {
               >
                 {/* Render actual file if available (PDF or image) */}
                 {fax.fileUrl ? (
-                  fax.fileUrl.endsWith(".pdf") ? (
+                  fax.fileUrl.includes(".pdf") ? (
                     <div className="mb-6">
                       <iframe
                         src={fax.fileUrl}

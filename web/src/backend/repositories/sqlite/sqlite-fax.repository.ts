@@ -29,7 +29,7 @@ function rowToFax(row: Record<string, unknown>): Fax {
     aiSummary: (row.ai_summary as string) ?? undefined,
     modelUsed: (row.model_used as string) ?? undefined,
     isHero: false,
-    fileUrl: (row.file_url as string) ?? undefined,
+    fileUrl: (row.file_url as string) ?? (extracted as Record<string, unknown>)?.fileUrl as string ?? undefined,
   };
 }
 

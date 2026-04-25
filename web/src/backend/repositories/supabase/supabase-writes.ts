@@ -14,7 +14,10 @@ export async function insertUploadedFax(
   if (!s) return { ok: false, error: "Supabase not configured" };
   try {
     const { fax, events } = payload;
-    const row: Omit<UserFaxRow, "created_at"> = {
+    // fileUrl is stored inside `extracted` JSONB (always works)
+    // Also try the top-level file_url column if it exists
+    const extracted = { ...fax.extracted, candidates: fax.candidates };
+    const baseRow = {
       id: fax.id,
       received_at: fax.receivedAt,
       pages: fax.pages,
@@ -28,18 +31,21 @@ export async function insertUploadedFax(
       urgency: fax.urgency,
       matched_patient_id: fax.matchedPatientId,
       match_confidence: fax.matchConfidence,
-      extracted: { ...fax.extracted, candidates: fax.candidates },
+      extracted,
       routed_to: fax.routedTo,
       routed_reason: fax.routedReason,
       ocr_text: fax.ocrText,
       ai_summary: fax.aiSummary ?? null,
       model_used: fax.modelUsed ?? null,
-      file_url: fax.fileUrl ?? null,
       is_user_uploaded: true,
       source_kind: "upload",
       created_by: "anon",
     };
-    const { error: faxErr } = await s.from("user_faxes").insert(row);
+    // Try with file_url column; if it doesn't exist yet, retry without it
+    let { error: faxErr } = await s.from("user_faxes").insert({ ...baseRow, file_url: fax.fileUrl ?? null });
+    if (faxErr?.code === "42703") {
+      ({ error: faxErr } = await s.from("user_faxes").insert(baseRow));
+    }
     if (faxErr) return { ok: false, error: faxErr.message };
 
     if (events.length > 0) {
