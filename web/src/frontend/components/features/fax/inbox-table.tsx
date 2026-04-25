@@ -321,12 +321,11 @@ export function InboxTable({ faxes: faxesProp }: Props) {
                 return (
                   <tr
                     key={fax.id}
-                    onClick={() => router.push(`/inbox/${fax.id}`)}
                     className={cn(
-                      "cursor-pointer transition-colors",
+                      "transition-colors",
                       isSelected
                         ? "bg-[var(--cevi-accent-light)]"
-                        : "hover:bg-[#E5E5E5]",
+                        : "hover:bg-[#F5F5F5]",
                     )}
                   >
                     {/* Checkbox */}
@@ -346,12 +345,16 @@ export function InboxTable({ faxes: faxesProp }: Props) {
                       onClick={(e) => handleCellClick(fax.id, e)}
                     >
                       <span className="text-[14px] font-mono font-medium text-[var(--cevi-text)]">
-                        {fax.id.replace("FAX-20260423-", "FAX-")}
+                        {fax.id.replace("FAX-20260423-", "FAX-").replace("FAX-UP-", "FAX-")}
                       </span>
                     </td>
 
-                    {/* Preview */}
-                    <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
+                    {/* Preview — double-click to open detail */}
+                    <td
+                      className="px-3 py-3 cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                      onDoubleClick={() => router.push(`/inbox/${fax.id}`)}
+                    >
                       <FaxThumbnail fax={fax} />
                     </td>
 
