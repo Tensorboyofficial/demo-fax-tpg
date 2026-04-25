@@ -5,7 +5,12 @@ export const metadata = { title: "Home · Cevi" };
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const allFaxes = await getAllFaxes();
+  let allFaxes: Awaited<ReturnType<typeof getAllFaxes>> = [];
+  try {
+    allFaxes = await getAllFaxes();
+  } catch (err) {
+    console.error("[HomePage] getAllFaxes failed:", err);
+  }
 
   return (
     <div className="-mx-6 md:-mx-10 -my-6">

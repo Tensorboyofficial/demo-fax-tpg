@@ -2,6 +2,7 @@ import { createHmac, randomUUID } from "crypto";
 
 /** Dynamic SQLite — returns null on Vercel where better-sqlite3 is unavailable */
 function tryGetSqlite() {
+  if (process.env.VERCEL) return null;
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const mod = require("@/backend/repositories/sqlite/sqlite.client");

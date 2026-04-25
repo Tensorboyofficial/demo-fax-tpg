@@ -7,6 +7,7 @@ import { insertUploadedFax } from "@/backend/repositories/supabase/supabase-writ
 // SQLite — dynamic import, unavailable on Vercel serverless
 let _sqliteMod: typeof import("@/backend/repositories/sqlite/sqlite-fax.repository") | null = null;
 function getSqliteMod() {
+  if (process.env.VERCEL) return null;
   if (_sqliteMod) return _sqliteMod;
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports

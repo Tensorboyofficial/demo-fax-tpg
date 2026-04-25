@@ -7,7 +7,8 @@ export async function GET() {
     const svc = getDataMergeService();
     const faxes = await svc.getAllFaxes();
     return Response.json({ faxes });
-  } catch {
+  } catch (err) {
+    console.error("[GET /api/v1/fax]", err);
     return Response.json({ error: "Failed to fetch faxes" }, { status: 500 });
   }
 }

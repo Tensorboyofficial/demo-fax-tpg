@@ -3,6 +3,7 @@ import { isApiKeyConfigured } from "@/backend/config/models.config";
 
 /** Dynamic SQLite settings — returns null/noop on Vercel */
 function getSqliteSettings() {
+  if (process.env.VERCEL) return null;
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const mod = require("@/backend/repositories/sqlite/sqlite.client");

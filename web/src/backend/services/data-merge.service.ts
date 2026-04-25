@@ -14,10 +14,12 @@ class NullEventRepository implements IEventRepository {
   async findAll(): Promise<FaxEvent[]> { return []; }
 }
 
-/** Try loading SQLite repos; return nulls on Vercel where better-sqlite3 isn't available. */
+/** On Vercel (VERCEL=1), skip SQLite entirely. Locally, try dynamic require. */
+const IS_VERCEL = Boolean(process.env.VERCEL);
+
 function loadSqliteRepos(): { fax: IFaxRepository; event: IEventRepository } {
+  if (IS_VERCEL) return { fax: new NullFaxRepository(), event: new NullEventRepository() };
   try {
-    // Dynamic require — if better-sqlite3 native module is missing this throws
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const mod = require("../repositories/sqlite/sqlite-fax.repository");
     return { fax: new mod.SqliteFaxRepository(), event: new mod.SqliteEventRepository() };
