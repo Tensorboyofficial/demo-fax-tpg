@@ -242,7 +242,7 @@ export function SchemaBuilderDrawer({ category, label, onClose }: Props) {
               onChange={(e) => setSystemPrompt(e.target.value)}
               placeholder="if this is a lab report put this schema"
               rows={3}
-              className="mt-2 w-full rounded-md border border-[var(--cevi-border)] bg-white px-3 py-2.5 text-[13px] text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-faint)] outline-none focus:border-[var(--cevi-text)] focus:ring-2 focus:ring-[var(--cevi-accent)]/20 resize-y"
+              className="mt-2 w-full rounded-md border border-[var(--cevi-border)] bg-[var(--cevi-bg)] px-3 py-2.5 text-[13px] text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-faint)] outline-none focus:border-[var(--cevi-text)] resize-y transition-colors"
             />
           </div>
         </div>

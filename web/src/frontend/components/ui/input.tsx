@@ -13,7 +13,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <input
         ref={ref}
         className={cn(
-          "w-full h-9 rounded-lg border border-[var(--cevi-border)] bg-white px-3 text-[13px] text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-faint)] focus:outline-none focus:border-[var(--cevi-text)] focus:ring-2 focus:ring-[var(--cevi-accent)]/20 transition-colors",
+          "w-full h-9 rounded-lg border border-[var(--cevi-border)] bg-[var(--cevi-bg)] px-3 text-[13px] text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-faint)] focus:outline-none focus:border-[var(--cevi-text)] transition-colors",
           iconLeft && "pl-9",
           className,
         )}

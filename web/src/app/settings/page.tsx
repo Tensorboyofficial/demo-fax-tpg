@@ -51,11 +51,12 @@ export default function SettingsPage() {
     }
   }, []);
 
-  // Save to localStorage on change
+  // Save to localStorage on change and notify other components in this tab
   useEffect(() => {
     localStorage.setItem("cevi_settings", JSON.stringify({
       email, name, theme, twoFaEnabled, passwordSet, analyticsEnabled, functionalEnabled, profilePicUrl,
     }));
+    window.dispatchEvent(new Event("cevi:settings-updated"));
   }, [email, name, theme, twoFaEnabled, passwordSet, analyticsEnabled, functionalEnabled, profilePicUrl]);
 
   // Apply theme
@@ -220,7 +221,7 @@ export default function SettingsPage() {
                 <select
                   value={theme}
                   onChange={(e) => { setTheme(e.target.value); toast(`Theme set to ${e.target.value}`); }}
-                  className="text-[13px] font-medium text-[var(--cevi-text)] bg-white border border-[var(--cevi-border)] rounded-md px-3 py-1.5 cursor-pointer"
+                  className="text-[13px] font-medium text-[var(--cevi-text)] bg-[var(--cevi-bg)] border border-[var(--cevi-border)] rounded-md px-3 py-1.5 cursor-pointer min-w-[110px]"
                 >
                   <option value="light">Light</option>
                   <option value="dark">Dark</option>

@@ -212,12 +212,10 @@ export function Sidebar() {
                     href={item.href}
                     title={collapsed ? item.label : undefined}
                     className={cn(
-                      "flex items-center rounded-lg text-[15px] font-medium transition-all relative",
+                      "flex items-center rounded-lg text-[15px] font-medium transition-colors relative",
                       collapsed ? "justify-center h-9 w-9 mx-auto" : "gap-2.5 px-3 h-9",
                       active
-                        ? collapsed
-                          ? "bg-white text-[var(--cevi-text)] font-semibold shadow-[0_0_10px_rgba(0,0,0,0.06)]"
-                          : "bg-white text-[var(--cevi-text)] font-semibold border border-[#E5E5E5] shadow-[0_0_10px_rgba(0,0,0,0.06)]"
+                        ? "bg-[var(--cevi-bg)] text-[var(--cevi-text)] font-semibold"
                         : "text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)]",
                     )}
                   >

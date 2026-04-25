@@ -583,7 +583,8 @@ export function PatientRoster({ seedPatients }: Props) {
                         key={col.key}
                         className={cn(
                           "px-3 py-2 border-r border-[var(--cevi-border-light)] last:border-r-0 cursor-pointer select-none transition-colors",
-                          isActive && !isEditing && "bg-[var(--cevi-surface)]",
+                          isActive && !isEditing && "ring-1 ring-inset ring-[var(--cevi-accent)] bg-[var(--cevi-accent-light)]",
+                          isEditing && "bg-[var(--cevi-bg)] ring-1 ring-inset ring-[var(--cevi-accent)] p-0",
                         )}
                         onClick={(e) => handleCellClick(ri, ci, e)}
                       >
@@ -598,7 +599,7 @@ export function PatientRoster({ seedPatients }: Props) {
                               if (e.key === "Enter") saveEdit();
                               if (e.key === "Escape") cancelEdit();
                             }}
-                            className="w-full h-7 px-1 -mx-1 bg-transparent text-[13px] text-[var(--cevi-text)] border-b border-[var(--cevi-text)] focus:outline-none"
+                            className="w-full h-full px-3 py-2 bg-transparent text-[13px] text-[var(--cevi-text)] border-0 outline-none"
                           />
                         ) : (
                           <span

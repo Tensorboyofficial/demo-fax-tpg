@@ -115,8 +115,32 @@ export function Topbar() {
   const [uploadOpen, setUploadOpen] = useState(false);
   const [searchHover, setSearchHover] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
+  const [name, setName] = useState("Theo Sakellos");
   const { openMobile } = useSidebar();
   const isDesktop = useIsDesktop();
+
+  // Read profile from localStorage and listen for changes
+  useEffect(() => {
+    const read = () => {
+      try {
+        const raw = localStorage.getItem("cevi_settings");
+        if (!raw) return;
+        const s = JSON.parse(raw);
+        if (s.profilePicUrl !== undefined) setProfilePicUrl(s.profilePicUrl ?? null);
+        if (s.name) setName(s.name);
+      } catch {}
+    };
+    read();
+    window.addEventListener("storage", read);
+    window.addEventListener("cevi:settings-updated", read);
+    return () => {
+      window.removeEventListener("storage", read);
+      window.removeEventListener("cevi:settings-updated", read);
+    };
+  }, []);
+
+  const initials = name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "T";
 
   const handleExport = async () => {
     try {
@@ -175,8 +199,7 @@ export function Topbar() {
           {/* Upload button */}
           <button
             onClick={() => setUploadOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-[#D4D4D4] rounded-[10px] text-[var(--cevi-text)] text-[13px] font-medium hover:bg-[var(--cevi-surface)] transition-colors shrink-0"
-            style={{ borderWidth: "0.5px" }}
+            className="flex items-center gap-1.5 px-3 py-2 bg-[var(--cevi-bg)] border border-[var(--cevi-border)] rounded-[10px] text-[var(--cevi-text)] text-[13px] font-medium hover:bg-[var(--cevi-surface)] transition-colors shrink-0"
           >
             <Upload className="h-4 w-4" strokeWidth={1.5} />
             <span className="hidden sm:inline">Upload</span>
@@ -185,8 +208,7 @@ export function Topbar() {
           {/* Export button */}
           <button
             onClick={handleExport}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-[#D4D4D4] rounded-[10px] text-[var(--cevi-text)] text-[13px] font-medium hover:bg-[var(--cevi-surface)] transition-colors shrink-0"
-            style={{ borderWidth: "0.5px" }}
+            className="flex items-center gap-1.5 px-3 py-2 bg-[var(--cevi-bg)] border border-[var(--cevi-border)] rounded-[10px] text-[var(--cevi-text)] text-[13px] font-medium hover:bg-[var(--cevi-surface)] transition-colors shrink-0"
           >
             <Download className="h-4 w-4" strokeWidth={1.5} />
             <span className="hidden sm:inline">Export</span>
@@ -196,10 +218,16 @@ export function Topbar() {
           <div className="relative">
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="h-[35px] w-[35px] rounded-full bg-[#3987CB] text-white font-semibold text-[14px] inline-flex items-center justify-center shrink-0 transition-all hover:opacity-90"
+              className="h-8 w-8 rounded-full overflow-hidden inline-flex items-center justify-center shrink-0 transition-all hover:opacity-90"
               aria-label="Account menu"
             >
-              T
+              {profilePicUrl ? (
+                <img src={profilePicUrl} alt="Profile" className="h-full w-full object-cover" />
+              ) : (
+                <span className="h-full w-full inline-flex items-center justify-center bg-[#3987CB] text-white font-semibold text-[13px]">
+                  {initials}
+                </span>
+              )}
             </button>
             {menuOpen && <AccountDropdown onClose={() => setMenuOpen(false)} />}
           </div>

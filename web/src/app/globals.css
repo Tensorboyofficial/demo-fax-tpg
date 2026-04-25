@@ -121,6 +121,10 @@
   --table-row-selected: #262626;
 }
 
+.dark {
+  color-scheme: dark;
+}
+
 .dark body {
   background: var(--cevi-surface-warm);
   color: var(--cevi-text);
@@ -168,8 +172,18 @@ body {
   }
 }
 
-/* ── Focus ── */
+/* ── Focus ──
+   Strategy: keep accessibility outlines off elements with their own
+   focus styles (inputs/textareas/selects), and apply a single subtle
+   ring only to interactive controls that don't otherwise indicate focus.
+*/
 *:focus-visible {
+  outline: none;
+}
+
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
   outline: none;
   box-shadow: var(--shadow-focus);
   border-radius: var(--radius-md);
@@ -178,8 +192,8 @@ body {
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  border-color: var(--cevi-text) !important;
   outline: none;
+  /* Components define their own focus styles via Tailwind focus: utilities */
 }
 
 .search-clean:focus-visible,
