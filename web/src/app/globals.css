@@ -7,21 +7,21 @@
   --cevi-accent-light: #FEF7F5;
   --cevi-accent-bg: #FDF5EC;
 
-  /* ── Text ── */
-  --cevi-text: #1a1a1a;
-  --cevi-text-secondary: #333333;
-  --cevi-text-tertiary: #555555;
-  --cevi-text-muted: #77736D;
-  --cevi-text-faint: #9A9A96;
+  /* ── Text (Tailwind neutral scale) ── */
+  --cevi-text: #171717;           /* neutral-900 */
+  --cevi-text-secondary: #404040; /* neutral-700 */
+  --cevi-text-tertiary: #525252;  /* neutral-600 */
+  --cevi-text-muted: #737373;     /* neutral-500 */
+  --cevi-text-faint: #A3A3A3;     /* neutral-400 */
 
-  /* ── Surfaces & borders ── */
+  /* ── Surfaces & borders (Tailwind neutral scale) ── */
   --cevi-bg: #FFFFFF;
-  --cevi-surface: #F6F4F2;
-  --cevi-surface-warm: #FAFAF8;
-  --cevi-surface-hover: #F0EFED;
-  --cevi-border: #E3E2DE;
-  --cevi-border-light: #EDECEA;
-  --cevi-link-underline: #C0BFBA;
+  --cevi-surface: #F5F5F5;        /* neutral-100 */
+  --cevi-surface-warm: #FAFAFA;   /* neutral-50  */
+  --cevi-surface-hover: #E5E5E5;  /* neutral-200 */
+  --cevi-border: #E5E5E5;         /* neutral-200 */
+  --cevi-border-light: #F5F5F5;   /* neutral-100 */
+  --cevi-link-underline: #D4D4D4; /* neutral-300 */
 
   /* ── Success / Error / Info ── */
   --cevi-success: #2D7A54;
@@ -77,18 +77,18 @@
   --sel-border: #3987CB;
 
   /* ── Table ── */
-  --table-header-bg: #FAFAF9;
-  --table-border: #F0F0F0;
-  --table-row-hover: #FAFAF9;
-  --table-row-selected: #F5F5F3;
+  --table-header-bg: #FAFAFA;    /* neutral-50  */
+  --table-border: #F5F5F5;       /* neutral-100 */
+  --table-row-hover: #FAFAFA;    /* neutral-50  */
+  --table-row-selected: #F5F5F5; /* neutral-100 */
 }
 
 @theme inline {
   --color-background: var(--cevi-bg);
   --color-foreground: var(--cevi-text);
-  --font-sans: var(--font-dm-sans), -apple-system, system-ui, sans-serif;
-  --font-serif: var(--font-eb-garamond), Georgia, serif;
-  --font-mono: "SF Mono", ui-monospace, monospace;
+  --font-sans: var(--font-roboto), -apple-system, system-ui, sans-serif;
+  --font-serif: var(--font-roboto), Georgia, serif;
+  --font-mono: var(--font-roboto-mono), "SF Mono", ui-monospace, monospace;
 }
 
 html {
@@ -98,10 +98,10 @@ html {
 }
 
 body {
-  background: var(--cevi-bg);
+  background: var(--cevi-surface-warm);
   color: var(--cevi-text);
-  font-family: var(--font-dm-sans), -apple-system, system-ui, sans-serif;
-  font-size: 13px;
+  font-family: var(--font-roboto), -apple-system, system-ui, sans-serif;
+  font-size: 15px;
   line-height: 1.5;
   letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
@@ -258,11 +258,11 @@ textarea {
 
 /* ── State chips ── */
 .state-chip {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
   line-height: 1;
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  border-radius: 4px;
   display: inline-block;
   white-space: nowrap;
   letter-spacing: 0.01em;

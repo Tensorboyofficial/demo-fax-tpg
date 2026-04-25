@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
-import { User, LogOut, Settings, Bell, Menu } from "lucide-react";
+import { LogOut, Upload, Download, Menu } from "lucide-react";
 import { cn } from "@/shared/utils";
 import { useSidebar } from "./sidebar-context";
 import { useIsDesktop } from "@/frontend/hooks/use-media-query";
 
-function UserMenu({ onClose }: { onClose: () => void }) {
+/* ─── Account Dropdown (logout only) ─── */
+function AccountDropdown({ onClose }: { onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -21,31 +21,13 @@ function UserMenu({ onClose }: { onClose: () => void }) {
   return (
     <div
       ref={ref}
-      className="absolute top-full right-0 mt-1 w-52 bg-white border border-[var(--cevi-border)] rounded-lg shadow-[var(--shadow-md)] z-50 overflow-hidden"
+      className="absolute top-full right-0 mt-1 w-40 bg-white border border-[var(--cevi-border)] rounded-lg shadow-[var(--shadow-md)] z-50 overflow-hidden"
     >
-      <div className="px-3 py-2.5 bg-[var(--cevi-surface-warm)] border-b border-[var(--cevi-border-light)]">
-        <div className="text-[12px] font-semibold text-[var(--cevi-text)]">Dr. Todd Nguyen</div>
-        <div className="text-[10px] text-[var(--cevi-text-muted)]">todd.nguyen@tmghealth.com</div>
-      </div>
       <div className="py-1">
-        <Link
-          href="/settings"
+        <button
           onClick={onClose}
-          className="flex items-center gap-2.5 px-3 h-9 text-[13px] text-[var(--cevi-text)] hover:bg-[var(--cevi-surface-warm)] transition-colors"
+          className="w-full flex items-center gap-2.5 px-3 h-9 text-[13px] text-[var(--cevi-accent)] hover:bg-[var(--cevi-surface)] transition-colors"
         >
-          <User className="h-3.5 w-3.5 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
-          My Account
-        </Link>
-        <Link
-          href="/settings"
-          onClick={onClose}
-          className="flex items-center gap-2.5 px-3 h-9 text-[13px] text-[var(--cevi-text)] hover:bg-[var(--cevi-surface-warm)] transition-colors"
-        >
-          <Settings className="h-3.5 w-3.5 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
-          Settings
-        </Link>
-        <div className="mx-3 my-0.5 border-t border-[var(--cevi-border-light)]" />
-        <button className="w-full flex items-center gap-2.5 px-3 h-9 text-[13px] text-[var(--cevi-accent)] hover:bg-[var(--cevi-surface-warm)] transition-colors">
           <LogOut className="h-3.5 w-3.5" strokeWidth={1.5} />
           Log out
         </button>
@@ -54,51 +36,167 @@ function UserMenu({ onClose }: { onClose: () => void }) {
   );
 }
 
+/* ─── Upload Modal ─── */
+function UploadModal({ onClose }: { onClose: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [onClose]);
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const formData = new FormData();
+    Array.from(files).forEach((f) => formData.append("files", f));
+    try {
+      const res = await fetch("/api/v1/fax", { method: "POST", body: formData });
+      if (res.ok) {
+        onClose();
+        window.location.reload();
+      }
+    } catch {
+      // handled silently
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
+      <div
+        ref={ref}
+        className="bg-white rounded-xl border border-[var(--cevi-border)] shadow-xl w-full max-w-md mx-4 p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-[18px] font-semibold text-[var(--cevi-text)] mb-4">Upload Faxes</h2>
+        <div
+          className="border-2 border-dashed border-[var(--cevi-border)] rounded-lg p-8 text-center cursor-pointer hover:border-[var(--cevi-text-muted)] transition-colors"
+          onClick={() => fileRef.current?.click()}
+          onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          onDrop={(e) => { e.preventDefault(); e.stopPropagation(); handleFiles(e.dataTransfer.files); }}
+        >
+          <Upload className="h-8 w-8 text-[var(--cevi-text-muted)] mx-auto mb-3" strokeWidth={1.5} />
+          <p className="text-[14px] text-[var(--cevi-text-secondary)] mb-1">
+            Drop files here or click to browse
+          </p>
+          <p className="text-[12px] text-[var(--cevi-text-muted)]">
+            PDF, TIFF, PNG, JPG — up to 25 MB
+          </p>
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          className="hidden"
+          accept=".pdf,.tiff,.tif,.png,.jpg,.jpeg"
+          multiple
+          onChange={(e) => handleFiles(e.target.files)}
+        />
+        <div className="mt-4 flex justify-end gap-2">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-[13px] font-medium text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Topbar ─── */
 export function Topbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [searchHover, setSearchHover] = useState(false);
   const { openMobile } = useSidebar();
   const isDesktop = useIsDesktop();
 
+  const handleExport = async () => {
+    try {
+      const res = await fetch("/api/v1/export");
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `cevi-export-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      // handled silently
+    }
+  };
+
   return (
-    <header className="h-12 bg-white border-b border-[var(--cevi-border)] sticky top-0 z-10">
-      <div className="h-full px-4 sm:px-6 md:px-10 flex items-center gap-3">
-        {/* Mobile hamburger — hidden on desktop */}
-        {!isDesktop && (
-          <button
-            onClick={openMobile}
-            className="p-1.5 -ml-1 rounded-lg hover:bg-[var(--cevi-surface)] transition-colors"
-            aria-label="Open menu"
-          >
-            <Menu className="h-5 w-5 text-[var(--cevi-text)]" strokeWidth={1.5} />
-          </button>
-        )}
+    <>
+      <header className="h-12 bg-[var(--cevi-surface-warm)] sticky top-0 z-10">
+        <div className="h-full flex items-center gap-3 px-4 sm:px-6">
+          {/* Mobile hamburger */}
+          {!isDesktop && (
+            <button
+              onClick={openMobile}
+              className="p-1.5 -ml-1 rounded-lg hover:bg-[var(--cevi-surface)] transition-colors"
+              aria-label="Open menu"
+            >
+              <Menu className="h-5 w-5 text-[var(--cevi-text)]" strokeWidth={1.5} />
+            </button>
+          )}
 
-        <div className="flex-1" />
-
-        {/* Notification bell */}
-        <button
-          className="relative p-1.5 rounded-lg hover:bg-[var(--cevi-surface)] transition-colors"
-          aria-label="Notifications"
-        >
-          <Bell className="h-4 w-4 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
-          <span className="absolute top-1 right-1 h-[7px] w-[7px] rounded-full bg-[var(--cevi-accent)] ring-[1.5px] ring-white" />
-        </button>
-
-        {/* User avatar */}
-        <div className="relative">
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
+          {/* Search bar */}
+          <div
             className={cn(
-              "h-7 w-7 rounded-full bg-[var(--cevi-accent-bg)] text-[var(--cevi-accent)] font-semibold text-[10px] inline-flex items-center justify-center transition-all",
-              menuOpen ? "ring-2 ring-[var(--cevi-accent)]/20" : "hover:ring-2 hover:ring-[var(--cevi-border)]",
+              "flex-1 h-full flex items-center transition-colors",
+              searchHover ? "bg-[var(--cevi-surface)]" : "bg-transparent",
             )}
-            aria-label="Account menu"
+            onMouseEnter={() => setSearchHover(true)}
+            onMouseLeave={() => setSearchHover(false)}
           >
-            TN
+            <input
+              type="text"
+              placeholder="Search..."
+              className="search-clean w-full h-full bg-transparent text-[22px] font-medium text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-faint)] px-2 outline-none border-none"
+            />
+          </div>
+
+          {/* Upload button */}
+          <button
+            onClick={() => setUploadOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-[#D4D4D4] rounded-[10px] text-[var(--cevi-text)] text-[13px] font-medium hover:bg-[var(--cevi-surface)] transition-colors shrink-0"
+            style={{ borderWidth: "0.5px" }}
+          >
+            <Upload className="h-4 w-4" strokeWidth={1.5} />
+            <span className="hidden sm:inline">Upload</span>
           </button>
-          {menuOpen && <UserMenu onClose={() => setMenuOpen(false)} />}
+
+          {/* Export button */}
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-[#D4D4D4] rounded-[10px] text-[var(--cevi-text)] text-[13px] font-medium hover:bg-[var(--cevi-surface)] transition-colors shrink-0"
+            style={{ borderWidth: "0.5px" }}
+          >
+            <Download className="h-4 w-4" strokeWidth={1.5} />
+            <span className="hidden sm:inline">Export</span>
+          </button>
+
+          {/* Account circle */}
+          <div className="relative">
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="h-[35px] w-[35px] rounded-full bg-[#3987CB] text-white font-semibold text-[14px] inline-flex items-center justify-center shrink-0 transition-all hover:opacity-90"
+              aria-label="Account menu"
+            >
+              T
+            </button>
+            {menuOpen && <AccountDropdown onClose={() => setMenuOpen(false)} />}
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      {uploadOpen && <UploadModal onClose={() => setUploadOpen(false)} />}
+    </>
   );
 }

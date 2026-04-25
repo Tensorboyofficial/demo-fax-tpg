@@ -27,7 +27,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
   // ── Desktop: unchanged ──
   return (
-    <div className="min-h-screen bg-[var(--cevi-bg)]">
+    <div className="min-h-screen bg-[var(--cevi-surface-warm)]">
       <Sidebar />
       <div
         className="transition-[padding-left] duration-200 ease-out"
