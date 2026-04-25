@@ -26,6 +26,19 @@ import {
   X,
   PanelLeftClose,
   PanelLeftOpen,
+  Pill,
+  Accessibility,
+  Home,
+  Building,
+  Syringe,
+  Microscope,
+  Activity,
+  Ambulance,
+  Scale,
+  Megaphone,
+  FileWarning,
+  Landmark,
+  BriefcaseMedical,
 } from "lucide-react";
 import { CeviLogo } from "@/frontend/components/brand/cevi-logo";
 import { cn } from "@/shared/utils";
@@ -44,17 +57,35 @@ const MAIN_NAV: NavItem[] = [
   { href: "/settings", label: "Settings", icon: <Settings className="h-4 w-4" strokeWidth={1.5} /> },
 ];
 
+const ic = "h-3.5 w-3.5";
+const sw = 1.5;
+
 const CATEGORY_NAV: NavItem[] = [
-  { href: "/category/lab", label: "Lab Results", icon: <FlaskConical className="h-3.5 w-3.5" strokeWidth={1.5} /> },
-  { href: "/category/imaging", label: "Imaging", icon: <ImageIcon className="h-3.5 w-3.5" strokeWidth={1.5} /> },
-  { href: "/category/consult", label: "Consult Notes", icon: <FileText className="h-3.5 w-3.5" strokeWidth={1.5} /> },
-  { href: "/category/referral", label: "Referrals", icon: <Stethoscope className="h-3.5 w-3.5" strokeWidth={1.5} /> },
-  { href: "/category/prior_auth", label: "Prior Auth", icon: <ShieldCheck className="h-3.5 w-3.5" strokeWidth={1.5} /> },
-  { href: "/category/dme", label: "DME", icon: <ClipboardList className="h-3.5 w-3.5" strokeWidth={1.5} /> },
-  { href: "/category/eob", label: "EOB / ERA", icon: <Receipt className="h-3.5 w-3.5" strokeWidth={1.5} /> },
-  { href: "/category/discharge", label: "Discharge", icon: <HeartPulse className="h-3.5 w-3.5" strokeWidth={1.5} /> },
-  { href: "/category/records_request", label: "Records", icon: <FileSearch className="h-3.5 w-3.5" strokeWidth={1.5} /> },
-  { href: "/category/other", label: "Other", icon: <HelpCircle className="h-3.5 w-3.5" strokeWidth={1.5} /> },
+  { href: "/category/lab_result", label: "Lab Results", icon: <FlaskConical className={ic} strokeWidth={sw} /> },
+  { href: "/category/imaging_report", label: "Imaging", icon: <ImageIcon className={ic} strokeWidth={sw} /> },
+  { href: "/category/consult_note", label: "Consult Notes", icon: <FileText className={ic} strokeWidth={sw} /> },
+  { href: "/category/referral_incoming", label: "Referrals", icon: <Stethoscope className={ic} strokeWidth={sw} /> },
+  { href: "/category/prior_auth_response", label: "Prior Auth", icon: <ShieldCheck className={ic} strokeWidth={sw} /> },
+  { href: "/category/pharmacy_prior_auth_request", label: "Pharmacy PA", icon: <Pill className={ic} strokeWidth={sw} /> },
+  { href: "/category/pharmacy_refill_request", label: "Rx Refill", icon: <Pill className={ic} strokeWidth={sw} /> },
+  { href: "/category/dme_documentation", label: "DME", icon: <ClipboardList className={ic} strokeWidth={sw} /> },
+  { href: "/category/physical_exam_form", label: "Physical Exam", icon: <BriefcaseMedical className={ic} strokeWidth={sw} /> },
+  { href: "/category/medical_records_request", label: "Records Request", icon: <FileSearch className={ic} strokeWidth={sw} /> },
+  { href: "/category/eob_era", label: "EOB / ERA", icon: <Receipt className={ic} strokeWidth={sw} /> },
+  { href: "/category/hospital_discharge_summary", label: "Discharge", icon: <HeartPulse className={ic} strokeWidth={sw} /> },
+  { href: "/category/ed_visit_summary", label: "ED Visit", icon: <Ambulance className={ic} strokeWidth={sw} /> },
+  { href: "/category/cardiac_diagnostic_report", label: "Cardiac Dx", icon: <Activity className={ic} strokeWidth={sw} /> },
+  { href: "/category/pathology_report", label: "Pathology", icon: <Microscope className={ic} strokeWidth={sw} /> },
+  { href: "/category/immunization_record", label: "Immunization", icon: <Syringe className={ic} strokeWidth={sw} /> },
+  { href: "/category/home_health_order", label: "Home Health", icon: <Home className={ic} strokeWidth={sw} /> },
+  { href: "/category/hospice_correspondence", label: "Hospice", icon: <Building className={ic} strokeWidth={sw} /> },
+  { href: "/category/snf_nh_correspondence", label: "SNF / NH", icon: <Building className={ic} strokeWidth={sw} /> },
+  { href: "/category/disability_or_leave_form", label: "Disability/Leave", icon: <FileWarning className={ic} strokeWidth={sw} /> },
+  { href: "/category/handicap_placard_or_jury_excuse", label: "Handicap/Jury", icon: <Accessibility className={ic} strokeWidth={sw} /> },
+  { href: "/category/payer_correspondence", label: "Payer", icon: <Landmark className={ic} strokeWidth={sw} /> },
+  { href: "/category/subpoena_or_legal_notice", label: "Legal Notice", icon: <Scale className={ic} strokeWidth={sw} /> },
+  { href: "/category/marketing_or_junk", label: "Marketing/Junk", icon: <Megaphone className={ic} strokeWidth={sw} /> },
+  { href: "/category/unclassified", label: "Unclassified", icon: <HelpCircle className={ic} strokeWidth={sw} /> },
 ];
 
 /* ─── Support Modal ─── */
