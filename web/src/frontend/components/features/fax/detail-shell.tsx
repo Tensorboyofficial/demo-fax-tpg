@@ -300,7 +300,7 @@ export function DetailShell({ fax, initialEvents }: Props) {
           overflow: isSplitView ? "hidden" : "auto",
         }}
       >
-        {/* ─── LEFT: Document viewer (Reducto-style) ─── */}
+        {/* ─── LEFT: Document viewer ─── */}
         <div
           className="flex flex-col"
           style={{

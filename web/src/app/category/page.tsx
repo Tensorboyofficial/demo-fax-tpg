@@ -7,11 +7,15 @@ export const dynamic = "force-dynamic";
 export default async function SchemasPage() {
   const allFaxes = await getAllFaxes();
 
-  // Count faxes per category
+  // Count faxes and find earliest date per category
   const countByCategory: Record<string, number> = {};
+  const earliestByCategory: Record<string, string> = {};
   for (const fax of allFaxes) {
     const cat = fax.type;
     countByCategory[cat] = (countByCategory[cat] ?? 0) + 1;
+    if (!earliestByCategory[cat] || fax.receivedAt < earliestByCategory[cat]) {
+      earliestByCategory[cat] = fax.receivedAt;
+    }
   }
 
   const schemas = CATEGORY_CONFIG.map((c) => ({
@@ -20,6 +24,7 @@ export default async function SchemasPage() {
     fileCount: countByCategory[c.category] ?? 0,
     splittable: c.splittable,
     alwaysReview: c.always_human_review,
+    earliestFaxDate: earliestByCategory[c.category] ?? null,
   }));
 
   return <SchemasTable schemas={schemas} />;

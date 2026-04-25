@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { MoreHorizontal } from "lucide-react";
 import { cn, formatRelative } from "@/shared/utils";
 
@@ -10,9 +10,10 @@ interface SchemaRow {
   fileCount: number;
   splittable: boolean;
   alwaysReview: boolean;
+  earliestFaxDate: string | null;
 }
 
-/** Build a type badge string like Reducto's "Parse", "Parse > Extract", "Parse > Split > Extract" */
+/** Build a type pipeline badge: "Parse", "Parse > Extract", "Parse > Split > Extract" */
 function typePipeline(schema: SchemaRow): string[] {
   const steps: string[] = ["Parse"];
   if (schema.splittable) steps.push("Split");
@@ -24,7 +25,6 @@ const STEP_COLORS: Record<string, string> = {
   Parse: "bg-[#F0E6F6] text-[#7C3AED]",
   Split: "bg-[#E0F2FE] text-[#0284C7]",
   Extract: "bg-[#DCFCE7] text-[#16A34A]",
-  Edit: "bg-[#FEF3C7] text-[#D97706]",
 };
 
 interface Props {
@@ -32,7 +32,7 @@ interface Props {
 }
 
 export function SchemasTable({ schemas }: Props) {
-  // Only show categories that have schemas (all of them), sorted by file count desc then label
+  const router = useRouter();
   const sorted = [...schemas].sort((a, b) => b.fileCount - a.fileCount || a.label.localeCompare(b.label));
 
   return (
@@ -43,7 +43,6 @@ export function SchemasTable({ schemas }: Props) {
             <tr className="border-b border-[var(--cevi-border-light)]">
               <th className="text-left px-4 py-3 text-[13px] font-medium text-[var(--cevi-text-muted)] whitespace-nowrap">Document</th>
               <th className="text-left px-4 py-3 text-[13px] font-medium text-[var(--cevi-text-muted)] whitespace-nowrap">Type</th>
-              <th className="text-left px-4 py-3 text-[13px] font-medium text-[var(--cevi-text-muted)] whitespace-nowrap">Author</th>
               <th className="text-left px-4 py-3 text-[13px] font-medium text-[var(--cevi-text-muted)] whitespace-nowrap">Files</th>
               <th className="text-left px-4 py-3 text-[13px] font-medium text-[var(--cevi-text-muted)] whitespace-nowrap">Created</th>
               <th className="w-10" />
@@ -55,15 +54,13 @@ export function SchemasTable({ schemas }: Props) {
               return (
                 <tr
                   key={schema.category}
+                  onClick={() => router.push(`/category/${schema.category}`)}
                   className="border-b border-[var(--cevi-border-light)] hover:bg-[#F5F5F5] cursor-pointer transition-colors"
                 >
                   <td className="px-4 py-3.5">
-                    <Link
-                      href={`/category/${schema.category}`}
-                      className="text-[14px] font-medium text-[var(--cevi-text)] hover:underline"
-                    >
+                    <span className="text-[14px] font-medium text-[var(--cevi-text)]">
                       {schema.label}
-                    </Link>
+                    </span>
                   </td>
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-1">
@@ -77,22 +74,17 @@ export function SchemasTable({ schemas }: Props) {
                       ))}
                     </div>
                   </td>
-                  <td className="px-4 py-3.5">
-                    <div className="flex items-center gap-2">
-                      <div className="h-6 w-6 rounded-full bg-[var(--cevi-accent)] text-white text-[10px] font-bold flex items-center justify-center shrink-0">
-                        RD
-                      </div>
-                      <span className="text-[13px] text-[var(--cevi-text-secondary)]">Reducto Demo</span>
-                    </div>
-                  </td>
                   <td className="px-4 py-3.5 text-[13px] text-[var(--cevi-text-secondary)] tabular-nums">
                     {schema.fileCount}
                   </td>
                   <td className="px-4 py-3.5 text-[13px] text-[var(--cevi-text-muted)]">
-                    2d
+                    {schema.earliestFaxDate ? formatRelative(schema.earliestFaxDate) : "—"}
                   </td>
                   <td className="px-4 py-3.5">
-                    <button className="p-1 rounded hover:bg-[var(--cevi-surface)] transition-colors">
+                    <button
+                      onClick={(e) => e.stopPropagation()}
+                      className="p-1 rounded hover:bg-[var(--cevi-surface)] transition-colors"
+                    >
                       <MoreHorizontal className="h-4 w-4 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
                     </button>
                   </td>

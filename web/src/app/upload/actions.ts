@@ -350,6 +350,15 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
     const routingType = CATEGORY_TO_LEGACY[classifiedCategory] ?? parsed.type;
     const routing = inferRouting(routingType as FaxType, parsed.urgency, matchedPatientId);
 
+    // Confidence-based status override:
+    // Below 70% confidence → needs_review regardless of routing rule
+    const typeConfidence = Number(parsed.typeConfidence ?? 0);
+    if (typeConfidence < 0.7) {
+      routing.status = "needs_review";
+      routing.routedReason = `Low classification confidence (${Math.round(typeConfidence * 100)}%) — sent to review queue.`;
+      routing.routedTo = routing.routedTo ?? "front_desk";
+    }
+
     const id = genId("FAX-UP");
     const nowIso = new Date().toISOString();
 
