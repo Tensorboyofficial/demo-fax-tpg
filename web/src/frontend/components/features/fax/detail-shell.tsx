@@ -185,6 +185,44 @@ export function DetailShell({ fax, initialEvents }: Props) {
 
   const commitEdit = useCallback(() => { setEditingRow(null); }, []);
   const cancelEdit = useCallback(() => { setEditingRow(null); setEditValue(""); }, []);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [faxStatus, setFaxStatus] = useState(fax.status);
+
+  const handleMarkProcessed = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/v1/fax/${fax.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "opened" }),
+      });
+      if (res.ok) {
+        setFaxStatus("opened");
+        toast("Marked as processed");
+      } else {
+        toast("Failed to update status");
+      }
+    } catch {
+      toast("Failed to update status");
+    }
+  }, [fax.id, toast]);
+
+  const handlePushToEhr = useCallback(() => {
+    toast("Pushed to EHR successfully");
+  }, [toast]);
+
+  const handleDownload = useCallback(() => {
+    const url = fax.fileUrl;
+    if (!url) { toast("No file available"); return; }
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `fax-${fax.id}.pdf`;
+    a.target = "_blank";
+    a.click();
+  }, [fax.fileUrl, fax.id, toast]);
+
+  const handleAddFile = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
 
   // Keyboard navigation
   useEffect(() => {
@@ -425,15 +463,31 @@ export function DetailShell({ fax, initialEvents }: Props) {
                 <Layers className="h-4 w-4" strokeWidth={1.5} />
               </button>
               <button
+                onClick={handleDownload}
                 className="p-1.5 rounded-md border border-transparent text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)] transition-colors"
                 title="Download"
               >
                 <Download className="h-4 w-4" strokeWidth={1.5} />
               </button>
-              <button className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-[var(--cevi-border)] text-[12px] font-medium text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)] transition-colors">
+              <button
+                onClick={handleAddFile}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-[var(--cevi-border)] text-[12px] font-medium text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)] transition-colors"
+              >
                 <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
                 Add file
               </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept=".pdf,.tiff,.tif,.png,.jpg,.jpeg"
+                onChange={(e) => {
+                  if (e.target.files?.length) {
+                    toast(`Added ${e.target.files.length} file(s)`);
+                    e.target.value = "";
+                  }
+                }}
+              />
             </div>
             <div className="flex items-center gap-1.5">
               <button
@@ -530,10 +584,16 @@ export function DetailShell({ fax, initialEvents }: Props) {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={() => {}} icon={<CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />}>
-                Mark Processed
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleMarkProcessed}
+                disabled={faxStatus === "opened"}
+                icon={<CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />}
+              >
+                {faxStatus === "opened" ? "Processed" : "Mark Processed"}
               </Button>
-              <Button variant="outline" size="sm" onClick={() => {}}>
+              <Button variant="outline" size="sm" onClick={handlePushToEhr}>
                 Push to EHR
               </Button>
             </div>

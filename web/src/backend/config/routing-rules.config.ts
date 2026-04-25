@@ -113,6 +113,51 @@ export const ROUTING_RULES: RoutingRule[] = [
     },
   },
   {
+    priority: 19,
+    condition: { type: ["disability_or_leave_form", "handicap_placard_or_jury_excuse", "physical_exam_form"] },
+    action: {
+      routedTo: "front_desk",
+      routedReason: "Administrative form — routed to front desk.",
+      status: "unopened",
+    },
+  },
+  {
+    priority: 20,
+    condition: { type: ["dme", "dme_documentation", "home_health_order"] },
+    action: {
+      routedTo: "clinical_review",
+      routedReason: "DME/home health order — routed to clinical review.",
+      status: "unopened",
+    },
+  },
+  {
+    priority: 21,
+    condition: { type: ["hospice_correspondence", "snf_nh_correspondence"] },
+    action: {
+      routedTo: "clinical_review",
+      routedReason: "Facility correspondence — routed to clinical review.",
+      status: "unopened",
+    },
+  },
+  {
+    priority: 22,
+    condition: { type: ["immunization_record"] },
+    action: {
+      routedTo: "clinical_review",
+      routedReason: "Immunization record — routed to clinical review.",
+      status: "unopened",
+    },
+  },
+  {
+    priority: 23,
+    condition: { type: ["pharmacy_refill_request"] },
+    action: {
+      routedTo: "clinical_review",
+      routedReason: "Rx refill request — routed to clinical review.",
+      status: "unopened",
+    },
+  },
+  {
     priority: 99,
     condition: {},
     action: {

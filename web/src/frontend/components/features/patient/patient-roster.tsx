@@ -416,7 +416,31 @@ export function PatientRoster({ seedPatients }: Props) {
     setActiveCell({ row, col });
   }, [filtered]);
 
-  const saveEdit = useCallback(() => { setEditingCell(null); }, []);
+  const saveEdit = useCallback(() => {
+    if (editingCell) {
+      const p = filtered[editingCell.row];
+      const col = COLUMNS[editingCell.col];
+      if (p && col && editValue.trim()) {
+        setAllPatients((prev) =>
+          prev.map((pat) => {
+            if (pat.id !== p.id) return pat;
+            const updated = { ...pat };
+            if (col.key === "firstName") updated.firstName = editValue.trim();
+            else if (col.key === "lastName") updated.lastName = editValue.trim();
+            else if (col.key === "mrn") updated.mrn = editValue.trim();
+            else if (col.key === "dob") updated.dob = editValue.trim();
+            else if (col.key === "sex") updated.sex = editValue.trim() as "M" | "F" | "X";
+            else if (col.key === "clinic") updated.clinic = editValue.trim();
+            else if (col.key === "phone") updated.phone = editValue.trim() || undefined;
+            else if (col.key === "insurance") updated.insurance = editValue.trim() || undefined;
+            return updated;
+          }),
+        );
+        toast("Updated");
+      }
+    }
+    setEditingCell(null);
+  }, [editingCell, editValue, filtered, toast]);
   const cancelEdit = useCallback(() => { setEditingCell(null); }, []);
 
   const handleCellClick = useCallback((row: number, col: number, e: React.MouseEvent) => {
@@ -566,14 +590,15 @@ export function PatientRoster({ seedPatients }: Props) {
                         {isEditing ? (
                           <input
                             autoFocus
-                            value={editValue}
-                            onChange={(e) => setEditValue(e.target.value)}
+                            type={col.key === "dob" ? "date" : "text"}
+                            value={col.key === "dob" ? editValue.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$3-$1-$2") : editValue}
+                            onChange={(e) => setEditValue(col.key === "dob" ? e.target.value.replace(/(\d{4})-(\d{2})-(\d{2})/, "$2/$3/$1") : e.target.value)}
                             onBlur={saveEdit}
                             onKeyDown={(e) => {
                               if (e.key === "Enter") saveEdit();
                               if (e.key === "Escape") cancelEdit();
                             }}
-                            className="w-full h-7 px-1.5 rounded border border-[var(--cevi-accent)] bg-white text-[13px] text-[var(--cevi-text)] focus:outline-none focus:ring-2 focus:ring-[var(--cevi-accent)]/30"
+                            className="w-full h-7 px-2 rounded-md border-2 border-[var(--cevi-accent)] bg-white text-[13px] text-[var(--cevi-text)] focus:outline-none shadow-[0_0_0_3px_rgba(227,83,54,0.15)]"
                           />
                         ) : (
                           <span

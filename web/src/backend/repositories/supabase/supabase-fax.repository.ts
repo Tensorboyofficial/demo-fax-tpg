@@ -35,6 +35,20 @@ export class SupabaseFaxRepository implements IFaxRepository {
       return null;
     }
   }
+
+  async updateStatus(id: string, status: string): Promise<boolean> {
+    const s = getSupabase();
+    if (!s) return false;
+    try {
+      const { error } = await s
+        .from("user_faxes")
+        .update({ status })
+        .eq("id", id);
+      return !error;
+    } catch {
+      return false;
+    }
+  }
 }
 
 export class SupabaseEventRepository implements IEventRepository {

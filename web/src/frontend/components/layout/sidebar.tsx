@@ -176,8 +176,8 @@ export function Sidebar() {
         <div className={cn("h-12 flex items-center shrink-0", collapsed ? "justify-center px-2" : "justify-between px-4")}>
           {collapsed ? (
             <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(); }}
-              className="h-8 w-8 flex items-center justify-center rounded-md border border-[var(--cevi-border)] hover:bg-[var(--cevi-surface)] transition-colors text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] cursor-pointer"
+              onClick={toggle}
+              className="h-8 w-8 flex items-center justify-center rounded-md border border-[var(--cevi-border)] hover:bg-[var(--cevi-surface)] transition-colors text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] cursor-pointer z-10"
               title="Expand sidebar"
               type="button"
             >
@@ -189,8 +189,8 @@ export function Sidebar() {
                 <CeviLogo size="sm" className="h-5" />
               </Link>
               <button
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(); }}
-                className="h-8 w-8 flex items-center justify-center rounded-md border border-[var(--cevi-border)] hover:bg-[var(--cevi-surface)] transition-colors text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] cursor-pointer"
+                onClick={toggle}
+                className="h-8 w-8 flex items-center justify-center rounded-md border border-[var(--cevi-border)] hover:bg-[var(--cevi-surface)] transition-colors text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] cursor-pointer z-10"
                 title="Collapse sidebar"
                 type="button"
               >

@@ -8,6 +8,7 @@ import { SUPABASE_CONFIGURED } from "../repositories/supabase/supabase.client";
 class NullFaxRepository implements IFaxRepository {
   async findAll(): Promise<Fax[]> { return []; }
   async findById(): Promise<Fax | null> { return null; }
+  async updateStatus(): Promise<boolean> { return false; }
 }
 class NullEventRepository implements IEventRepository {
   async findByFaxId(): Promise<FaxEvent[]> { return []; }

@@ -60,6 +60,12 @@ export class SqliteFaxRepository implements IFaxRepository {
     const row = db.prepare("SELECT * FROM faxes WHERE id = ?").get(id);
     return row ? rowToFax(row as Record<string, unknown>) : null;
   }
+
+  async updateStatus(id: string, status: string): Promise<boolean> {
+    const db = getSqlite();
+    const result = db.prepare("UPDATE faxes SET status = ? WHERE id = ?").run(status, id);
+    return result.changes > 0;
+  }
 }
 
 export class SqliteEventRepository implements IEventRepository {

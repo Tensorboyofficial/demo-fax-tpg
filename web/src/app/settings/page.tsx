@@ -15,6 +15,7 @@ export default function SettingsPage() {
   const [email, setEmail] = useState("theo@cevi.ai");
   const [name, setName] = useState("Theo Sakellos");
   const [theme, setTheme] = useState("light");
+  const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
 
   // Inline editing
   const [editingField, setEditingField] = useState<string | null>(null);
@@ -45,6 +46,7 @@ export default function SettingsPage() {
         if (s.passwordSet != null) setPasswordSet(s.passwordSet);
         if (s.analyticsEnabled != null) setAnalyticsEnabled(s.analyticsEnabled);
         if (s.functionalEnabled != null) setFunctionalEnabled(s.functionalEnabled);
+        if (s.profilePicUrl) setProfilePicUrl(s.profilePicUrl);
       } catch {}
     }
   }, []);
@@ -52,9 +54,22 @@ export default function SettingsPage() {
   // Save to localStorage on change
   useEffect(() => {
     localStorage.setItem("cevi_settings", JSON.stringify({
-      email, name, theme, twoFaEnabled, passwordSet, analyticsEnabled, functionalEnabled,
+      email, name, theme, twoFaEnabled, passwordSet, analyticsEnabled, functionalEnabled, profilePicUrl,
     }));
-  }, [email, name, theme, twoFaEnabled, passwordSet, analyticsEnabled, functionalEnabled]);
+  }, [email, name, theme, twoFaEnabled, passwordSet, analyticsEnabled, functionalEnabled, profilePicUrl]);
+
+  // Apply theme
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else if (theme === "system") {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      root.classList.toggle("dark", prefersDark);
+    } else {
+      root.classList.remove("dark");
+    }
+  }, [theme]);
 
   function startEdit(field: string, currentValue: string) {
     setEditingField(field);
@@ -157,15 +172,46 @@ export default function SettingsPage() {
               {/* Profile Picture */}
               <div className="flex items-center justify-between py-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-[#3987CB] text-white font-semibold text-[16px] inline-flex items-center justify-center shrink-0">
-                    {name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
-                  </div>
+                  {profilePicUrl ? (
+                    <img src={profilePicUrl} alt="Profile" className="h-10 w-10 rounded-full object-cover shrink-0" />
+                  ) : (
+                    <div className="h-10 w-10 rounded-full bg-[#3987CB] text-white font-semibold text-[16px] inline-flex items-center justify-center shrink-0">
+                      {name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
+                    </div>
+                  )}
                   <div className="text-[14px] font-medium text-[var(--cevi-text)]">Profile Picture</div>
                 </div>
-                <label className="px-4 py-1.5 text-[13px] font-medium rounded-md border border-[var(--cevi-border)] text-[var(--cevi-text)] hover:bg-[var(--cevi-surface)] transition-colors cursor-pointer">
-                  Change Picture
-                  <input type="file" accept="image/*" className="hidden" onChange={() => toast("Profile picture updated")} />
-                </label>
+                <div className="flex items-center gap-2">
+                  {profilePicUrl && (
+                    <button
+                      onClick={() => { setProfilePicUrl(null); toast("Profile picture removed"); }}
+                      className="px-3 py-1.5 text-[13px] font-medium rounded-md text-[var(--cevi-text-muted)] hover:text-[var(--cevi-accent)] transition-colors"
+                    >
+                      Remove
+                    </button>
+                  )}
+                  <label className="px-4 py-1.5 text-[13px] font-medium rounded-md border border-[var(--cevi-border)] text-[var(--cevi-text)] hover:bg-[var(--cevi-surface)] transition-colors cursor-pointer">
+                    {profilePicUrl ? "Change" : "Upload Picture"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (file.size > 5 * 1024 * 1024) { toast("Image must be under 5 MB"); return; }
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                          const url = ev.target?.result as string;
+                          setProfilePicUrl(url);
+                          toast("Profile picture updated");
+                        };
+                        reader.readAsDataURL(file);
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+                </div>
               </div>
 
               {/* Theme */}
@@ -299,8 +345,61 @@ export default function SettingsPage() {
       )}
 
       {activeTab === "users" && (
-        <div className="text-[14px] text-[var(--cevi-text-muted)] py-12 text-center">
-          User management coming soon.
+        <div className="space-y-6">
+          <section className="bg-white rounded-xl border border-[var(--cevi-border)] p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[16px] font-semibold text-[var(--cevi-text)]">Team Members</h3>
+              <button
+                onClick={() => toast("Invite link copied to clipboard")}
+                className="px-3 py-1.5 rounded-lg bg-[var(--cevi-accent)] text-white text-[13px] font-semibold hover:opacity-90 transition-opacity"
+              >
+                Invite Member
+              </button>
+            </div>
+            <div className="overflow-auto">
+              <table className="w-full text-[14px]">
+                <thead>
+                  <tr className="border-b border-[var(--cevi-border-light)]">
+                    <th className="text-left px-4 py-2.5 text-[13px] font-medium text-[var(--cevi-text-muted)]">Name</th>
+                    <th className="text-left px-4 py-2.5 text-[13px] font-medium text-[var(--cevi-text-muted)]">Email</th>
+                    <th className="text-left px-4 py-2.5 text-[13px] font-medium text-[var(--cevi-text-muted)]">Role</th>
+                    <th className="text-left px-4 py-2.5 text-[13px] font-medium text-[var(--cevi-text-muted)]">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { name: "Theo Sakellos", email: "theo@cevi.ai", role: "Owner", status: "Active" },
+                    { name: "Rishu Gautam", email: "rishu@cevi.ai", role: "Admin", status: "Active" },
+                    { name: "Dr. Sarah Chen", email: "s.chen@tmg.com", role: "Member", status: "Active" },
+                    { name: "James Wilson", email: "j.wilson@tmg.com", role: "Member", status: "Invited" },
+                  ].map((user) => (
+                    <tr key={user.email} className="border-b border-[var(--cevi-border-light)] last:border-b-0">
+                      <td className="px-4 py-3 font-medium text-[var(--cevi-text)]">{user.name}</td>
+                      <td className="px-4 py-3 text-[var(--cevi-text-secondary)]">{user.email}</td>
+                      <td className="px-4 py-3">
+                        <span className={cn(
+                          "text-[12px] font-semibold px-2 py-0.5 rounded-full",
+                          user.role === "Owner" ? "bg-[#F0E6F6] text-[#7C3AED]"
+                            : user.role === "Admin" ? "bg-[#E0F2FE] text-[#0284C7]"
+                            : "bg-[var(--cevi-surface)] text-[var(--cevi-text-muted)]",
+                        )}>
+                          {user.role}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={cn(
+                          "text-[12px] font-medium",
+                          user.status === "Active" ? "text-[#16A34A]" : "text-[var(--cevi-text-muted)]",
+                        )}>
+                          {user.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </div>
       )}
 
@@ -347,15 +446,18 @@ function CookieToggle({
         onClick={() => !locked && onChange?.(!enabled)}
         disabled={locked}
         className={cn(
-          "relative shrink-0 h-5 w-9 rounded-full transition-colors",
-          enabled ? "bg-[var(--cevi-jade)]" : "bg-[#D4D4D4]",
-          locked && "opacity-60 cursor-not-allowed",
+          "relative shrink-0 h-6 w-11 rounded-full transition-colors duration-200",
+          enabled ? "bg-[#2D7A54]" : "bg-[#D1D5DB]",
+          locked && "opacity-50 cursor-not-allowed",
+          !locked && "cursor-pointer",
         )}
+        role="switch"
+        aria-checked={enabled}
       >
         <span
           className={cn(
-            "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
-            enabled ? "translate-x-4" : "translate-x-0.5",
+            "absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200",
+            enabled && "translate-x-5",
           )}
         />
       </button>

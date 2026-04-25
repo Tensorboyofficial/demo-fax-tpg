@@ -10,6 +10,10 @@ export class SeedFaxRepository implements IFaxRepository {
   async findById(id: string): Promise<Fax | null> {
     return seedFaxes.find((f) => f.id === id) ?? null;
   }
+
+  async updateStatus(_id: string, _status: string): Promise<boolean> {
+    return false; // seed data is read-only
+  }
 }
 
 export class SeedEventRepository implements IEventRepository {

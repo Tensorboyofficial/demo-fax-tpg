@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState, useCallback } from "react";
 import {
   FlaskConical,
@@ -55,8 +55,20 @@ const TYPE_LABELS: Record<string, string> = {
   lab: "Lab", imaging: "Imaging", consult: "Consult", referral: "Referral",
   prior_auth: "Prior Auth", dme: "DME", forms: "Forms", records_request: "Records",
   eob: "EOB", discharge: "Discharge", other: "Other",
-  lab_result: "Lab", specialist_consult: "Consult", imaging_report: "Imaging",
+  lab_result: "Lab Result", specialist_consult: "Consult Note", imaging_report: "Imaging",
   rx_refill: "Rx Refill", unknown: "Other",
+  consult_note: "Consult Note", referral_incoming: "Referral",
+  prior_auth_response: "Prior Auth", pharmacy_prior_auth_request: "Pharmacy PA",
+  pharmacy_refill_request: "Rx Refill", dme_documentation: "DME",
+  physical_exam_form: "Physical Exam", medical_records_request: "Records Request",
+  eob_era: "EOB / ERA", hospital_discharge_summary: "Discharge",
+  ed_visit_summary: "ED Visit", cardiac_diagnostic_report: "Cardiac Dx",
+  pathology_report: "Pathology", immunization_record: "Immunization",
+  home_health_order: "Home Health", hospice_correspondence: "Hospice",
+  snf_nh_correspondence: "SNF / NH", disability_or_leave_form: "Disability/Leave",
+  handicap_placard_or_jury_excuse: "Handicap/Jury", payer_correspondence: "Payer",
+  subpoena_or_legal_notice: "Legal Notice", marketing_or_junk: "Junk",
+  unclassified: "Unclassified",
 };
 
 const TYPE_ICON: Record<string, React.ReactNode> = {
@@ -119,6 +131,8 @@ interface Props {
 export function InboxTable({ faxes: faxesProp }: Props) {
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get("q")?.toLowerCase() ?? "";
   const isDesktop = useIsDesktop();
   const faxes = faxesProp ?? [];
 
@@ -143,9 +157,21 @@ export function InboxTable({ faxes: faxesProp }: Props) {
       const lifecycle = toLifecycle(f.status);
       const statusOK = statusFilter === "all" || lifecycle === statusFilter;
       const catOK = categoryFilter === "all" || f.type === categoryFilter;
-      return statusOK && catOK;
+      if (!statusOK || !catOK) return false;
+      if (searchQuery) {
+        const hay = [
+          f.id,
+          f.type,
+          f.fromOrg,
+          f.toClinic,
+          f.extracted.patientNameOnDoc,
+          f.extracted.sendingProvider,
+        ].filter(Boolean).join(" ").toLowerCase();
+        return hay.includes(searchQuery);
+      }
+      return true;
     });
-  }, [faxes, statusFilter, categoryFilter]);
+  }, [faxes, statusFilter, categoryFilter, searchQuery]);
 
   const counts = useMemo(() => {
     const base = categoryFilter === "all" ? faxes : faxes.filter((f) => f.type === categoryFilter);

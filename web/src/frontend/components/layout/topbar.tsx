@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { LogOut, Upload, Download, Menu } from "lucide-react";
 import { cn } from "@/shared/utils";
 import { useSidebar } from "./sidebar-context";
@@ -109,9 +110,11 @@ function UploadModal({ onClose }: { onClose: () => void }) {
 
 /* ─── Topbar ─── */
 export function Topbar() {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [searchHover, setSearchHover] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { openMobile } = useSidebar();
   const isDesktop = useIsDesktop();
 
@@ -158,6 +161,13 @@ export function Topbar() {
             <input
               type="text"
               placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && searchQuery.trim()) {
+                  router.push(`/?q=${encodeURIComponent(searchQuery.trim())}`);
+                }
+              }}
               className="search-clean w-full h-full bg-transparent text-[22px] font-medium text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-faint)] px-2 outline-none border-none"
             />
           </div>

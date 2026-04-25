@@ -29,6 +29,13 @@ export class MemoryFaxRepository implements IFaxRepository {
     faxStore.set(fax.id, fax);
     eventStore.set(fax.id, events);
   }
+
+  async updateStatus(id: string, status: string): Promise<boolean> {
+    const fax = faxStore.get(id);
+    if (!fax) return false;
+    faxStore.set(id, { ...fax, status });
+    return true;
+  }
 }
 
 export class MemoryEventRepository implements IEventRepository {
