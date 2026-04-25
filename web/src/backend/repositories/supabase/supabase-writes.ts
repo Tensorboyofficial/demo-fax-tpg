@@ -5,6 +5,16 @@ import { rowToFax, type UserFaxRow, type UserFaxEventRow } from "./schema";
 export interface InsertFaxPayload {
   fax: Fax;
   events: FaxEvent[];
+  // Analytics tracking (migration 001)
+  classificationLatencyMs?: number;
+  extractionLatencyMs?: number;
+  totalTokensIn?: number;
+  totalTokensOut?: number;
+  processingDurationMs?: number;
+  classifiedAt?: string;
+  matchedAt?: string;
+  routedAt?: string;
+  processedAt?: string;
 }
 
 export async function insertUploadedFax(
@@ -40,6 +50,16 @@ export async function insertUploadedFax(
       is_user_uploaded: true,
       source_kind: "upload",
       created_by: "anon",
+      // Analytics tracking columns (from migration 001)
+      ...(payload.classificationLatencyMs != null && { classification_latency_ms: payload.classificationLatencyMs }),
+      ...(payload.extractionLatencyMs != null && { extraction_latency_ms: payload.extractionLatencyMs }),
+      ...(payload.totalTokensIn != null && { total_tokens_in: payload.totalTokensIn }),
+      ...(payload.totalTokensOut != null && { total_tokens_out: payload.totalTokensOut }),
+      ...(payload.processingDurationMs != null && { processing_duration_ms: payload.processingDurationMs }),
+      ...(payload.classifiedAt != null && { classified_at: payload.classifiedAt }),
+      ...(payload.matchedAt != null && { matched_at: payload.matchedAt }),
+      ...(payload.routedAt != null && { routed_at: payload.routedAt }),
+      ...(payload.processedAt != null && { processed_at: payload.processedAt }),
     };
     // Try with file_url column; if it doesn't exist yet, retry without it
     let { error: faxErr } = await s.from("user_faxes").insert({ ...baseRow, file_url: fax.fileUrl ?? null });

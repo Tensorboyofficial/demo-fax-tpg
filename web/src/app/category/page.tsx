@@ -1,0 +1,30 @@
+import { getAllFaxes } from "@/backend/services/data-merge.service";
+import { CATEGORY_CONFIG } from "@/backend/config/category.config";
+import { SchemasTable } from "@/frontend/components/features/fax/schemas-table";
+
+export const dynamic = "force-dynamic";
+
+export default async function SchemasPage() {
+  const allFaxes = await getAllFaxes();
+
+  // Count faxes per category
+  const countByCategory: Record<string, number> = {};
+  for (const fax of allFaxes) {
+    const cat = fax.type;
+    countByCategory[cat] = (countByCategory[cat] ?? 0) + 1;
+  }
+
+  const schemas = CATEGORY_CONFIG.map((c) => ({
+    category: c.category,
+    label: c.label,
+    fileCount: countByCategory[c.category] ?? 0,
+    splittable: c.splittable,
+    alwaysReview: c.always_human_review,
+  }));
+
+  return <SchemasTable schemas={schemas} />;
+}
+
+export function generateMetadata() {
+  return { title: "Schemas · Cevi" };
+}

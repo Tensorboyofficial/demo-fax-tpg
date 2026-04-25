@@ -19,15 +19,9 @@ export interface RoutingRule {
  * these rules handle urgency overrides and fallback logic.
  */
 export const ROUTING_RULES: RoutingRule[] = [
-  {
-    priority: 1,
-    condition: { noPatientMatch: true },
-    action: {
-      routedTo: null,
-      routedReason: "Patient match below threshold — routed to review queue.",
-      status: "needs_review",
-    },
-  },
+  // Removed: noPatientMatch priority-1 rule that forced ALL unmatched faxes to needs_review.
+  // Faxes without a patient match now follow type-specific routing rules below.
+  // Only the fallback rule (priority 99) sends truly unclassified docs to needs_review.
   {
     priority: 2,
     condition: { urgency: ["critical", "stat"] },

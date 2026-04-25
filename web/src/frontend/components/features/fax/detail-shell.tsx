@@ -613,110 +613,16 @@ export function DetailShell({ fax, initialEvents }: Props) {
                       </div>
                     )}
 
-                    {/* Fax Metadata */}
-                    <SectionHeader
-                      title="Fax metadata"
-                      count={META_FIELDS.length}
-                      open={metaOpen}
-                      onToggle={() => setMetaOpen(!metaOpen)}
-                    />
-                    {metaOpen && (
-                      <div className="border border-[var(--cevi-border)] rounded-lg mb-3 overflow-hidden">
-                        {META_FIELDS.map((f) => {
-                          const val = f.getValue(fax, fields);
-                          return (
-                            <FieldRow
-                              key={f.key}
-                              fieldKey={f.key}
-                              label={f.label}
-                              value={val}
-                              isActive={activeRow === f.key}
-                              isEditing={editingRow === f.key}
-                              editValue={editValue}
-                              editRef={editRef}
-                              onEditChange={setEditValue}
-                              onClick={() => handleClick(f.key, val)}
-                              onDoubleClick={() => handleDoubleClick(f.key, val)}
-                              onCommit={commitEdit}
-                              onCancel={cancelEdit}
-                            />
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {/* Patient Match */}
-                    <SectionHeader
-                      title="Patient match"
-                      count={fax.candidates.length}
-                      open={matchOpen}
-                      onToggle={() => setMatchOpen(!matchOpen)}
-                      badge={hasMatch
-                        ? <Badge variant="success" size="sm" dot>Matched</Badge>
-                        : fax.candidates.length > 0
-                          ? <Badge variant="amber" size="sm" dot>Review</Badge>
-                          : <Badge variant="outline" size="sm">No match</Badge>
-                      }
-                    />
-                    {matchOpen && (
-                      <div className="border border-[var(--cevi-border)] rounded-lg mb-3 overflow-hidden">
-                        {fax.candidates.length === 0 ? (
-                          <div className="p-4 text-center text-[12px] text-[var(--cevi-text-muted)]">
-                            No patient candidates found
-                          </div>
-                        ) : (
-                          fax.candidates.map((c) => {
-                            const isMatched = fax.matchedPatientId === c.patientId;
-                            return (
-                              <div
-                                key={c.patientId}
-                                className={cn(
-                                  "flex items-center justify-between px-3 py-2.5 border-b border-[var(--cevi-border-light)] last:border-b-0 text-[12px]",
-                                  isMatched && "bg-[var(--cevi-jade-light)]/30",
-                                )}
-                              >
-                                <div className="min-w-0">
-                                  <div className="font-semibold text-[var(--cevi-text)] truncate">
-                                    {c.patientId}
-                                    {isMatched && <span className="ml-1.5 text-[var(--cevi-jade)] text-[10px] font-bold">MATCHED</span>}
-                                  </div>
-                                  <div className="text-[11px] text-[var(--cevi-text-muted)] font-mono">
-                                    {c.reason}
-                                  </div>
-                                </div>
-                                <ConfidenceMeter value={c.score} />
-                              </div>
-                            );
-                          })
-                        )}
-                      </div>
-                    )}
-
-                    {/* Audit Trail */}
-                    <SectionHeader title="Audit trail" count={sortedEvents.length} open={auditOpen} onToggle={() => setAuditOpen(!auditOpen)} />
-                    {auditOpen && (
-                      <div className="border border-[var(--cevi-border)] rounded-lg mb-3 overflow-hidden">
-                        {sortedEvents.map((e) => (
-                          <div key={e.id} className="flex items-start gap-3 px-3 py-2 border-b border-[var(--cevi-border-light)] last:border-b-0 text-[12px]">
-                            <div className="shrink-0 mt-0.5">
-                              <span className="inline-block w-2 h-2 rounded-full bg-[var(--cevi-text-muted)]" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-baseline justify-between gap-2">
-                                <span className="font-semibold text-[var(--cevi-text)] uppercase tracking-[0.04em] text-[11px]">{e.kind}</span>
-                                <span className="text-[10px] text-[var(--cevi-text-muted)] tabular-nums shrink-0">{formatDateTime(e.at)}</span>
-                              </div>
-                              <div className="text-[var(--cevi-text-secondary)] mt-0.5">{e.detail}</div>
-                              {e.model && (
-                                <div className="text-[10px] text-[var(--cevi-text-muted)] mt-0.5">
-                                  {modelLabelFromId(e.model)}
-                                  {typeof e.latencyMs === "number" && ` · ${(e.latencyMs / 1000).toFixed(1)}s`}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                    {/* Full Schema Extraction */}
+                    {structuredExtraction && (
+                      <>
+                        <SectionHeader
+                          title="Full Schema Extraction"
+                          count={Object.keys(structuredExtraction).filter(k => !["extraction_meta", "$schema", "$id"].includes(k)).length}
+                          open={false}
+                          onToggle={() => setActiveTab("full")}
+                        />
+                      </>
                     )}
                   </>
                 )}

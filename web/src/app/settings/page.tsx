@@ -1,381 +1,173 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import {
-  Settings as SettingsIcon,
-  ShieldCheck,
-  Bell,
-  Users,
-  Lock,
-  Building2,
-  Sparkles,
-  Database,
-  Key,
-  Eye,
-  EyeOff,
-  Check,
-  X,
-  Loader2,
-  AlertCircle,
-  Trash2,
-} from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/shared/utils";
 
-interface SettingSection {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  items: { label: string; value: string; mono?: boolean }[];
-}
-
-const SECTIONS: SettingSection[] = [
-  {
-    icon: <Building2 className="h-4 w-4" strokeWidth={1.5} />,
-    title: "Clinic Profile",
-    description: "Organization and location details",
-    items: [
-      { label: "Organization", value: "Transcend Medical Group" },
-      { label: "Location", value: "Arlington, TX" },
-      { label: "Fax number", value: "817-860-2704", mono: true },
-      { label: "EHR", value: "eClinicalWorks" },
-      { label: "Time zone", value: "Central (CT)" },
-    ],
-  },
-  {
-    icon: <Users className="h-4 w-4" strokeWidth={1.5} />,
-    title: "Team & Roles",
-    description: "Manage who can access faxes and PHI",
-    items: [
-      { label: "Dr. Todd Nguyen", value: "Admin · Provider" },
-      { label: "Sarah Chen", value: "Front Desk" },
-      { label: "Maria Lopez", value: "Nurse" },
-      { label: "James Wilson", value: "Billing" },
-    ],
-  },
-  {
-    icon: <Sparkles className="h-4 w-4" strokeWidth={1.5} />,
-    title: "AI Classification",
-    description: "Model selection and confidence thresholds",
-    items: [
-      { label: "Default model", value: "Claude Sonnet 4.6" },
-      { label: "Type confidence threshold", value: "80%", mono: true },
-      { label: "Patient match threshold", value: "95%", mono: true },
-      { label: "Review threshold", value: "70%", mono: true },
-      { label: "Auto-route above threshold", value: "Enabled" },
-    ],
-  },
-  {
-    icon: <Bell className="h-4 w-4" strokeWidth={1.5} />,
-    title: "Notifications",
-    description: "Alert routing for urgent and critical faxes",
-    items: [
-      { label: "STAT faxes", value: "SMS + eCW inbox → Dr. Nguyen" },
-      { label: "Critical lab results", value: "SMS → On-call provider" },
-      { label: "Failed matches", value: "Email → Front desk" },
-      { label: "Daily digest", value: "Email → All staff, 7:00 AM CT" },
-    ],
-  },
-  {
-    icon: <Database className="h-4 w-4" strokeWidth={1.5} />,
-    title: "Integrations",
-    description: "Connected systems and data sources",
-    items: [
-      { label: "Supabase", value: "Connected", mono: true },
-      { label: "Medsender (fax ingest)", value: "Active" },
-      { label: "eClinicalWorks (write-back)", value: "Pending setup" },
-      { label: "Twilio (SMS alerts)", value: "Configured" },
-    ],
-  },
-  {
-    icon: <Lock className="h-4 w-4" strokeWidth={1.5} />,
-    title: "Compliance & Security",
-    description: "HIPAA controls and audit configuration",
-    items: [
-      { label: "BAA status", value: "On file" },
-      { label: "Audit logging", value: "Enabled · immutable" },
-      { label: "PHI access logging", value: "Enabled" },
-      { label: "Session timeout", value: "30 minutes" },
-      { label: "Data retention", value: "7 years" },
-    ],
-  },
-];
-
-interface ApiKeyState {
-  configured: boolean;
-  source: "settings" | "env" | "none";
-  masked: string | null;
-}
+type Tab = "account" | "users";
 
 export default function SettingsPage() {
-  const [keyState, setKeyState] = useState<ApiKeyState | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [inputValue, setInputValue] = useState("");
-  const [showInput, setShowInput] = useState(false);
-  const [showKey, setShowKey] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [removing, setRemoving] = useState(false);
-  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
-
-  const fetchKeyState = useCallback(async () => {
-    try {
-      const res = await fetch("/api/v1/settings");
-      const data = await res.json();
-      setKeyState(data.anthropic_api_key);
-    } catch {
-      setKeyState({ configured: false, source: "none", masked: null });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchKeyState();
-  }, [fetchKeyState]);
-
-  const handleSave = async () => {
-    if (!inputValue.trim()) return;
-    setSaving(true);
-    setFeedback(null);
-    try {
-      const res = await fetch("/api/v1/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key: "anthropic_api_key", value: inputValue.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setFeedback({ type: "error", message: data.error ?? "Failed to save" });
-        return;
-      }
-      setFeedback({ type: "success", message: "API key saved" });
-      setInputValue("");
-      setShowInput(false);
-      fetchKeyState();
-    } catch {
-      setFeedback({ type: "error", message: "Network error" });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleRemove = async () => {
-    setRemoving(true);
-    setFeedback(null);
-    try {
-      const res = await fetch("/api/v1/settings?key=anthropic_api_key", { method: "DELETE" });
-      const data = await res.json();
-      if (data.fallback) {
-        setFeedback({ type: "success", message: "Runtime key removed. Falling back to .env" });
-      } else {
-        setFeedback({ type: "success", message: "API key removed" });
-      }
-      fetchKeyState();
-    } catch {
-      setFeedback({ type: "error", message: "Network error" });
-    } finally {
-      setRemoving(false);
-    }
-  };
+  const [activeTab, setActiveTab] = useState<Tab>("account");
+  const [theme, setTheme] = useState("light");
 
   return (
-    <div>
-      <div className="mb-6">
-        <h1 className="font-serif text-[24px] leading-[1.2] tracking-[-0.02em] text-[var(--cevi-text)]">
-          Settings
-        </h1>
-        <p className="mt-1 text-[13px] text-[var(--cevi-text-muted)]">
-          Clinic configuration, team management, and compliance controls
-        </p>
-      </div>
-
-      <div className="space-y-4">
-        {/* ── API Key Section ── */}
-        <div className="rounded-lg border border-[var(--cevi-border)] bg-white overflow-hidden">
-          <div className="flex items-center gap-3 px-4 py-3 bg-[var(--cevi-surface-warm)] border-b border-[var(--cevi-border-light)]">
-            <div className="h-8 w-8 rounded-lg bg-white border border-[var(--cevi-border)] flex items-center justify-center text-[var(--cevi-accent)]">
-              <Key className="h-4 w-4" strokeWidth={1.5} />
-            </div>
-            <div>
-              <div className="text-[13px] font-semibold text-[var(--cevi-text)]">API Key</div>
-              <div className="text-[11px] text-[var(--cevi-text-muted)]">
-                Anthropic API key for Claude classification and extraction
-              </div>
-            </div>
-          </div>
-
-          <div className="px-4 py-3 space-y-3">
-            {/* Status row */}
-            <div className="flex items-center justify-between">
-              <span className="text-[12px] text-[var(--cevi-text-secondary)]">Status</span>
-              {loading ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--cevi-text-muted)]" />
-              ) : keyState?.configured ? (
-                <span className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--cevi-jade)]">
-                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--cevi-jade)]" />
-                  Configured
-                </span>
-              ) : (
-                <span className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--cevi-coral)]">
-                  <AlertCircle className="h-3 w-3" />
-                  Not configured
-                </span>
-              )}
-            </div>
-
-            {/* Source row */}
-            {keyState?.configured && (
-              <div className="flex items-center justify-between border-t border-[var(--cevi-border-light)] pt-3">
-                <span className="text-[12px] text-[var(--cevi-text-secondary)]">Source</span>
-                <span className="text-[12px] font-mono text-[var(--cevi-text)]">
-                  {keyState.source === "settings" ? "Settings (runtime)" : ".env file"}
-                </span>
-              </div>
+    <div className="max-w-2xl">
+      {/* Tabs */}
+      <div className="flex items-center gap-0 border-b border-[var(--cevi-border-light)] mb-6">
+        {(["account", "users"] as Tab[]).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={cn(
+              "px-4 py-3 text-[14px] font-medium border-b-2 transition-colors -mb-px capitalize",
+              activeTab === tab
+                ? "text-[var(--cevi-text)] border-b-[var(--cevi-text)]"
+                : "text-[var(--cevi-text-muted)] border-b-transparent hover:text-[var(--cevi-text-secondary)]",
             )}
-
-            {/* Masked key row */}
-            {keyState?.masked && (
-              <div className="flex items-center justify-between border-t border-[var(--cevi-border-light)] pt-3">
-                <span className="text-[12px] text-[var(--cevi-text-secondary)]">Key</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-[12px] font-mono text-[var(--cevi-text)]">
-                    {showKey ? keyState.masked : keyState.masked.replace(/[^*-]/g, (c, i) => i < 7 ? c : "*")}
-                  </span>
-                  <button
-                    onClick={() => setShowKey(!showKey)}
-                    className="text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] transition-colors"
-                  >
-                    {showKey ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Feedback message */}
-            {feedback && (
-              <div
-                className={`flex items-center gap-1.5 text-[12px] px-3 py-2 rounded-md ${
-                  feedback.type === "success"
-                    ? "bg-[#f0faf5] text-[var(--cevi-jade)]"
-                    : "bg-[#fef2f2] text-[#dc2626]"
-                }`}
-              >
-                {feedback.type === "success" ? <Check className="h-3.5 w-3.5" /> : <AlertCircle className="h-3.5 w-3.5" />}
-                {feedback.message}
-              </div>
-            )}
-
-            {/* Input for new key */}
-            {showInput && (
-              <div className="border-t border-[var(--cevi-border-light)] pt-3 space-y-2">
-                <label className="text-[11px] font-medium text-[var(--cevi-text-secondary)] uppercase tracking-wider">
-                  {keyState?.configured ? "Replace API Key" : "Enter API Key"}
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="password"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    placeholder="sk-ant-api03-..."
-                    className="flex-1 text-[12px] font-mono px-3 py-2 rounded-md border border-[var(--cevi-border)] bg-white text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--cevi-accent)]/30 focus:border-[var(--cevi-accent)]"
-                    onKeyDown={(e) => e.key === "Enter" && handleSave()}
-                    autoFocus
-                  />
-                  <button
-                    onClick={handleSave}
-                    disabled={saving || !inputValue.trim()}
-                    className="px-3 py-2 text-[12px] font-medium rounded-md bg-[var(--cevi-accent)] text-white hover:bg-[var(--cevi-accent)]/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
-                  >
-                    {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                    Save
-                  </button>
-                  <button
-                    onClick={() => { setShowInput(false); setInputValue(""); setFeedback(null); }}
-                    className="px-2 py-2 text-[12px] rounded-md border border-[var(--cevi-border)] text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] hover:bg-[var(--cevi-surface-warm)] transition-colors"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-                <p className="text-[11px] text-[var(--cevi-text-muted)]">
-                  Key is stored locally in SQLite. In production, use the <code className="font-mono text-[10px] bg-[var(--cevi-surface-warm)] px-1 rounded">ANTHROPIC_API_KEY</code> environment variable instead.
-                </p>
-              </div>
-            )}
-
-            {/* Action buttons */}
-            <div className="flex items-center gap-2 border-t border-[var(--cevi-border-light)] pt-3">
-              {!showInput && (
-                <button
-                  onClick={() => { setShowInput(true); setFeedback(null); }}
-                  className="px-3 py-1.5 text-[12px] font-medium rounded-md border border-[var(--cevi-border)] text-[var(--cevi-text)] hover:bg-[var(--cevi-surface-warm)] transition-colors flex items-center gap-1.5"
-                >
-                  <Key className="h-3.5 w-3.5" />
-                  {keyState?.configured ? "Change Key" : "Add Key"}
-                </button>
-              )}
-
-              {keyState?.source === "settings" && !showInput && (
-                <button
-                  onClick={handleRemove}
-                  disabled={removing}
-                  className="px-3 py-1.5 text-[12px] font-medium rounded-md border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-40 transition-colors flex items-center gap-1.5"
-                >
-                  {removing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                  Remove
-                </button>
-              )}
-
-              {keyState?.source === "env" && !showInput && (
-                <span className="text-[11px] text-[var(--cevi-text-muted)] italic">
-                  Set via .env — remove from .env to use Settings key
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Static Sections ── */}
-        {SECTIONS.map((section) => (
-          <div
-            key={section.title}
-            className="rounded-lg border border-[var(--cevi-border)] bg-white overflow-hidden"
           >
-            <div className="flex items-center gap-3 px-4 py-3 bg-[var(--cevi-surface-warm)] border-b border-[var(--cevi-border-light)]">
-              <div className="h-8 w-8 rounded-lg bg-white border border-[var(--cevi-border)] flex items-center justify-center text-[var(--cevi-accent)]">
-                {section.icon}
-              </div>
-              <div>
-                <div className="text-[13px] font-semibold text-[var(--cevi-text)]">{section.title}</div>
-                <div className="text-[11px] text-[var(--cevi-text-muted)]">{section.description}</div>
-              </div>
-            </div>
-
-            <div>
-              {section.items.map((item, i) => (
-                <div
-                  key={item.label}
-                  className={`flex flex-col sm:flex-row sm:items-center justify-between px-4 py-2.5 gap-0.5 sm:gap-2 ${
-                    i < section.items.length - 1 ? "border-b border-[var(--cevi-border-light)]" : ""
-                  }`}
-                >
-                  <span className="text-[12px] text-[var(--cevi-text-secondary)]">{item.label}</span>
-                  <span
-                    className={`text-[12px] text-[var(--cevi-text)] ${item.mono ? "font-mono" : "font-medium"}`}
-                  >
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+            {tab === "account" ? "Account" : "Users"}
+          </button>
         ))}
       </div>
 
-      <div className="mt-6 flex items-center justify-between text-[11px] text-[var(--cevi-text-muted)]">
-        <span>Cevi v1.0 · Transcend Medical Group</span>
-        <div className="flex items-center gap-1.5">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--cevi-jade)]" />
-          <span>All systems operational</span>
+      {activeTab === "account" && (
+        <div className="space-y-8">
+          {/* Account Settings */}
+          <section>
+            <h2 className="text-[16px] font-semibold text-[var(--cevi-text)] mb-4">Account Settings</h2>
+            <div className="space-y-0 divide-y divide-[var(--cevi-border-light)]">
+              <SettingsRow
+                label="Email"
+                value="theo@cevi.ai"
+                action="Change Email"
+              />
+              <SettingsRow
+                label="Name"
+                value="Theo Sakellos"
+                action="Edit Name"
+              />
+              <SettingsRow
+                label="Profile Picture"
+                action="Change Picture"
+              />
+              <div className="flex items-center justify-between py-4">
+                <div>
+                  <div className="text-[14px] font-medium text-[var(--cevi-text)]">Theme</div>
+                </div>
+                <select
+                  value={theme}
+                  onChange={(e) => setTheme(e.target.value)}
+                  className="text-[13px] font-medium text-[var(--cevi-text)] bg-white border border-[var(--cevi-border)] rounded-md px-3 py-1.5 cursor-pointer"
+                >
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                  <option value="system">System</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+          {/* Security Settings */}
+          <section>
+            <h2 className="text-[16px] font-semibold text-[var(--cevi-text)] mb-4">Security Settings</h2>
+            <div className="space-y-0 divide-y divide-[var(--cevi-border-light)]">
+              <SettingsRow
+                label="Password"
+                action="Set Password"
+              />
+              <SettingsRow
+                label="Two-Factor Authentication"
+                action="Enable 2FA"
+              />
+              <div className="flex items-center justify-between py-4">
+                <div>
+                  <div className="text-[14px] font-medium text-[var(--cevi-text)]">Delete Account</div>
+                </div>
+                <button className="px-4 py-1.5 text-[13px] font-semibold rounded-md bg-[var(--cevi-accent)] text-white hover:opacity-90 transition-opacity">
+                  Delete Account
+                </button>
+              </div>
+            </div>
+          </section>
+
+          {/* Organization Settings */}
+          <section>
+            <h2 className="text-[16px] font-semibold text-[var(--cevi-text)] mb-4">Organization Settings</h2>
+            <div className="space-y-0 divide-y divide-[var(--cevi-border-light)]">
+              <div className="flex items-center justify-between py-4">
+                <div>
+                  <div className="text-[14px] font-medium text-[var(--cevi-text)]">Delete All Organization Data</div>
+                  <div className="text-[12px] text-[var(--cevi-text-muted)] mt-0.5">
+                    This will delete all data belonging to your organization, including analytics, files, configurations, and historical records.
+                  </div>
+                </div>
+                <button className="px-4 py-1.5 text-[13px] font-semibold rounded-md bg-[var(--cevi-accent)] text-white hover:opacity-90 transition-opacity shrink-0 ml-4">
+                  Delete Organization
+                </button>
+              </div>
+
+              <div className="py-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-[14px] font-medium text-[var(--cevi-text)]">Cookie Preferences</div>
+                  <button className="px-4 py-1.5 text-[13px] font-medium rounded-md border border-[var(--cevi-border)] text-[var(--cevi-text)] hover:bg-[var(--cevi-surface)] transition-colors">
+                    Manage
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  <CookieRow
+                    title="Strictly necessary"
+                    description="These cookies are essential for this website to function properly."
+                  />
+                  <CookieRow
+                    title="Analytics"
+                    description="These cookies help us understand how features are used."
+                  />
+                  <CookieRow
+                    title="Functional"
+                    description="These cookies enable enhanced functionality like session replay and error tracking."
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
+      )}
+
+      {activeTab === "users" && (
+        <div className="text-[14px] text-[var(--cevi-text-muted)] py-12 text-center">
+          User management coming soon.
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SettingsRow({
+  label,
+  value,
+  action,
+}: {
+  label: string;
+  value?: string;
+  action: string;
+}) {
+  return (
+    <div className="flex items-center justify-between py-4">
+      <div>
+        <div className="text-[14px] font-medium text-[var(--cevi-text)]">{label}</div>
+        {value && <div className="text-[12px] text-[var(--cevi-text-muted)] mt-0.5">{value}</div>}
       </div>
+      <button className="px-4 py-1.5 text-[13px] font-medium rounded-md border border-[var(--cevi-border)] text-[var(--cevi-text)] hover:bg-[var(--cevi-surface)] transition-colors">
+        {action}
+      </button>
+    </div>
+  );
+}
+
+function CookieRow({ title, description }: { title: string; description: string }) {
+  return (
+    <div>
+      <div className="text-[13px] font-semibold text-[var(--cevi-text)]">{title}</div>
+      <div className="text-[12px] text-[var(--cevi-text-muted)] mt-0.5">{description}</div>
     </div>
   );
 }

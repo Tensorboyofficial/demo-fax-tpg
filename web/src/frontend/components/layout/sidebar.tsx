@@ -13,6 +13,8 @@ import {
   X,
   PanelLeftClose,
   PanelLeftOpen,
+  Copy,
+  ExternalLink,
 } from "lucide-react";
 import { CeviLogo } from "@/frontend/components/brand/cevi-logo";
 import { cn } from "@/shared/utils";
@@ -77,12 +79,73 @@ function AccountMenu({ onClose, collapsed, anchorRef }: { onClose: () => void; c
   );
 }
 
+/* ─── Support Modal ─── */
+function SupportModal({ onClose }: { onClose: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [onClose]);
+
+  const email = "support@reducto.ai";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
+      <div
+        ref={ref}
+        className="bg-white rounded-xl border border-[var(--cevi-border)] shadow-xl w-full max-w-sm mx-4 p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-[18px] font-semibold text-[var(--cevi-text)]">Contact Support</h2>
+          <button onClick={onClose} className="p-1 rounded-md hover:bg-[var(--cevi-surface)] transition-colors">
+            <X className="h-4 w-4 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
+          </button>
+        </div>
+        <p className="text-[13px] text-[var(--cevi-text-secondary)] mb-4">
+          Reach out to our support team for assistance with any questions or issues.
+        </p>
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-[var(--cevi-surface-warm)] border border-[var(--cevi-border-light)]">
+          <Mail className="h-4 w-4 text-[var(--cevi-text-muted)] shrink-0" strokeWidth={1.5} />
+          <span className="flex-1 text-[14px] font-medium text-[var(--cevi-text)]">{email}</span>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(email);
+              setCopied(true);
+              setTimeout(() => setCopied(false), 2000);
+            }}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-[var(--cevi-border)] bg-white text-[12px] font-medium text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] transition-colors"
+          >
+            <Copy className="h-3 w-3" strokeWidth={1.5} />
+            {copied ? "Copied" : "Copy"}
+          </button>
+        </div>
+        <div className="mt-4 flex justify-end">
+          <a
+            href={`mailto:${email}`}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--cevi-accent)] text-white text-[13px] font-semibold hover:opacity-90 transition-opacity"
+          >
+            <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.5} />
+            Open Email Client
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Sidebar ─── */
 export function Sidebar() {
   const pathname = usePathname();
   const { collapsed, toggle, mobileOpen, closeMobile } = useSidebar();
   const isDesktop = useIsDesktop();
   const [accountOpen, setAccountOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
   const accountAnchorRef = useRef<HTMLDivElement>(null);
 
   // Close mobile sidebar on route change
@@ -144,14 +207,16 @@ export function Sidebar() {
               return (
                 <li key={item.href}>
                   <Link
-                    href={item.href === "/category" ? "/category/lab_result" : item.href}
+                    href={item.href}
                     title={collapsed ? item.label : undefined}
                     className={cn(
                       "flex items-center rounded-lg text-[15px] font-medium transition-all relative",
-                      collapsed ? "justify-center h-9 w-full" : "gap-2.5 px-3 h-9",
+                      collapsed ? "justify-center h-9 w-9 mx-auto" : "gap-2.5 px-3 h-9",
                       active
-                        ? "bg-white text-[var(--cevi-text)] font-semibold border border-[#E5E5E5] shadow-[0_0_10px_rgba(0,0,0,0.06)]"
-                        : "text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)] border border-transparent",
+                        ? collapsed
+                          ? "bg-white text-[var(--cevi-text)] font-semibold shadow-[0_0_10px_rgba(0,0,0,0.06)]"
+                          : "bg-white text-[var(--cevi-text)] font-semibold border border-[#E5E5E5] shadow-[0_0_10px_rgba(0,0,0,0.06)]"
+                        : "text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)]",
                     )}
                   >
                     <Icon
@@ -169,8 +234,8 @@ export function Sidebar() {
         {/* Bottom section */}
         <div className={cn("pb-3 space-y-1", collapsed ? "px-1.5" : "px-3")}>
           {/* Support */}
-          <a
-            href="mailto:theo@cevi.ai"
+          <button
+            onClick={() => setSupportOpen(true)}
             title={collapsed ? "Support" : undefined}
             className={cn(
               "w-full flex items-center rounded-lg text-[15px] font-medium text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)] hover:text-[var(--cevi-text)] transition-colors",
@@ -179,7 +244,7 @@ export function Sidebar() {
           >
             <Mail className="h-5 w-5 shrink-0" strokeWidth={1.5} />
             {!collapsed && <span>Support</span>}
-          </a>
+          </button>
 
           {/* Account / Org */}
           <div ref={accountAnchorRef} className="relative">
@@ -209,6 +274,9 @@ export function Sidebar() {
           onClick={closeMobile}
         />
       )}
+
+      {/* Support Modal */}
+      {supportOpen && <SupportModal onClose={() => setSupportOpen(false)} />}
     </>
   );
 }

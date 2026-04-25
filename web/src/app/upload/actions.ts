@@ -283,6 +283,9 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
       }
     }
 
+    // ── Pipeline timing ──
+    const pipelineStartMs = Date.now();
+
     // ── Pass 1: Classification ──
     const {
       parsed,
@@ -519,7 +522,19 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
     }
 
     // 2. Supabase (prod persistence)
-    const supabaseResult = await insertUploadedFax({ fax, events });
+    const supabaseResult = await insertUploadedFax({
+      fax,
+      events,
+      classificationLatencyMs: latencyMs,
+      extractionLatencyMs,
+      totalTokensIn: tokensIn,
+      totalTokensOut: tokensOut,
+      processingDurationMs: Date.now() - pipelineStartMs,
+      classifiedAt: new Date(pipelineStartMs + latencyMs).toISOString(),
+      matchedAt: matchedPatientId ? nowIso : undefined,
+      routedAt: routing.routedTo ? nowIso : undefined,
+      processedAt: new Date().toISOString(),
+    });
 
     // 5. Fire webhooks (async, non-blocking)
     if (structuredExtraction) {
