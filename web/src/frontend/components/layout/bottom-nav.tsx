@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Inbox, User, Upload, Settings } from "lucide-react";
+import { Inbox, User, Settings } from "lucide-react";
 import { cn } from "@/shared/utils";
 
 interface NavTab {
@@ -24,12 +24,6 @@ const TABS: NavTab[] = [
     label: "Patients",
     icon: <User className="h-[20px] w-[20px]" strokeWidth={1.5} />,
     match: (p) => p.startsWith("/patients"),
-  },
-  {
-    href: "/upload",
-    label: "Upload",
-    icon: <Upload className="h-[20px] w-[20px]" strokeWidth={1.5} />,
-    match: (p) => p.startsWith("/upload"),
   },
   {
     href: "/settings",

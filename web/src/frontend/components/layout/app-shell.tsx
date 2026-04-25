@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 import { MobileTopbar } from "./mobile-topbar";
@@ -11,21 +12,33 @@ import { useIsDesktop } from "@/frontend/hooks/use-media-query";
 function ShellInner({ children }: { children: React.ReactNode }) {
   const { collapsed } = useSidebar();
   const isDesktop = useIsDesktop();
+  const pathname = usePathname();
+
+  // Full-width mode: hide sidebar + topbar on fax detail pages
+  const isDetailPage = /^\/inbox\/[^/]+$/.test(pathname);
 
   if (!isDesktop) {
-    // ── Mobile: app-like layout ──
     return (
       <div className="min-h-screen bg-[var(--cevi-bg)] flex flex-col">
-        <MobileTopbar />
-        <main className="flex-1 px-4 py-3" style={{ paddingBottom: "calc(60px + env(safe-area-inset-bottom, 0px))" }}>
+        {!isDetailPage && <MobileTopbar />}
+        <main className="flex-1 px-4 py-3" style={{ paddingBottom: isDetailPage ? 0 : "calc(60px + env(safe-area-inset-bottom, 0px))" }}>
           {children}
         </main>
-        <BottomNav />
+        {!isDetailPage && <BottomNav />}
       </div>
     );
   }
 
-  // ── Desktop: unchanged ──
+  // Full-width detail page — no sidebar, no topbar
+  if (isDetailPage) {
+    return (
+      <div className="min-h-screen bg-[var(--cevi-surface-warm)]">
+        {children}
+      </div>
+    );
+  }
+
+  // Default desktop layout
   return (
     <div className="min-h-screen bg-[var(--cevi-surface-warm)]">
       <Sidebar />

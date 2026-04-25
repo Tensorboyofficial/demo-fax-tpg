@@ -1,6 +1,5 @@
 import {
   Inbox,
-  Upload,
   ClipboardList,
   Settings,
   FileText,
@@ -16,7 +15,6 @@ export interface NavItem {
 
 export const NAVIGATION: NavItem[] = [
   { label: "Inbox", path: "/inbox", icon: Inbox, section: "main" },
-  { label: "Upload", path: "/upload", icon: Upload, section: "main" },
   { label: "Paper EOB", path: "/eob", icon: FileText, section: "main" },
   { label: "Audit Trail", path: "/audit", icon: ClipboardList, section: "main" },
   { label: "Settings", path: "/settings", icon: Settings, section: "secondary" },

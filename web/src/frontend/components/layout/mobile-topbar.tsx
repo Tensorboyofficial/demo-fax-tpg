@@ -59,7 +59,6 @@ function UserMenu({ onClose }: { onClose: () => void }) {
 function getPageTitle(pathname: string): string | null {
   if (pathname === "/") return null; // Show logo instead
   if (pathname === "/patients") return "Patients";
-  if (pathname === "/upload") return "Upload";
   if (pathname === "/settings") return "Settings";
   if (pathname === "/audit") return "Audit Trail";
   if (pathname.startsWith("/category/")) return "Category";

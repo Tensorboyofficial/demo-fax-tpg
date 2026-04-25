@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Badge, statusBadgeVariant, typeBadgeVariant, urgencyBadgeVariant } from "@/frontend/components/ui/badge";
 import { Button } from "@/frontend/components/ui/button";
+import { StateChip } from "@/frontend/components/ui/state-chip";
 import { useToast } from "@/frontend/components/ui/toast";
 import { ConfidenceMeter } from "@/frontend/components/composed/confidence-meter";
 import { patients, patientFullName } from "@/data/seed/patients";
@@ -63,6 +64,19 @@ const TYPE_LABELS: Record<string, string> = {
   records_request: "Records Request",
   unknown: "Other",
 };
+
+function toLifecycle(status: string): string {
+  switch (status) {
+    case "unopened": return "unopened";
+    case "opened": return "opened";
+    case "archived": return "archived";
+    case "needs_review": case "failed_match": return "needs_review";
+    case "received": case "processing": return "unopened";
+    case "auto_routed": case "routed": return "opened";
+    case "completed": return "archived";
+    default: return "unopened";
+  }
+}
 
 /* ─── Field definitions ─── */
 interface FieldDef {
@@ -130,12 +144,16 @@ export function DetailShell({ fax, initialEvents }: Props) {
   const [editValue, setEditValue] = useState("");
   const editRef = useRef<HTMLInputElement>(null);
 
-  // Section collapse state
+  // Section collapse state (Schema Extracted tab)
   const [extractionOpen, setExtractionOpen] = useState(true);
-  const [jsonOpen, setJsonOpen] = useState(true);
   const [metaOpen, setMetaOpen] = useState(true);
   const [matchOpen, setMatchOpen] = useState(true);
   const [auditOpen, setAuditOpen] = useState(false);
+
+  // Figma tabs: Schema Extracted vs Full Extraction
+  const [activeTab, setActiveTab] = useState<"schema" | "full">("schema");
+  // Format toggle: Formatted vs JSON
+  const [formatMode, setFormatMode] = useState<"formatted" | "json">("formatted");
 
   // Structured extraction from Pass 2
   const structuredExtraction = fields.structuredExtraction as Record<string, unknown> | undefined;
@@ -253,47 +271,23 @@ export function DetailShell({ fax, initialEvents }: Props) {
       }}
     >
       {/* ── Top action bar ── */}
-      <div className="shrink-0 flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-4 h-12 border-b border-[var(--cevi-border)] bg-white">
+      <div className="shrink-0 flex items-center justify-between gap-2 sm:gap-4 px-4 sm:px-6 h-12 bg-white border-b border-[var(--cevi-border)]">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-          {isDesktop && (
-            <>
-              <Link
-                href="/"
-                className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] transition-colors shrink-0"
-              >
-                <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
-                <span>Back</span>
-              </Link>
-              <div className="h-4 w-px bg-[var(--cevi-border)]" />
-            </>
-          )}
-          <h1 className="text-[14px] font-semibold text-[var(--cevi-text)] truncate">
-            {fax.fromOrg}
+          <Link
+            href="/"
+            className="inline-flex items-center text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] transition-colors shrink-0"
+          >
+            <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
+          </Link>
+          <h1 className="text-[15px] font-semibold text-[var(--cevi-text)] truncate">
+            {fax.id.replace("FAX-20260423-", "FAX-")}
           </h1>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
           <Badge variant={typeBadgeVariant(type)} size="sm">
             {TYPE_LABELS[type] ?? type}
           </Badge>
-          <Badge variant={urgencyBadgeVariant(urgency)} size="sm" dot className="hidden sm:inline-flex">
-            {urgency}
-          </Badge>
-        </div>
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          <Button
-            variant="outline"
-            size="sm"
-            loading={isPending}
-            disabled={isPending}
-            onClick={() => handleReclassify("premium")}
-            icon={<Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} />}
-          >
-            <span className="hidden sm:inline">Re-classify</span>
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => {}} icon={<AlertTriangle className="h-3.5 w-3.5" strokeWidth={1.5} />} className="hidden md:inline-flex">
-            Needs Review
-          </Button>
-          <Button variant="primary" size="sm" onClick={() => {}} icon={<CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />}>
-            <span className="hidden sm:inline">Mark Processed</span>
-          </Button>
+          <StateChip state={fax.typeConfidence != null && fax.typeConfidence < 0.7 ? "needs_review" : toLifecycle(fax.status)} />
         </div>
       </div>
 
@@ -314,14 +308,16 @@ export function DetailShell({ fax, initialEvents }: Props) {
       >
         {/* ─── LEFT: Document viewer (Reducto-style) ─── */}
         <div
-          className="flex bg-[#F7F7F5]"
+          className="flex"
           style={{
+            backgroundColor: "#F5F5F5",
+            backgroundImage: "radial-gradient(circle, #D4D4D4 0.5px, transparent 0.5px)",
+            backgroundSize: "12px 12px",
             flex: isSplitView ? "1 1 0%" : "none",
             minWidth: 0,
             overflow: isSplitView ? "hidden" : "visible",
             borderRight: isSplitView ? "1px solid var(--cevi-border)" : "none",
             borderBottom: isSplitView ? "none" : "1px solid var(--cevi-border)",
-            height: isSplitView ? "auto" : "auto",
           }}
         >
           {/* Page thumbnails strip — hidden on mobile */}
@@ -455,34 +451,55 @@ export function DetailShell({ fax, initialEvents }: Props) {
         <div
           className="flex flex-col bg-white"
           style={{
-            width: isSplitView ? 420 : "100%",
+            width: isSplitView ? 480 : "100%",
             flexShrink: 0,
             flex: isSplitView ? "none" : "none",
             minWidth: 0,
             overflow: isSplitView ? "hidden" : "visible",
           }}
         >
-          {/* Panel header */}
-          <div className="shrink-0 px-4 py-3 border-b border-[var(--cevi-border-light)]">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-[13px] font-semibold text-[var(--cevi-text)]">Extracted Data</span>
-                <Badge variant={statusBadgeVariant(fax.status)} size="sm">
-                  {fax.status.replace("_", " ")}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-1.5">
-                {matchedPatient ? (
-                  <Badge variant="success" size="sm" dot>Matched</Badge>
-                ) : fax.candidates.length > 0 ? (
-                  <Badge variant="amber" size="sm" dot>Needs Review</Badge>
-                ) : (
-                  <Badge variant="outline" size="sm">Unmatched</Badge>
+          {/* Tabs: Schema Extracted / Full Extraction */}
+          <div className="shrink-0 flex items-center justify-between px-5 border-b border-[var(--cevi-border)]">
+            <div className="flex items-center gap-0">
+              <button
+                onClick={() => setActiveTab("schema")}
+                className={cn(
+                  "px-3 py-3 text-[14px] font-medium border-b-2 transition-colors -mb-px",
+                  activeTab === "schema"
+                    ? "text-[var(--cevi-text)] border-b-[var(--cevi-text)]"
+                    : "text-[var(--cevi-text-muted)] border-b-transparent hover:text-[var(--cevi-text-secondary)]",
                 )}
-              </div>
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                Schema Extracted
+              </button>
+              <button
+                onClick={() => setActiveTab("full")}
+                className={cn(
+                  "px-3 py-3 text-[14px] font-medium border-b-2 transition-colors -mb-px",
+                  activeTab === "full"
+                    ? "text-[var(--cevi-text)] border-b-[var(--cevi-text)]"
+                    : "text-[var(--cevi-text-muted)] border-b-transparent hover:text-[var(--cevi-text-secondary)]",
+                )}
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                Full Extraction
+              </button>
             </div>
-            {/* Classification + confidence row */}
-            <div className="mt-2 flex items-center gap-3 text-[11px]">
+            {/* Formatted / JSON dropdown */}
+            <select
+              value={formatMode}
+              onChange={(e) => setFormatMode(e.target.value as "formatted" | "json")}
+              className="text-[13px] font-medium text-[var(--cevi-text)] bg-white border border-[var(--cevi-border)] rounded-md px-2 py-1 cursor-pointer"
+            >
+              <option value="formatted">Formatted</option>
+              <option value="json">JSON</option>
+            </select>
+          </div>
+
+          {/* Category + Confidence + Actions */}
+          <div className="shrink-0 px-5 py-3 flex items-center justify-between border-b border-[var(--cevi-border-light)]">
+            <div className="flex items-center gap-4 text-[14px]">
               <div className="flex items-center gap-1.5">
                 <span className="text-[var(--cevi-text-muted)]">Category:</span>
                 <span className="font-semibold text-[var(--cevi-text)]">{TYPE_LABELS[type] ?? type}</span>
@@ -491,16 +508,18 @@ export function DetailShell({ fax, initialEvents }: Props) {
                 <span className="text-[var(--cevi-text-muted)]">Confidence:</span>
                 <ConfidenceMeter value={confidence} />
               </div>
-              {latencyMs && (
-                <div className="flex items-center gap-1 text-[var(--cevi-text-muted)]">
-                  <Zap className="h-3 w-3 text-[var(--cevi-amber)]" strokeWidth={1.5} />
-                  <span>{(latencyMs / 1000).toFixed(1)}s</span>
-                </div>
-              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" onClick={() => {}} icon={<CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />}>
+                Mark Processed
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => {}}>
+                Push to EHR
+              </Button>
             </div>
           </div>
 
-          {/* AI summary */}
+          {/* AI summary — shown in both tabs */}
           {aiSummary && (
             <div className="shrink-0 mx-4 mt-3 p-3 rounded-lg bg-[var(--cevi-accent-light)] border border-[var(--cevi-accent)]/15">
               <div className="flex items-center gap-1.5 mb-1">
@@ -512,195 +531,224 @@ export function DetailShell({ fax, initialEvents }: Props) {
             </div>
           )}
 
-          {/* Scrollable extraction grid */}
+          {/* Scrollable content area */}
           <div className="flex-1 px-4 py-3 space-y-1 scrollbar-thin" style={{ overflowY: isSplitView ? "auto" : "visible" }}>
-            {/* Extracted Fields */}
-            <SectionHeader
-              title="Extracted fields"
-              count={EXTRACTION_FIELDS.length}
-              open={extractionOpen}
-              onToggle={() => setExtractionOpen(!extractionOpen)}
-            />
-            {extractionOpen && (
-              <div className="border border-[var(--cevi-border)] rounded-lg mb-3 overflow-hidden">
-                <div className="grid grid-cols-[130px_1fr] text-[10px] font-semibold uppercase tracking-[0.06em] text-[var(--cevi-text-muted)] bg-[var(--cevi-surface-warm)] border-b border-[var(--cevi-border-light)]">
-                  <div className="px-3 py-1.5 border-r border-[var(--cevi-border-light)]">Field</div>
-                  <div className="px-3 py-1.5">Value</div>
-                </div>
-                {EXTRACTION_FIELDS.map((f) => {
-                  const val = f.getValue(fax, fields);
-                  return (
-                    <FieldRow
-                      key={f.key}
-                      fieldKey={f.key}
-                      label={f.label}
-                      value={val}
-                      isActive={activeRow === f.key}
-                      isEditing={editingRow === f.key}
-                      editValue={editValue}
-                      editRef={editRef}
-                      onEditChange={setEditValue}
-                      onClick={() => handleClick(f.key, val)}
-                      onDoubleClick={() => handleDoubleClick(f.key, val)}
-                      onCommit={commitEdit}
-                      onCancel={cancelEdit}
-                    />
-                  );
-                })}
-              </div>
-            )}
 
-            {/* Full Schema Extraction (Pass 2) — collapsible sections per top-level key */}
-            {structuredExtraction && (
+            {/* ── Schema Extracted tab ── */}
+            {activeTab === "schema" && (
               <>
-                <SectionHeader
-                  title="Full schema extraction"
-                  count={Object.keys(structuredExtraction).filter(k => !["extraction_meta", "$schema", "$id"].includes(k)).length}
-                  open={jsonOpen}
-                  onToggle={() => setJsonOpen(!jsonOpen)}
-                  badge={
-                    <span
-                      role="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigator.clipboard.writeText(JSON.stringify(structuredExtraction, null, 2));
-                        toast("Copied JSON");
-                      }}
-                      className="inline-flex items-center gap-1 text-[10px] font-medium text-[var(--cevi-accent)] hover:underline cursor-pointer"
-                    >
-                      <Copy className="h-3 w-3" strokeWidth={1.5} />
-                      Copy JSON
-                    </span>
-                  }
-                />
-                {jsonOpen && (
-                  <div className="space-y-1.5 mb-3">
-                    {Object.entries(structuredExtraction)
-                      .filter(([k]) => !["extraction_meta", "$schema", "$id"].includes(k))
-                      .map(([key, val]) => (
-                        <SchemaSection key={key} sectionKey={key} data={val} onCopy={copyValue} />
-                      ))
-                    }
+                {formatMode === "json" ? (
+                  /* JSON view of extraction fields */
+                  <div className="border border-[var(--cevi-border)] rounded-lg overflow-hidden mb-3">
+                    <div className="flex items-center justify-between px-3 py-2 bg-[var(--cevi-surface-warm)] border-b border-[var(--cevi-border-light)]">
+                      <span className="text-[11px] font-semibold text-[var(--cevi-text-tertiary)] uppercase tracking-[0.06em]">Extracted Fields JSON</span>
+                      <span
+                        role="button"
+                        onClick={() => { navigator.clipboard.writeText(JSON.stringify(fields, null, 2)); toast("Copied JSON"); }}
+                        className="inline-flex items-center gap-1 text-[10px] font-medium text-[var(--cevi-accent)] hover:underline cursor-pointer"
+                      >
+                        <Copy className="h-3 w-3" strokeWidth={1.5} />
+                        Copy
+                      </span>
+                    </div>
+                    <pre className="p-3 text-[11px] leading-relaxed font-mono text-[var(--cevi-text)] overflow-x-auto">
+                      {JSON.stringify(fields, null, 2)}
+                    </pre>
                   </div>
+                ) : (
+                  /* Formatted table view */
+                  <>
+                    <SectionHeader
+                      title="Extracted fields"
+                      count={EXTRACTION_FIELDS.length}
+                      open={extractionOpen}
+                      onToggle={() => setExtractionOpen(!extractionOpen)}
+                    />
+                    {extractionOpen && (
+                      <div className="border border-[var(--cevi-border)] rounded-lg mb-3 overflow-hidden">
+                        <div className="grid grid-cols-[130px_1fr] text-[10px] font-semibold uppercase tracking-[0.06em] text-[var(--cevi-text-muted)] bg-[var(--cevi-surface-warm)] border-b border-[var(--cevi-border-light)]">
+                          <div className="px-3 py-1.5 border-r border-[var(--cevi-border-light)]">Field</div>
+                          <div className="px-3 py-1.5">Value</div>
+                        </div>
+                        {EXTRACTION_FIELDS.map((f) => {
+                          const val = f.getValue(fax, fields);
+                          return (
+                            <FieldRow
+                              key={f.key}
+                              fieldKey={f.key}
+                              label={f.label}
+                              value={val}
+                              isActive={activeRow === f.key}
+                              isEditing={editingRow === f.key}
+                              editValue={editValue}
+                              editRef={editRef}
+                              onEditChange={setEditValue}
+                              onClick={() => handleClick(f.key, val)}
+                              onDoubleClick={() => handleDoubleClick(f.key, val)}
+                              onCommit={commitEdit}
+                              onCancel={cancelEdit}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Fax Metadata */}
+                    <SectionHeader
+                      title="Fax metadata"
+                      count={META_FIELDS.length}
+                      open={metaOpen}
+                      onToggle={() => setMetaOpen(!metaOpen)}
+                    />
+                    {metaOpen && (
+                      <div className="border border-[var(--cevi-border)] rounded-lg mb-3 overflow-hidden">
+                        {META_FIELDS.map((f) => {
+                          const val = f.getValue(fax, fields);
+                          return (
+                            <FieldRow
+                              key={f.key}
+                              fieldKey={f.key}
+                              label={f.label}
+                              value={val}
+                              isActive={activeRow === f.key}
+                              isEditing={editingRow === f.key}
+                              editValue={editValue}
+                              editRef={editRef}
+                              onEditChange={setEditValue}
+                              onClick={() => handleClick(f.key, val)}
+                              onDoubleClick={() => handleDoubleClick(f.key, val)}
+                              onCommit={commitEdit}
+                              onCancel={cancelEdit}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Patient Match */}
+                    <SectionHeader
+                      title="Patient match"
+                      count={fax.candidates.length}
+                      open={matchOpen}
+                      onToggle={() => setMatchOpen(!matchOpen)}
+                      badge={matchedPatient
+                        ? <Badge variant="success" size="sm" dot>Matched</Badge>
+                        : fax.candidates.length > 0
+                          ? <Badge variant="amber" size="sm" dot>Review</Badge>
+                          : <Badge variant="outline" size="sm">No match</Badge>
+                      }
+                    />
+                    {matchOpen && (
+                      <div className="border border-[var(--cevi-border)] rounded-lg mb-3 overflow-hidden">
+                        {fax.candidates.length === 0 ? (
+                          <div className="p-4 text-center text-[12px] text-[var(--cevi-text-muted)]">
+                            No patient candidates found
+                          </div>
+                        ) : (
+                          fax.candidates.map((c) => {
+                            const p = patients.find((x) => x.id === c.patientId);
+                            if (!p) return null;
+                            const isMatched = fax.matchedPatientId === c.patientId;
+                            return (
+                              <div
+                                key={c.patientId}
+                                className={cn(
+                                  "flex items-center justify-between px-3 py-2.5 border-b border-[var(--cevi-border-light)] last:border-b-0 text-[12px]",
+                                  isMatched && "bg-[var(--cevi-jade-light)]/30",
+                                )}
+                              >
+                                <div className="min-w-0">
+                                  <div className="font-semibold text-[var(--cevi-text)] truncate">
+                                    {patientFullName(p)}
+                                    {isMatched && <span className="ml-1.5 text-[var(--cevi-jade)] text-[10px] font-bold">MATCHED</span>}
+                                  </div>
+                                  <div className="text-[11px] text-[var(--cevi-text-muted)] font-mono">
+                                    {p.mrn} · DOB {formatDob(p.dob)} · {calcAge(p.dob)}y {p.sex}
+                                  </div>
+                                </div>
+                                <ConfidenceMeter value={c.score} />
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    )}
+
+                    {/* Audit Trail */}
+                    <SectionHeader title="Audit trail" count={sortedEvents.length} open={auditOpen} onToggle={() => setAuditOpen(!auditOpen)} />
+                    {auditOpen && (
+                      <div className="border border-[var(--cevi-border)] rounded-lg mb-3 overflow-hidden">
+                        {sortedEvents.map((e) => (
+                          <div key={e.id} className="flex items-start gap-3 px-3 py-2 border-b border-[var(--cevi-border-light)] last:border-b-0 text-[12px]">
+                            <div className="shrink-0 mt-0.5">
+                              <span className="inline-block w-2 h-2 rounded-full bg-[var(--cevi-text-muted)]" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-baseline justify-between gap-2">
+                                <span className="font-semibold text-[var(--cevi-text)] uppercase tracking-[0.04em] text-[11px]">{e.kind}</span>
+                                <span className="text-[10px] text-[var(--cevi-text-muted)] tabular-nums shrink-0">{formatDateTime(e.at)}</span>
+                              </div>
+                              <div className="text-[var(--cevi-text-secondary)] mt-0.5">{e.detail}</div>
+                              {e.model && (
+                                <div className="text-[10px] text-[var(--cevi-text-muted)] mt-0.5">
+                                  {modelLabelFromId(e.model)}
+                                  {typeof e.latencyMs === "number" && ` · ${(e.latencyMs / 1000).toFixed(1)}s`}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </>
             )}
 
-            {/* Fax Metadata */}
-            <SectionHeader
-              title="Fax metadata"
-              count={META_FIELDS.length}
-              open={metaOpen}
-              onToggle={() => setMetaOpen(!metaOpen)}
-            />
-            {metaOpen && (
-              <div className="border border-[var(--cevi-border)] rounded-lg mb-3 overflow-hidden">
-                {META_FIELDS.map((f) => {
-                  const val = f.getValue(fax, fields);
-                  return (
-                    <FieldRow
-                      key={f.key}
-                      fieldKey={f.key}
-                      label={f.label}
-                      value={val}
-                      isActive={activeRow === f.key}
-                      isEditing={editingRow === f.key}
-                      editValue={editValue}
-                      editRef={editRef}
-                      onEditChange={setEditValue}
-                      onClick={() => handleClick(f.key, val)}
-                      onDoubleClick={() => handleDoubleClick(f.key, val)}
-                      onCommit={commitEdit}
-                      onCancel={cancelEdit}
-                    />
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Patient Match */}
-            <SectionHeader
-              title="Patient match"
-              count={fax.candidates.length}
-              open={matchOpen}
-              onToggle={() => setMatchOpen(!matchOpen)}
-              badge={matchedPatient
-                ? <Badge variant="success" size="sm" dot>Matched</Badge>
-                : fax.candidates.length > 0
-                  ? <Badge variant="amber" size="sm" dot>Review</Badge>
-                  : <Badge variant="outline" size="sm">No match</Badge>
-              }
-            />
-            {matchOpen && (
-              <div className="border border-[var(--cevi-border)] rounded-lg mb-3 overflow-hidden">
-                {fax.candidates.length === 0 ? (
-                  <div className="p-4 text-center text-[12px] text-[var(--cevi-text-muted)]">
-                    No patient candidates found
+            {/* ── Full Extraction tab ── */}
+            {activeTab === "full" && (
+              <>
+                {formatMode === "json" ? (
+                  /* Raw JSON of structured extraction */
+                  <div className="border border-[var(--cevi-border)] rounded-lg overflow-hidden mb-3">
+                    <div className="flex items-center justify-between px-3 py-2 bg-[var(--cevi-surface-warm)] border-b border-[var(--cevi-border-light)]">
+                      <span className="text-[11px] font-semibold text-[var(--cevi-text-tertiary)] uppercase tracking-[0.06em]">Full Extraction JSON</span>
+                      <span
+                        role="button"
+                        onClick={() => {
+                          const data = structuredExtraction ?? fields;
+                          navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+                          toast("Copied JSON");
+                        }}
+                        className="inline-flex items-center gap-1 text-[10px] font-medium text-[var(--cevi-accent)] hover:underline cursor-pointer"
+                      >
+                        <Copy className="h-3 w-3" strokeWidth={1.5} />
+                        Copy
+                      </span>
+                    </div>
+                    <pre className="p-3 text-[11px] leading-relaxed font-mono text-[var(--cevi-text)] overflow-x-auto">
+                      {JSON.stringify(structuredExtraction ?? fields, null, 2)}
+                    </pre>
                   </div>
                 ) : (
-                  fax.candidates.map((c) => {
-                    const p = patients.find((x) => x.id === c.patientId);
-                    if (!p) return null;
-                    const isMatched = fax.matchedPatientId === c.patientId;
-                    return (
-                      <div
-                        key={c.patientId}
-                        className={cn(
-                          "flex items-center justify-between px-3 py-2.5 border-b border-[var(--cevi-border-light)] last:border-b-0 text-[12px]",
-                          isMatched && "bg-[var(--cevi-jade-light)]/30",
-                        )}
-                      >
-                        <div className="min-w-0">
-                          <div className="font-semibold text-[var(--cevi-text)] truncate">
-                            {patientFullName(p)}
-                            {isMatched && <span className="ml-1.5 text-[var(--cevi-jade)] text-[10px] font-bold">MATCHED</span>}
-                          </div>
-                          <div className="text-[11px] text-[var(--cevi-text-muted)] font-mono">
-                            {p.mrn} · DOB {formatDob(p.dob)} · {calcAge(p.dob)}y {p.sex}
-                          </div>
-                        </div>
-                        <ConfidenceMeter value={c.score} />
-                      </div>
-                    );
-                  })
+                  /* Formatted structured extraction sections */
+                  structuredExtraction ? (
+                    <div className="space-y-1.5 mb-3">
+                      {Object.entries(structuredExtraction)
+                        .filter(([k]) => !["extraction_meta", "$schema", "$id"].includes(k))
+                        .map(([key, val]) => (
+                          <SchemaSection key={key} sectionKey={key} data={val} onCopy={copyValue} />
+                        ))
+                      }
+                    </div>
+                  ) : (
+                    <div className="p-6 text-center text-[13px] text-[var(--cevi-text-muted)]">
+                      No structured extraction available for this fax.
+                    </div>
+                  )
                 )}
-              </div>
+              </>
             )}
-
-            {/* Audit Trail */}
-            <SectionHeader title="Audit trail" count={sortedEvents.length} open={auditOpen} onToggle={() => setAuditOpen(!auditOpen)} />
-            {auditOpen && (
-              <div className="border border-[var(--cevi-border)] rounded-lg mb-3 overflow-hidden">
-                {sortedEvents.map((e) => (
-                  <div key={e.id} className="flex items-start gap-3 px-3 py-2 border-b border-[var(--cevi-border-light)] last:border-b-0 text-[12px]">
-                    <div className="shrink-0 mt-0.5">
-                      <span className="inline-block w-2 h-2 rounded-full bg-[var(--cevi-text-muted)]" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline justify-between gap-2">
-                        <span className="font-semibold text-[var(--cevi-text)] uppercase tracking-[0.04em] text-[11px]">{e.kind}</span>
-                        <span className="text-[10px] text-[var(--cevi-text-muted)] tabular-nums shrink-0">{formatDateTime(e.at)}</span>
-                      </div>
-                      <div className="text-[var(--cevi-text-secondary)] mt-0.5">{e.detail}</div>
-                      {e.model && (
-                        <div className="text-[10px] text-[var(--cevi-text-muted)] mt-0.5">
-                          {modelLabelFromId(e.model)}
-                          {typeof e.latencyMs === "number" && ` · ${(e.latencyMs / 1000).toFixed(1)}s`}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Keyboard hints footer */}
-          <div className="shrink-0 px-4 py-2 border-t border-[var(--cevi-border-light)] bg-[var(--cevi-surface-warm)] hidden sm:flex items-center gap-3 text-[10px] text-[var(--cevi-text-muted)]">
-            <span><kbd className="px-1 py-0.5 rounded bg-white border border-[var(--cevi-border)] text-[9px]">Click</kbd> copy</span>
-            <span><kbd className="px-1 py-0.5 rounded bg-white border border-[var(--cevi-border)] text-[9px]">Double-click</kbd> edit</span>
-            <span><kbd className="px-1 py-0.5 rounded bg-white border border-[var(--cevi-border)] text-[9px]">↑↓</kbd> navigate</span>
-            <span><kbd className="px-1 py-0.5 rounded bg-white border border-[var(--cevi-border)] text-[9px]">⌘C</kbd> copy</span>
           </div>
         </div>
       </div>
