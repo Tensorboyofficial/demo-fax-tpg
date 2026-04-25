@@ -22,7 +22,6 @@ import { ConfidenceValue } from "@/frontend/components/ui/confidence-value";
 import { CategoryPill } from "@/frontend/components/ui/category-pill";
 import { FaxThumbnail } from "@/frontend/components/features/fax/fax-thumbnail";
 import { useToast } from "@/frontend/components/ui/toast";
-import { patients } from "@/data/seed/patients";
 import { formatRelative, cn } from "@/shared/utils";
 import { useIsDesktop } from "@/frontend/hooks/use-media-query";
 import type { Fax } from "@/shared/types";
@@ -109,12 +108,7 @@ const CATEGORY_OPTIONS = [
 ];
 
 function patientLabel(fax: Fax): string {
-  if (!fax.matchedPatientId) {
-    return fax.extracted.patientNameOnDoc ?? "Unmatched";
-  }
-  const p = patients.find((pt) => pt.id === fax.matchedPatientId);
-  if (!p) return "Unknown";
-  return `${p.lastName}, ${p.firstName}`;
+  return fax.extracted.patientNameOnDoc ?? "Unmatched";
 }
 
 /* ─── Main Component ─── */

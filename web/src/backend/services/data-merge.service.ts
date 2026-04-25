@@ -2,7 +2,7 @@ import type { Fax, FaxEvent } from "@/shared/types";
 import type { IFaxRepository, IEventRepository } from "../repositories/interfaces/fax.repository";
 import { SupabaseFaxRepository, SupabaseEventRepository } from "../repositories/supabase/supabase-fax.repository";
 import { SUPABASE_CONFIGURED } from "../repositories/supabase/supabase.client";
-import { SeedFaxRepository, SeedEventRepository } from "../repositories/seed/seed-fax.repository";
+// Seed data removed — only real Supabase data is used
 
 /** Empty repo — used when SQLite is unavailable (Vercel serverless). */
 class NullFaxRepository implements IFaxRepository {
@@ -52,8 +52,6 @@ export class DataMergeService {
       this.supabaseRepo.findAll(),
       this.sqliteRepo.findAll(),
     ];
-    // Only include seed data when Supabase is NOT configured (local dev without DB)
-    if (!SUPABASE_CONFIGURED) sources.push(new SeedFaxRepository().findAll());
     const results = await Promise.all(sources);
     const merged = dedupeById(results.flat());
     return merged.sort((a, b) => (a.receivedAt < b.receivedAt ? 1 : -1));
@@ -64,7 +62,6 @@ export class DataMergeService {
     if (up) return up;
     const sq = await this.sqliteRepo.findById(id);
     if (sq) return sq;
-    if (!SUPABASE_CONFIGURED) return new SeedFaxRepository().findById(id);
     return null;
   }
 
@@ -73,7 +70,6 @@ export class DataMergeService {
     if (up.length > 0) return up;
     const sq = await this.sqliteEventRepo.findByFaxId(id);
     if (sq.length > 0) return sq;
-    if (!SUPABASE_CONFIGURED) return new SeedEventRepository().findByFaxId(id);
     return [];
   }
 
@@ -82,7 +78,6 @@ export class DataMergeService {
       this.supabaseEventRepo.findAll(),
       this.sqliteEventRepo.findAll(),
     ];
-    if (!SUPABASE_CONFIGURED) sources.push(new SeedEventRepository().findAll());
     const results = await Promise.all(sources);
     const merged = dedupeById(results.flat());
     return merged.sort((a, b) => (a.at < b.at ? 1 : -1));

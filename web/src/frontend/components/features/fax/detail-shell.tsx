@@ -8,23 +8,22 @@ import {
   Sparkles,
   ChevronDown,
   ChevronRight,
+  ChevronLeft,
   FileText,
   Printer as FaxIcon,
-  Zap,
   ZoomIn,
   ZoomOut,
-  Save,
   CheckCircle2,
-  AlertTriangle,
   Plus,
+  Download,
+  Layers,
 } from "lucide-react";
 import { Badge, statusBadgeVariant, typeBadgeVariant, urgencyBadgeVariant } from "@/frontend/components/ui/badge";
 import { Button } from "@/frontend/components/ui/button";
 import { StateChip } from "@/frontend/components/ui/state-chip";
 import { useToast } from "@/frontend/components/ui/toast";
 import { ConfidenceMeter } from "@/frontend/components/composed/confidence-meter";
-import { patients, patientFullName } from "@/data/seed/patients";
-import { formatDateTime, formatDate, formatDob, calcAge, cn } from "@/shared/utils";
+import { formatDateTime, formatDate, cn } from "@/shared/utils";
 import { FAX_TYPE_LABELS, MODEL_LABELS, modelLabelFromId, type ModelTier } from "@/shared/constants";
 import type { Fax, FaxEvent, ExtractedFields, Urgency } from "@/shared/types";
 import { useIsDesktop, useMediaQuery } from "@/frontend/hooks/use-media-query";
@@ -160,6 +159,8 @@ export function DetailShell({ fax, initialEvents }: Props) {
 
   // Document viewer state
   const [zoom, setZoom] = useState(100);
+  const [activePage, setActivePage] = useState(0);
+  const [showThumbs, setShowThumbs] = useState(true);
   const isDesktop = useIsDesktop();
   const isSplitView = useMediaQuery("(min-width: 1024px)");
 
@@ -252,9 +253,7 @@ export function DetailShell({ fax, initialEvents }: Props) {
     });
   }
 
-  const matchedPatient = fax.matchedPatientId
-    ? patients.find((p) => p.id === fax.matchedPatientId)
-    : null;
+  const hasMatch = fax.matchedPatientId != null;
 
   const sortedEvents = [...events].sort((a, b) => (a.at < b.at ? -1 : 1));
 
@@ -263,12 +262,7 @@ export function DetailShell({ fax, initialEvents }: Props) {
 
   return (
     <div
-      className="flex flex-col"
-      style={{
-        height: isSplitView ? "100vh" : "auto",
-        minHeight: isDesktop ? "100vh" : "auto",
-        margin: isDesktop ? "-24px -40px" : "-12px -16px",
-      }}
+      className="flex flex-col h-screen"
     >
       {/* ── Top action bar ── */}
       <div className="shrink-0 flex items-center justify-between gap-2 sm:gap-4 px-4 sm:px-6 h-12 bg-white border-b border-[var(--cevi-border)]">
@@ -279,7 +273,7 @@ export function DetailShell({ fax, initialEvents }: Props) {
           >
             <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
           </Link>
-          <h1 className="text-[15px] font-semibold text-[var(--cevi-text)] truncate">
+          <h1 className="text-[15px] font-semibold text-[var(--cevi-text)] truncate" style={{ fontFamily: "var(--font-mono)" }}>
             {fax.id.replace("FAX-20260423-", "FAX-")}
           </h1>
         </div>
@@ -308,7 +302,7 @@ export function DetailShell({ fax, initialEvents }: Props) {
       >
         {/* ─── LEFT: Document viewer (Reducto-style) ─── */}
         <div
-          className="flex"
+          className="flex flex-col"
           style={{
             backgroundColor: "#F5F5F5",
             backgroundImage: "radial-gradient(circle, #D4D4D4 0.5px, transparent 0.5px)",
@@ -320,128 +314,154 @@ export function DetailShell({ fax, initialEvents }: Props) {
             borderBottom: isSplitView ? "none" : "1px solid var(--cevi-border)",
           }}
         >
-          {/* Page thumbnails strip — hidden on mobile */}
-          <div
-            className="shrink-0 border-r border-[var(--cevi-border-light)] bg-[#F0EFED] overflow-y-auto py-3 px-2 space-y-2 scrollbar-thin"
-            style={{ width: isDesktop ? 80 : 0, display: isDesktop ? "block" : "none" }}
-          >
-            {ocrPages.map((_, i) => (
-              <button
-                key={i}
-                className="w-full aspect-[8.5/11] rounded border border-[var(--cevi-border)] bg-white shadow-sm hover:border-[var(--cevi-accent)] hover:shadow-md transition-all relative group"
-              >
-                {/* Mini page content representation */}
-                <div className="absolute inset-1.5 overflow-hidden">
-                  <div className="h-1 w-10 bg-[#E5E5E5] rounded-full mb-1" />
-                  <div className="h-0.5 w-12 bg-[#EFEFEF] rounded-full mb-0.5" />
-                  <div className="h-0.5 w-8 bg-[#EFEFEF] rounded-full mb-0.5" />
-                  <div className="h-0.5 w-11 bg-[#EFEFEF] rounded-full mb-0.5" />
-                  <div className="h-0.5 w-6 bg-[#EFEFEF] rounded-full mb-1" />
-                  <div className="h-0.5 w-10 bg-[#EFEFEF] rounded-full mb-0.5" />
-                  <div className="h-0.5 w-9 bg-[#EFEFEF] rounded-full" />
-                </div>
-                <div className="absolute bottom-0.5 left-0 right-0 text-center text-[8px] text-[var(--cevi-text-muted)] font-medium">
-                  {i + 1}
-                </div>
-              </button>
-            ))}
-            {/* Add file button */}
-            <button className="w-full aspect-[8.5/11] rounded border border-dashed border-[var(--cevi-border)] bg-transparent hover:bg-white hover:border-[var(--cevi-accent)] transition-all flex items-center justify-center">
-              <Plus className="h-3.5 w-3.5 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
-            </button>
-          </div>
-
-          {/* Main document area */}
-          <div className="flex-1 flex flex-col min-w-0 sm:min-w-[300px]">
-            {/* Document toolbar */}
-            <div className="shrink-0 flex items-center justify-between px-4 h-10 border-b border-[var(--cevi-border-light)] bg-white/80">
-              <div className="flex items-center gap-2 text-[11px] text-[var(--cevi-text-secondary)]">
-                <FaxIcon className="h-3.5 w-3.5 text-[var(--cevi-accent)]" strokeWidth={1.5} />
-                <span className="font-semibold">{fax.pages}-page fax</span>
-                <span className="text-[var(--cevi-text-muted)]">·</span>
-                <span className="text-[var(--cevi-text-muted)]">{formatDateTime(fax.receivedAt)}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => setZoom(Math.max(50, zoom - 10))}
-                  className="p-1 rounded hover:bg-[var(--cevi-surface)] transition-colors"
-                  title="Zoom out"
-                >
-                  <ZoomOut className="h-3.5 w-3.5 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
-                </button>
-                <span className="text-[10px] text-[var(--cevi-text-muted)] tabular-nums w-8 text-center font-medium">
-                  {zoom}%
-                </span>
-                <button
-                  onClick={() => setZoom(Math.min(200, zoom + 10))}
-                  className="p-1 rounded hover:bg-[var(--cevi-surface)] transition-colors"
-                  title="Zoom in"
-                >
-                  <ZoomIn className="h-3.5 w-3.5 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
-                </button>
-              </div>
-            </div>
-
-            {/* Document body */}
-            <div className="flex-1 p-3 sm:p-6" style={{ overflowY: isSplitView ? "auto" : "visible" }}>
-              <div
-                className="mx-auto transition-transform origin-top"
-                style={{ maxWidth: `${Math.round(612 * zoom / 100)}px` }}
-              >
-                {/* Render actual file if available (PDF or image) */}
-                {fax.fileUrl ? (
-                  fax.fileUrl.includes(".pdf") ? (
-                    <div className="mb-6">
-                      <iframe
-                        src={fax.fileUrl}
-                        className="w-full rounded-lg shadow-md bg-white"
-                        style={{ height: `${Math.round(792 * zoom / 100)}px` }}
-                        title="Fax document"
-                      />
-                    </div>
-                  ) : (
-                    <div className="mb-6">
-                      <img
-                        src={fax.fileUrl}
-                        alt="Fax document"
-                        className="w-full rounded-lg shadow-md bg-white"
-                      />
-                    </div>
-                  )
+          {/* Main document area — scrollable */}
+          <div className="flex-1 p-4 sm:p-8 overflow-y-auto flex items-start justify-center">
+            <div
+              className="bg-white rounded-lg shadow-md overflow-hidden transition-all"
+              style={{ width: `${Math.round(612 * zoom / 100)}px`, maxWidth: "100%" }}
+            >
+              {fax.fileUrl ? (
+                fax.fileUrl.includes(".pdf") ? (
+                  <iframe
+                    src={fax.fileUrl}
+                    className="w-full bg-white"
+                    style={{ height: `${Math.round(792 * zoom / 100)}px` }}
+                    title="Fax document"
+                  />
                 ) : (
-                  /* Fallback: render OCR text as fax paper */
-                  ocrPages.map((pageText, i) => (
-                    <div key={i} className="mb-6 last:mb-0">
-                      <div className="fax-paper rounded-lg p-8 relative shadow-md">
-                        {i === 0 && (
-                          <div className="absolute top-6 right-6 rotate-[8deg] border-[3px] border-[var(--cevi-accent)] text-[var(--cevi-accent)] px-3 py-1 font-bold text-[11px] tracking-[0.15em] opacity-50 select-none pointer-events-none">
-                            RECEIVED
-                            <div className="text-[7px] tracking-[0.1em] font-semibold text-center mt-0.5">
-                              {formatDate(fax.receivedAt)}
-                            </div>
-                          </div>
-                        )}
-                        <div className="pb-2 mb-4 text-[9px] text-[#888] font-sans tracking-[0.05em] flex items-center justify-between border-b border-dashed border-[rgba(0,0,0,0.15)]">
-                          <span>RECEIVED AT {fax.faxNumberTo}</span>
-                          <span>Page {i + 1} of {fax.pages}</span>
-                        </div>
-                        <div
-                          className="font-mono text-[11px] leading-[1.65] text-[#2a2722] whitespace-pre-wrap"
-                          style={{ fontSize: `${Math.round(11 * zoom / 100)}px` }}
-                        >
-                          {pageText}
-                        </div>
-                        <div className="mt-6 pt-2 border-t border-dashed border-[rgba(0,0,0,0.15)] text-[9px] text-[#888] font-sans flex items-center justify-between">
-                          <span>— page {i + 1} —</span>
-                          <span className="inline-flex items-center gap-1">
-                            <FileText className="h-2.5 w-2.5" strokeWidth={1.5} />
-                            {fax.fromNumber}
-                          </span>
-                        </div>
+                  <img
+                    src={fax.fileUrl}
+                    alt="Fax document"
+                    className="w-full bg-white"
+                  />
+                )
+              ) : (
+                /* Fallback: render active page as fax paper */
+                <div className="fax-paper p-8 relative">
+                  {activePage === 0 && (
+                    <div className="absolute top-6 right-6 rotate-[8deg] border-[3px] border-[var(--cevi-accent)] text-[var(--cevi-accent)] px-3 py-1 font-bold text-[11px] tracking-[0.15em] opacity-50 select-none pointer-events-none">
+                      RECEIVED
+                      <div className="text-[7px] tracking-[0.1em] font-semibold text-center mt-0.5">
+                        {formatDate(fax.receivedAt)}
                       </div>
                     </div>
-                  ))
+                  )}
+                  <div className="pb-2 mb-4 text-[9px] text-[#888] font-sans tracking-[0.05em] flex items-center justify-between border-b border-dashed border-[rgba(0,0,0,0.15)]">
+                    <span>RECEIVED AT {fax.faxNumberTo}</span>
+                    <span>Page {activePage + 1} of {fax.pages}</span>
+                  </div>
+                  <div
+                    className="font-mono text-[11px] leading-[1.65] text-[#2a2722] whitespace-pre-wrap"
+                    style={{ fontSize: `${Math.round(11 * zoom / 100)}px` }}
+                  >
+                    {ocrPages[activePage]}
+                  </div>
+                  <div className="mt-6 pt-2 border-t border-dashed border-[rgba(0,0,0,0.15)] text-[9px] text-[#888] font-sans flex items-center justify-between">
+                    <span>— page {activePage + 1} —</span>
+                    <span className="inline-flex items-center gap-1">
+                      <FileText className="h-2.5 w-2.5" strokeWidth={1.5} />
+                      {fax.fromNumber}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Bottom thumbnails strip */}
+          {showThumbs && ocrPages.length > 1 && (
+            <div className="shrink-0 flex items-center justify-center gap-2 px-4 py-3 bg-white/60 border-t border-[var(--cevi-border-light)]">
+              <button
+                onClick={() => setActivePage(Math.max(0, activePage - 1))}
+                disabled={activePage === 0}
+                className="p-1 rounded hover:bg-[var(--cevi-surface)] transition-colors disabled:opacity-30"
+              >
+                <ChevronLeft className="h-4 w-4 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
+              </button>
+              <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+                {ocrPages.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActivePage(i)}
+                    className={cn(
+                      "w-[52px] h-[68px] rounded border bg-white shadow-sm flex-shrink-0 transition-all relative overflow-hidden",
+                      activePage === i
+                        ? "border-[var(--sel-border)] ring-2 ring-[var(--sel-border)]/20"
+                        : "border-[var(--cevi-border)] hover:border-[var(--cevi-text-muted)]",
+                    )}
+                  >
+                    <div className="absolute inset-1.5">
+                      <div className="h-0.5 w-6 bg-[#E5E5E5] rounded-full mb-0.5" />
+                      <div className="h-0.5 w-8 bg-[#EFEFEF] rounded-full mb-0.5" />
+                      <div className="h-0.5 w-5 bg-[#EFEFEF] rounded-full mb-0.5" />
+                      <div className="h-0.5 w-7 bg-[#EFEFEF] rounded-full" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setActivePage(Math.min(ocrPages.length - 1, activePage + 1))}
+                disabled={activePage === ocrPages.length - 1}
+                className="p-1 rounded hover:bg-[var(--cevi-surface)] transition-colors disabled:opacity-30"
+              >
+                <ChevronRight className="h-4 w-4 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
+              </button>
+            </div>
+          )}
+
+          {/* Bottom control bar */}
+          <div className="shrink-0 flex items-center justify-between px-4 py-2 bg-white border-t border-[var(--cevi-border-light)]">
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setShowThumbs(!showThumbs)}
+                className={cn(
+                  "p-1.5 rounded-md border transition-colors",
+                  showThumbs
+                    ? "bg-[var(--cevi-surface)] border-[var(--cevi-border)] text-[var(--cevi-text)]"
+                    : "border-transparent text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)]",
                 )}
+                title="Toggle page thumbnails"
+              >
+                <Layers className="h-4 w-4" strokeWidth={1.5} />
+              </button>
+              <button
+                className="p-1.5 rounded-md border border-transparent text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)] transition-colors"
+                title="Download"
+              >
+                <Download className="h-4 w-4" strokeWidth={1.5} />
+              </button>
+              <button className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-[var(--cevi-border)] text-[12px] font-medium text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)] transition-colors">
+                <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
+                Add file
+              </button>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setZoom(Math.max(50, zoom - 10))}
+                className="p-1 rounded hover:bg-[var(--cevi-surface)] transition-colors"
+              >
+                <ZoomOut className="h-4 w-4 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
+              </button>
+              <span className="text-[12px] text-[var(--cevi-text-muted)] tabular-nums w-10 text-center font-medium">
+                {zoom}%
+              </span>
+              <button
+                onClick={() => setZoom(Math.min(200, zoom + 10))}
+                className="p-1 rounded hover:bg-[var(--cevi-surface)] transition-colors"
+              >
+                <ZoomIn className="h-4 w-4 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
+              </button>
+              <div className="ml-2 flex items-center gap-0.5 border border-[var(--cevi-border)] rounded-md px-2 py-1">
+                <input
+                  type="text"
+                  value={activePage + 1}
+                  onChange={(e) => {
+                    const n = parseInt(e.target.value, 10);
+                    if (!isNaN(n) && n >= 1 && n <= ocrPages.length) setActivePage(n - 1);
+                  }}
+                  className="w-5 text-center text-[12px] font-medium text-[var(--cevi-text)] bg-transparent outline-none tabular-nums"
+                />
+                <span className="text-[12px] text-[var(--cevi-text-muted)] tabular-nums">/ {ocrPages.length}</span>
               </div>
             </div>
           </div>
@@ -631,7 +651,7 @@ export function DetailShell({ fax, initialEvents }: Props) {
                       count={fax.candidates.length}
                       open={matchOpen}
                       onToggle={() => setMatchOpen(!matchOpen)}
-                      badge={matchedPatient
+                      badge={hasMatch
                         ? <Badge variant="success" size="sm" dot>Matched</Badge>
                         : fax.candidates.length > 0
                           ? <Badge variant="amber" size="sm" dot>Review</Badge>
@@ -646,8 +666,6 @@ export function DetailShell({ fax, initialEvents }: Props) {
                           </div>
                         ) : (
                           fax.candidates.map((c) => {
-                            const p = patients.find((x) => x.id === c.patientId);
-                            if (!p) return null;
                             const isMatched = fax.matchedPatientId === c.patientId;
                             return (
                               <div
@@ -659,11 +677,11 @@ export function DetailShell({ fax, initialEvents }: Props) {
                               >
                                 <div className="min-w-0">
                                   <div className="font-semibold text-[var(--cevi-text)] truncate">
-                                    {patientFullName(p)}
+                                    {c.patientId}
                                     {isMatched && <span className="ml-1.5 text-[var(--cevi-jade)] text-[10px] font-bold">MATCHED</span>}
                                   </div>
                                   <div className="text-[11px] text-[var(--cevi-text-muted)] font-mono">
-                                    {p.mrn} · DOB {formatDob(p.dob)} · {calcAge(p.dob)}y {p.sex}
+                                    {c.reason}
                                   </div>
                                 </div>
                                 <ConfidenceMeter value={c.score} />
