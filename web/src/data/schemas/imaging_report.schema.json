@@ -1,0 +1,508 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/imaging_report.schema.json",
+  "title": "Cevi AI \u2014 Imaging Report",
+  "description": "Imaging report from external imaging centers without HL7 interface (Radiology Partners, Touchstone, SimonMed, Solis, hospital outpatient imaging). Captures the printed report sections: clinical history, technique, comparison, findings, impression, recommendations. BI-RADS and Lung-RADS captured as strings when printed.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "imaging_report"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "xray",
+        "ultrasound",
+        "ct_no_contrast",
+        "ct_with_contrast",
+        "mri_no_contrast",
+        "mri_with_contrast",
+        "mammography_screening",
+        "mammography_diagnostic",
+        "dexa",
+        "nuclear_medicine",
+        "pet_ct",
+        "fluoroscopy",
+        "interventional",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "accession_number": {
+      "type": "string"
+    },
+    "study": {
+      "type": "object",
+      "properties": {
+        "modality": {
+          "type": "string",
+          "description": "Modality as printed: 'CT', 'MRI', 'X-ray', 'Ultrasound', 'Mammography', 'DEXA', etc."
+        },
+        "body_part": {
+          "type": "string",
+          "description": "Body region as printed: 'Chest', 'Abdomen and Pelvis', 'Left Knee'."
+        },
+        "procedure_description": {
+          "type": "string",
+          "description": "Full procedure description as printed: 'CT Abdomen and Pelvis with IV Contrast'."
+        },
+        "cpt_code": {
+          "type": "string",
+          "description": "CPT only if printed on the fax."
+        },
+        "contrast": {
+          "type": "string",
+          "description": "Contrast usage as printed: 'With IV contrast', 'Without contrast', 'With and without'."
+        },
+        "study_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "study_date_raw": {
+          "type": "string"
+        }
+      }
+    },
+    "report_status": {
+      "type": "string",
+      "description": "As printed: 'Final', 'Preliminary', 'Addendum', 'Corrected'."
+    },
+    "clinical_history": {
+      "type": "string",
+      "description": "Clinical history / indication section verbatim."
+    },
+    "technique": {
+      "type": "string"
+    },
+    "comparison": {
+      "type": "string",
+      "description": "Prior studies referenced, as printed."
+    },
+    "findings": {
+      "type": "string",
+      "description": "Findings section verbatim."
+    },
+    "impression": {
+      "type": "string",
+      "description": "Impression section verbatim (most clinically actionable section)."
+    },
+    "birads": {
+      "type": "string",
+      "description": "BI-RADS category if printed (mammography/breast imaging): '0','1','2','3','4','4A','4B','4C','5','6'."
+    },
+    "lung_rads": {
+      "type": "string",
+      "description": "Lung-RADS category if printed."
+    },
+    "recommendations": {
+      "type": "string",
+      "description": "Follow-up recommendations as printed."
+    },
+    "dictated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "signed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category",
+    "patient"
+  ],
+  "examples": [
+    {
+      "document_category": "imaging_report",
+      "document_subcategory": "ct_with_contrast",
+      "patient": {
+        "name": {
+          "raw_text": "NGUYEN, THI MAI",
+          "first_name": "Thi",
+          "middle_name": "Mai",
+          "last_name": "Nguyen"
+        },
+        "dob": "1958-07-22",
+        "dob_raw": "07/22/1958",
+        "sex": "F",
+        "identifiers": [
+          {
+            "label": "MRN",
+            "value": "TSTN-558934"
+          }
+        ]
+      },
+      "sender": {
+        "name": "Touchstone Imaging Arlington",
+        "address": {
+          "raw_text": "3120 E Pioneer Pkwy, Arlington, TX 76010",
+          "line1": "3120 E Pioneer Pkwy",
+          "city": "Arlington",
+          "state": "TX",
+          "postal_code": "76010"
+        }
+      },
+      "providers": [
+        {
+          "role": "Ordering",
+          "name": {
+            "raw_text": "Michael Harrison, MD",
+            "first_name": "Michael",
+            "last_name": "Harrison"
+          },
+          "credentials": [
+            "MD"
+          ]
+        },
+        {
+          "role": "Radiologist",
+          "name": {
+            "raw_text": "Rajesh Krishnan, MD",
+            "first_name": "Rajesh",
+            "last_name": "Krishnan"
+          },
+          "credentials": [
+            "MD"
+          ],
+          "specialty": "Diagnostic Radiology"
+        }
+      ],
+      "accession_number": "TSTN-2026-04-17-8834",
+      "study": {
+        "modality": "CT",
+        "body_part": "Abdomen and Pelvis",
+        "procedure_description": "CT Abdomen and Pelvis with IV Contrast",
+        "cpt_code": "74177",
+        "contrast": "With IV contrast (Omnipaque 350, 100 mL)",
+        "study_date": "2026-04-17T14:22:00",
+        "study_date_raw": "04/17/2026 14:22"
+      },
+      "report_status": "Final",
+      "clinical_history": "67yo F with 2 week history of right lower quadrant pain, low-grade fever.",
+      "technique": "Axial CT images obtained through the abdomen and pelvis following IV contrast administration. Multiplanar reformats.",
+      "comparison": "None available.",
+      "findings": "The appendix is normal in caliber, measuring 6 mm without periappendiceal stranding. No free fluid or free air. Liver, spleen, pancreas, kidneys and adrenals are unremarkable. A 3.2 cm right ovarian cyst is present with simple internal characteristics. No lymphadenopathy.",
+      "impression": "1. No evidence of acute appendicitis.\n2. 3.2 cm simple right ovarian cyst, likely physiologic. Recommend follow-up pelvic ultrasound in 6-12 weeks if symptoms persist.",
+      "recommendations": "Follow-up pelvic ultrasound in 6-12 weeks if symptoms persist.",
+      "signed_at": "2026-04-17T16:48:00",
+      "fax_envelope": {
+        "received_at": "2026-04-17T17:22:11",
+        "page_count": 2
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/imaging_report.schema.json",
+        "extracted_at": "2026-04-17T17:23:04"
+      }
+    }
+  ]
+}

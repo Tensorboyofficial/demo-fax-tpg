@@ -14,20 +14,61 @@ import {
   FlaskConical,
   Stethoscope,
   Receipt,
+  Clock,
 } from "lucide-react";
 import { Card, CardHeader, CardContent, CardFooter } from "@/frontend/components/ui/card";
 import { Button } from "@/frontend/components/ui/button";
 import { Badge } from "@/frontend/components/ui/badge";
-import { Input } from "@/frontend/components/ui/input";
-import { IconBox } from "@/frontend/components/ui/icon-box";
 import { cn } from "@/shared/utils";
-import { uploadFax, type UploadResult, type UploadError } from "@/app/upload/actions";
-import {
-  extractEob,
-  type EobResult as EobSuccess,
-  type EobError,
-} from "@/app/upload/eob-actions";
 import { EobResultView, EobErrorView } from "./eob-result";
+
+interface UploadResult {
+  ok: true;
+  faxId: string;
+  classifiedAs: string;
+  confidence: number;
+  modelLabel: string;
+  latencyMs: number;
+  persisted: boolean;
+  persistError?: string;
+}
+interface UploadError { ok: false; error: string; }
+
+async function uploadFax(fd: FormData): Promise<UploadResult | UploadError> {
+  const res = await fetch("/api/v1/fax", { method: "POST", body: fd });
+  return res.json();
+}
+
+interface EobClaim {
+  patient: string;
+  dos: string;
+  cpt: string;
+  description?: string;
+  billed: number;
+  allowed: number;
+  paid: number;
+  adjustment: number;
+  patientResponsibility: number;
+  denialCodes?: string[];
+}
+interface EobSuccess {
+  ok: true;
+  payer: string;
+  checkNumber?: string;
+  checkDate?: string;
+  checkAmount?: number;
+  claims: EobClaim[];
+  modelLabel: string;
+  latencyMs: number;
+  tokensIn: number;
+  tokensOut: number;
+}
+interface EobError { ok: false; error: string; latencyMs: number; }
+
+async function extractEob(fd: FormData): Promise<EobSuccess | EobError> {
+  const res = await fetch("/api/v1/fax", { method: "POST", body: fd });
+  return res.json();
+}
 
 type Kind = "fax" | "eob";
 type Mode = "file" | "text";
@@ -85,7 +126,7 @@ Patient: RAMANATHAN, PRIYA     Acct: TMG-004233
 
 TOTAL PAID: $327.08   ADJUSTMENTS: $336.58   PATIENT RESPONSIBILITY: $106.34`;
 
-interface Samples {
+interface Sample {
   id: string;
   title: string;
   summary: string;
@@ -94,7 +135,7 @@ interface Samples {
   body: string;
 }
 
-const FAX_SAMPLES: Samples[] = [
+const FAX_SAMPLES: Sample[] = [
   {
     id: "sample-lab",
     title: "Critical lab result",
@@ -113,7 +154,7 @@ const FAX_SAMPLES: Samples[] = [
   },
 ];
 
-const EOB_SAMPLES: Samples[] = [
+const EOB_SAMPLES: Sample[] = [
   {
     id: "sample-eob",
     title: "BCBS of Texas · 3 patients",
@@ -165,12 +206,9 @@ export function UploadForm() {
       if (mode === "file" && file) fd.append("file", file);
 
       if (kind === "fax") {
-        // Default to smart tier internally; UI hides the choice.
         fd.append("tier", "smart");
         const r = await uploadFax(fd);
         setFaxResult(r);
-        // Upload always caches in process memory as a fallback, so the detail
-        // route can render even when Supabase persistence fails.
         if (r.ok) {
           window.setTimeout(() => router.push(`/inbox/${r.faxId}`), 1500);
         }
@@ -187,17 +225,17 @@ export function UploadForm() {
   const samples = kind === "fax" ? FAX_SAMPLES : EOB_SAMPLES;
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6">
-      {/* Main form */}
-      <div className="space-y-4">
-        {/* Kind toggle — primary choice */}
-        <div className="rounded-lg border border-[var(--cevi-border)] bg-white overflow-hidden">
+    <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] gap-8">
+      {/* ── Left: main form ── */}
+      <div className="space-y-5">
+        {/* Kind toggle */}
+        <div className="rounded-lg border border-[var(--cevi-border)] overflow-hidden">
           <div className="grid grid-cols-2">
             <button
               type="button"
               onClick={() => switchKind("fax")}
               className={cn(
-                "px-5 py-3 text-left transition-colors border-r border-[var(--cevi-border)]",
+                "px-5 py-3.5 text-left transition-colors border-r border-[var(--cevi-border)]",
                 kind === "fax"
                   ? "bg-[var(--cevi-accent-light)]"
                   : "bg-white hover:bg-[var(--cevi-surface-warm)]",
@@ -205,22 +243,10 @@ export function UploadForm() {
             >
               <div className="flex items-center gap-2">
                 <UploadCloud
-                  className={cn(
-                    "h-4 w-4",
-                    kind === "fax"
-                      ? "text-[var(--cevi-accent)]"
-                      : "text-[var(--cevi-text-muted)]",
-                  )}
+                  className={cn("h-4 w-4", kind === "fax" ? "text-[var(--cevi-accent)]" : "text-[var(--cevi-text-muted)]")}
                   strokeWidth={1.5}
                 />
-                <span
-                  className={cn(
-                    "text-[13px] font-semibold",
-                    kind === "fax"
-                      ? "text-[var(--cevi-text)]"
-                      : "text-[var(--cevi-text-secondary)]",
-                  )}
-                >
+                <span className={cn("text-[13px] font-semibold", kind === "fax" ? "text-[var(--cevi-text)]" : "text-[var(--cevi-text-secondary)]")}>
                   A fax
                 </span>
               </div>
@@ -232,7 +258,7 @@ export function UploadForm() {
               type="button"
               onClick={() => switchKind("eob")}
               className={cn(
-                "px-5 py-3 text-left transition-colors",
+                "px-5 py-3.5 text-left transition-colors",
                 kind === "eob"
                   ? "bg-[var(--cevi-accent-light)]"
                   : "bg-white hover:bg-[var(--cevi-surface-warm)]",
@@ -240,27 +266,13 @@ export function UploadForm() {
             >
               <div className="flex items-center gap-2">
                 <Receipt
-                  className={cn(
-                    "h-4 w-4",
-                    kind === "eob"
-                      ? "text-[var(--cevi-accent)]"
-                      : "text-[var(--cevi-text-muted)]",
-                  )}
+                  className={cn("h-4 w-4", kind === "eob" ? "text-[var(--cevi-accent)]" : "text-[var(--cevi-text-muted)]")}
                   strokeWidth={1.5}
                 />
-                <span
-                  className={cn(
-                    "text-[13px] font-semibold",
-                    kind === "eob"
-                      ? "text-[var(--cevi-text)]"
-                      : "text-[var(--cevi-text-secondary)]",
-                  )}
-                >
+                <span className={cn("text-[13px] font-semibold", kind === "eob" ? "text-[var(--cevi-text)]" : "text-[var(--cevi-text-secondary)]")}>
                   A paper EOB
                 </span>
-                <Badge variant="jade" size="sm">
-                  New
-                </Badge>
+                <Badge variant="jade" size="sm">New</Badge>
               </div>
               <div className="mt-1 text-[11px] text-[var(--cevi-text-muted)]">
                 Saves your biller from hand-keying each claim line
@@ -277,7 +289,7 @@ export function UploadForm() {
             className={cn(
               "px-4 h-8 rounded-md inline-flex items-center gap-1.5 transition-colors",
               mode === "text"
-                ? "bg-white text-[var(--cevi-text)] shadow-[0_1px_0_rgba(0,0,0,0.04)]"
+                ? "bg-white text-[var(--cevi-text)] shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
                 : "text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)]",
             )}
           >
@@ -290,7 +302,7 @@ export function UploadForm() {
             className={cn(
               "px-4 h-8 rounded-md inline-flex items-center gap-1.5 transition-colors",
               mode === "file"
-                ? "bg-white text-[var(--cevi-text)] shadow-[0_1px_0_rgba(0,0,0,0.04)]"
+                ? "bg-white text-[var(--cevi-text)] shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
                 : "text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)]",
             )}
           >
@@ -299,181 +311,137 @@ export function UploadForm() {
           </button>
         </div>
 
-        {/* Input */}
+        {/* Input area — no Card wrapper, clean flat style per reference */}
         {mode === "file" ? (
-          <Card padding="none">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <IconBox tone="accent" size="sm">
-                    <UploadCloud className="h-4 w-4" strokeWidth={1.5} />
-                  </IconBox>
-                  <div>
-                    <div className="text-[13px] font-semibold text-[var(--cevi-text)]">
-                      {kind === "fax"
-                        ? "Drop a fax file"
-                        : "Drop the scanned EOB"}
-                    </div>
-                    <div className="text-[11px] text-[var(--cevi-text-muted)]">
-                      PDF, PNG, JPG, or WebP · up to 15 MB
-                    </div>
-                  </div>
+          <div>
+            <div className="flex items-center gap-2.5 mb-3">
+              <UploadCloud className="h-4 w-4 text-[var(--cevi-accent)]" strokeWidth={1.5} />
+              <div>
+                <div className="text-[13px] font-semibold text-[var(--cevi-text)]">
+                  {kind === "fax" ? "Drop a fax file" : "Drop the scanned EOB"}
                 </div>
-                {file && (
-                  <Badge variant="jade" size="sm" dot>
-                    Ready
-                  </Badge>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setIsDragging(true);
-                }}
-                onDragLeave={() => setIsDragging(false)}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  setIsDragging(false);
-                  const f = e.dataTransfer.files[0];
-                  if (f) setFile(f);
-                }}
-                onClick={() => fileInputRef.current?.click()}
-                role="button"
-                tabIndex={0}
-                className={cn(
-                  "rounded-lg border-2 border-dashed py-14 text-center cursor-pointer transition-colors",
-                  isDragging
-                    ? "border-[var(--cevi-accent)] bg-[var(--cevi-accent-light)]"
-                    : "border-[var(--cevi-border)] bg-[var(--cevi-surface-warm)] hover:bg-[var(--cevi-surface)]",
-                )}
-              >
-                <UploadCloud
-                  className="h-10 w-10 text-[var(--cevi-accent)] mx-auto mb-3"
-                  strokeWidth={1.5}
-                />
-                {file ? (
-                  <>
-                    <div className="text-[14px] font-semibold text-[var(--cevi-text)]">
-                      {file.name}
-                    </div>
-                    <div className="mt-1 text-[11px] text-[var(--cevi-text-muted)]">
-                      {(file.size / 1024).toFixed(0)} KB · {file.type}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setFile(null);
-                        if (fileInputRef.current) fileInputRef.current.value = "";
-                      }}
-                      className="mt-2 text-[11px] text-[var(--cevi-accent)] hover:underline"
-                    >
-                      Choose a different file
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-[14px] font-semibold text-[var(--cevi-text)]">
-                      Drop here, or click to browse
-                    </div>
-                    <div className="mt-1 text-[12px] text-[var(--cevi-text-muted)]">
-                      Processed on Cevi's server. Nothing is stored in your browser.
-                    </div>
-                  </>
-                )}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="application/pdf,image/png,image/jpeg,image/webp"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) setFile(f);
-                  }}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        ) : (
-          <Card padding="none">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <IconBox tone="teal" size="sm">
-                    <ClipboardPaste className="h-4 w-4" strokeWidth={1.5} />
-                  </IconBox>
-                  <div>
-                    <div className="text-[13px] font-semibold text-[var(--cevi-text)]">
-                      Paste OCR text
-                    </div>
-                    <div className="text-[11px] text-[var(--cevi-text-muted)]">
-                      {kind === "fax"
-                        ? "For faxes already OCR'd by your fax provider"
-                        : "For EOBs already OCR'd or copy-pasted from a PDF"}
-                    </div>
-                  </div>
+                <div className="text-[11px] text-[var(--cevi-text-muted)]">
+                  PDF, PNG, JPG, or WebP · up to 15 MB
                 </div>
-                {text.trim().length > 0 && (
-                  <span className="text-[11px] text-[var(--cevi-text-muted)]">
-                    {text.length.toLocaleString()} chars
-                  </span>
-                )}
               </div>
-            </CardHeader>
-            <CardContent>
-              <textarea
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                rows={14}
-                placeholder={
-                  kind === "fax"
-                    ? "Paste the fax OCR text here…"
-                    : "Paste the EOB OCR text here — check header, then one line per claim…"
-                }
-                className="w-full rounded-md border border-[var(--cevi-border)] bg-[var(--cevi-surface-warm)] p-3 text-[12px] font-mono leading-[1.55] text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-faint)] focus:outline-none focus:border-[var(--cevi-text)] focus:ring-2 focus:ring-[var(--cevi-accent)]/20"
+              {file && (
+                <Badge variant="jade" size="sm" dot>Ready</Badge>
+              )}
+            </div>
+            <div
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={(e) => { e.preventDefault(); setIsDragging(false); const f = e.dataTransfer.files[0]; if (f) setFile(f); }}
+              onClick={() => fileInputRef.current?.click()}
+              role="button"
+              tabIndex={0}
+              className={cn(
+                "rounded-lg border-2 border-dashed py-16 text-center cursor-pointer transition-colors",
+                isDragging
+                  ? "border-[var(--cevi-accent)] bg-[var(--cevi-accent-light)]"
+                  : "border-[var(--cevi-border)] bg-[var(--cevi-surface-warm)] hover:bg-[var(--cevi-surface)]",
+              )}
+            >
+              <UploadCloud className="h-10 w-10 text-[var(--cevi-accent)] mx-auto mb-3" strokeWidth={1.5} />
+              {file ? (
+                <>
+                  <div className="text-[14px] font-semibold text-[var(--cevi-text)]">{file.name}</div>
+                  <div className="mt-1 text-[11px] text-[var(--cevi-text-muted)]">
+                    {(file.size / 1024).toFixed(0)} KB · {file.type}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); setFile(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                    className="mt-2 text-[11px] text-[var(--cevi-accent)] hover:underline"
+                  >
+                    Choose a different file
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="text-[14px] font-semibold text-[var(--cevi-text)]">Drop here, or click to browse</div>
+                  <div className="mt-1 text-[12px] text-[var(--cevi-text-muted)]">
+                    Processed on Cevi's server. Nothing is stored in your browser.
+                  </div>
+                </>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="application/pdf,image/png,image/jpeg,image/webp"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) setFile(f); }}
               />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div className="flex items-center gap-2.5 mb-3">
+              <ClipboardPaste className="h-4 w-4 text-[var(--cevi-teal)]" strokeWidth={1.5} />
+              <div>
+                <div className="text-[13px] font-semibold text-[var(--cevi-text)]">
+                  Paste OCR text
+                </div>
+                <div className="text-[11px] text-[var(--cevi-text-muted)]">
+                  {kind === "fax"
+                    ? "For faxes already OCR'd by your fax provider"
+                    : "For EOBs already OCR'd or copy-pasted from a PDF"}
+                </div>
+              </div>
+              {text.trim().length > 0 && (
+                <span className="text-[11px] text-[var(--cevi-text-muted)] ml-auto tabular-nums">
+                  {text.length.toLocaleString()} chars
+                </span>
+              )}
+            </div>
+            <textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              rows={14}
+              placeholder={
+                kind === "fax"
+                  ? "Paste the fax OCR text here…"
+                  : "Paste the EOB OCR text here — check header, then one line per claim…"
+              }
+              className="w-full rounded-lg border border-[var(--cevi-border)] bg-[var(--cevi-surface-warm)] p-4 text-[12px] font-mono leading-[1.6] text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-faint)] resize-y focus:outline-none focus:border-[var(--cevi-text)]"
+            />
+          </div>
         )}
 
-        {/* Context fields — only relevant for faxes */}
+        {/* Context fields */}
         {kind === "fax" && (
-          <Card padding="md">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--cevi-text-tertiary)]">
-                  Sender hint (optional)
-                </label>
-                <Input
-                  className="mt-1"
-                  placeholder="e.g. Baylor Cardiology, BCBS PA"
-                  value={senderHint}
-                  onChange={(e) => setSenderHint(e.target.value)}
-                />
-              </div>
-              <div>
-                <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--cevi-text-tertiary)]">
-                  Receiving clinic
-                </label>
-                <select
-                  value={clinic}
-                  onChange={(e) => setClinic(e.target.value)}
-                  className="mt-1 w-full h-9 px-3 rounded-md border border-[var(--cevi-border)] bg-white text-[13px] text-[var(--cevi-text)] focus:outline-none focus:border-[var(--cevi-text)] focus:ring-2 focus:ring-[var(--cevi-accent)]/20"
-                >
-                  <option>Arlington</option>
-                  <option>Pantego</option>
-                  <option>Grand Prairie</option>
-                  <option>River Oaks</option>
-                </select>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+            <div>
+              <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--cevi-text-muted)]">
+                Sender hint (optional)
+              </label>
+              <input
+                className="mt-1.5 w-full h-9 px-3 rounded-md border border-[var(--cevi-border)] bg-white text-[13px] text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-faint)] focus:outline-none focus:border-[var(--cevi-text)]"
+                placeholder="e.g. Baylor Cardiology, BCBS PA"
+                value={senderHint}
+                onChange={(e) => setSenderHint(e.target.value)}
+              />
             </div>
-          </Card>
+            <div>
+              <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--cevi-text-muted)]">
+                Receiving clinic
+              </label>
+              <select
+                value={clinic}
+                onChange={(e) => setClinic(e.target.value)}
+                className="mt-1.5 w-full h-9 px-3 rounded-md border border-[var(--cevi-border)] bg-white text-[13px] text-[var(--cevi-text)] focus:outline-none focus:border-[var(--cevi-text)]"
+              >
+                <option>Arlington</option>
+                <option>Pantego</option>
+                <option>Grand Prairie</option>
+                <option>River Oaks</option>
+              </select>
+            </div>
+          </div>
         )}
 
         {/* CTA */}
-        <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center justify-between gap-3 pt-1">
           <div className="text-[11px] text-[var(--cevi-text-muted)]">
             {kind === "fax"
               ? "Cevi tags it and drops it in your inbox in under ten seconds."
@@ -488,12 +456,8 @@ export function UploadForm() {
             iconRight={<ArrowRight className="h-4 w-4" />}
           >
             {isPending
-              ? kind === "fax"
-                ? "Tagging…"
-                : "Extracting…"
-              : kind === "fax"
-                ? "Tag and route"
-                : "Extract claims"}
+              ? kind === "fax" ? "Tagging…" : "Extracting…"
+              : kind === "fax" ? "Tag and route" : "Extract claims"}
           </Button>
         </div>
 
@@ -504,51 +468,30 @@ export function UploadForm() {
               <>
                 <CardHeader>
                   <div className="flex items-center gap-2.5">
-                    <IconBox tone="jade" size="sm">
+                    <div className="h-8 w-8 rounded-lg bg-[var(--cevi-jade-light)] flex items-center justify-center text-[var(--cevi-jade)]">
                       <CheckCircle2 className="h-4 w-4" strokeWidth={1.5} />
-                    </IconBox>
+                    </div>
                     <div>
-                      <div className="text-[13px] font-semibold text-[var(--cevi-text)]">
-                        Tagged and queued
-                      </div>
+                      <div className="text-[13px] font-semibold text-[var(--cevi-text)]">Tagged and queued</div>
                       <div className="text-[11px] text-[var(--cevi-text-muted)]">
-                        {faxResult.modelLabel} ·{" "}
-                        {(faxResult.latencyMs / 1000).toFixed(1)}s · redirecting
-                        to fax…
+                        {faxResult.modelLabel} · {(faxResult.latencyMs / 1000).toFixed(1)}s · redirecting to fax…
                       </div>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-[11px]">
-                    <div className="p-2 rounded bg-[var(--cevi-surface)]">
-                      <div className="font-semibold uppercase tracking-[0.06em] text-[var(--cevi-text-tertiary)]">
-                        Type
-                      </div>
-                      <div className="mt-0.5 text-[var(--cevi-text)] capitalize">
-                        {faxResult.classifiedAs.replace("_", " ")}
-                      </div>
+                    <div className="p-2.5 rounded-md bg-[var(--cevi-surface)]">
+                      <div className="font-semibold uppercase tracking-[0.06em] text-[var(--cevi-text-muted)] text-[10px]">Type</div>
+                      <div className="mt-0.5 text-[var(--cevi-text)] capitalize">{faxResult.classifiedAs.replace("_", " ")}</div>
                     </div>
-                    <div className="p-2 rounded bg-[var(--cevi-surface)]">
-                      <div className="font-semibold uppercase tracking-[0.06em] text-[var(--cevi-text-tertiary)]">
-                        Confidence
-                      </div>
-                      <div className="mt-0.5 text-[var(--cevi-text)]">
-                        {Math.round(faxResult.confidence * 100)}%
-                      </div>
+                    <div className="p-2.5 rounded-md bg-[var(--cevi-surface)]">
+                      <div className="font-semibold uppercase tracking-[0.06em] text-[var(--cevi-text-muted)] text-[10px]">Confidence</div>
+                      <div className="mt-0.5 text-[var(--cevi-text)]">{Math.round(faxResult.confidence * 100)}%</div>
                     </div>
-                    <div className="p-2 rounded bg-[var(--cevi-surface)]">
-                      <div className="font-semibold uppercase tracking-[0.06em] text-[var(--cevi-text-tertiary)]">
-                        Saved
-                      </div>
-                      <div
-                        className={cn(
-                          "mt-0.5 font-semibold",
-                          faxResult.persisted
-                            ? "text-[var(--cevi-success)]"
-                            : "text-[var(--cevi-accent)]",
-                        )}
-                      >
+                    <div className="p-2.5 rounded-md bg-[var(--cevi-surface)]">
+                      <div className="font-semibold uppercase tracking-[0.06em] text-[var(--cevi-text-muted)] text-[10px]">Saved</div>
+                      <div className={cn("mt-0.5 font-semibold", faxResult.persisted ? "text-[var(--cevi-success)]" : "text-[var(--cevi-accent)]")}>
                         {faxResult.persisted ? "Yes" : "Local only"}
                       </div>
                     </div>
@@ -575,8 +518,7 @@ export function UploadForm() {
                       href="/"
                       className="text-[12px] font-semibold text-[var(--cevi-accent)] hover:underline inline-flex items-center gap-1"
                     >
-                      See example faxes in the inbox{" "}
-                      <ArrowRight className="h-3 w-3" strokeWidth={2} />
+                      See example faxes in the inbox <ArrowRight className="h-3 w-3" strokeWidth={2} />
                     </Link>
                   )}
                 </CardFooter>
@@ -585,16 +527,12 @@ export function UploadForm() {
               <>
                 <CardHeader>
                   <div className="flex items-center gap-2.5">
-                    <IconBox tone="accent" size="sm">
+                    <div className="h-8 w-8 rounded-lg bg-[var(--cevi-error-light)] flex items-center justify-center text-[var(--cevi-accent)]">
                       <AlertCircle className="h-4 w-4" strokeWidth={1.5} />
-                    </IconBox>
+                    </div>
                     <div>
-                      <div className="text-[13px] font-semibold text-[var(--cevi-text)]">
-                        Upload failed
-                      </div>
-                      <div className="text-[11px] text-[var(--cevi-text-muted)]">
-                        Nothing was saved.
-                      </div>
+                      <div className="text-[13px] font-semibold text-[var(--cevi-text)]">Upload failed</div>
+                      <div className="text-[11px] text-[var(--cevi-text-muted)]">Nothing was saved.</div>
                     </div>
                   </div>
                 </CardHeader>
@@ -608,67 +546,56 @@ export function UploadForm() {
 
         {/* EOB result */}
         {kind === "eob" && eobResult && (
-          eobResult.ok ? (
-            <EobResultView result={eobResult} />
-          ) : (
-            <EobErrorView error={eobResult.error} />
-          )
+          eobResult.ok ? <EobResultView result={eobResult} /> : <EobErrorView error={eobResult.error} />
         )}
       </div>
 
-      {/* Sidebar */}
+      {/* ── Right sidebar ── */}
       <aside className="space-y-4">
-        <Card padding="none">
-          <CardHeader>
-            <div className="flex items-center gap-2.5">
-              <IconBox tone="sand" size="sm">
-                <Sparkles className="h-4 w-4" strokeWidth={1.5} />
-              </IconBox>
-              <div>
-                <div className="text-[13px] font-semibold text-[var(--cevi-text)]">
-                  Try a sample
-                </div>
-                <div className="text-[11px] text-[var(--cevi-text-muted)]">
-                  Synthetic — no real PHI
-                </div>
-              </div>
+        {/* Try a sample */}
+        <div>
+          <div className="flex items-center gap-2.5 mb-3">
+            <div className="h-8 w-8 rounded-lg bg-[var(--cevi-sand-light)] flex items-center justify-center text-[var(--cevi-sand)]">
+              <Sparkles className="h-4 w-4" strokeWidth={1.5} />
             </div>
-          </CardHeader>
-          <CardContent className="space-y-2">
+            <div>
+              <div className="text-[13px] font-semibold text-[var(--cevi-text)]">Try a sample</div>
+              <div className="text-[11px] text-[var(--cevi-text-muted)]">Synthetic — no real PHI</div>
+            </div>
+          </div>
+          <div className="space-y-2">
             {samples.map((s) => (
               <button
                 key={s.id}
                 type="button"
                 onClick={() => loadSample(s.body)}
-                className="w-full text-left rounded-md border border-[var(--cevi-border)] bg-white hover:bg-[var(--cevi-surface-warm)] transition-colors p-3"
+                className="w-full text-left rounded-lg border border-[var(--cevi-border)] bg-white hover:bg-[var(--cevi-surface-warm)] hover:border-[var(--cevi-accent)]/30 transition-all p-3"
               >
                 <div className="flex items-start gap-2.5">
-                  <IconBox tone={s.tone} size="sm">
+                  <div className={cn(
+                    "h-8 w-8 rounded-lg flex items-center justify-center shrink-0",
+                    s.tone === "accent" && "bg-[var(--cevi-accent-light)] text-[var(--cevi-accent)]",
+                    s.tone === "teal" && "bg-[var(--cevi-teal-light)] text-[var(--cevi-teal)]",
+                    s.tone === "sand" && "bg-[var(--cevi-sand-light)] text-[var(--cevi-sand)]",
+                  )}>
                     {s.icon}
-                  </IconBox>
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[13px] font-semibold text-[var(--cevi-text)]">
-                      {s.title}
-                    </div>
-                    <div className="mt-0.5 text-[11px] text-[var(--cevi-text-muted)]">
-                      {s.summary}
-                    </div>
+                    <div className="text-[13px] font-semibold text-[var(--cevi-text)]">{s.title}</div>
+                    <div className="mt-0.5 text-[11px] text-[var(--cevi-text-muted)]">{s.summary}</div>
                   </div>
                 </div>
               </button>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card padding="none">
-          <CardHeader>
-            <div>
-              <div className="text-[13px] font-semibold text-[var(--cevi-text)]">
-                What happens next
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
+        {/* What happens next */}
+        <div className="rounded-lg border border-[var(--cevi-border)] bg-white">
+          <div className="px-4 pt-4 pb-3">
+            <div className="text-[13px] font-semibold text-[var(--cevi-text)]">What happens next</div>
+          </div>
+          <div className="px-4 pb-4">
             <ol className="space-y-2.5 text-[12px] text-[var(--cevi-text-secondary)]">
               {(kind === "fax"
                 ? [
@@ -695,14 +622,14 @@ export function UploadForm() {
                 </li>
               ))}
             </ol>
-          </CardContent>
-          <CardFooter>
+          </div>
+          <div className="px-4 py-3 border-t border-[var(--cevi-border-light)]">
             <div className="text-[11px] text-[var(--cevi-text-muted)] inline-flex items-center gap-1.5">
-              <Loader2 className="h-3 w-3" strokeWidth={1.5} /> Typical end-to-end:
-              3–8 seconds
+              <Clock className="h-3 w-3" strokeWidth={1.5} />
+              Typical end-to-end 3–8 seconds
             </div>
-          </CardFooter>
-        </Card>
+          </div>
+        </div>
       </aside>
     </div>
   );

@@ -1,0 +1,662 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/consult_note.schema.json",
+  "title": "Cevi AI \u2014 Consult Note",
+  "description": "Specialist consultation note sent back to the referring PCP. Captures sections as printed: HPI, current meds, allergies, vitals, exam, A&P, diagnoses, recommendations to PCP, medications prescribed, follow-up. Free-text sections are preserved verbatim; medications and diagnoses are structured arrays since they're the most actionable items.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "consult_note"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "initial_consult",
+        "follow_up",
+        "procedure_note",
+        "operative_report",
+        "discharge_to_pcp",
+        "telehealth_consult",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "encounter_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "encounter_date_raw": {
+      "type": "string"
+    },
+    "specialty": {
+      "type": "string",
+      "description": "Consulting specialty as printed."
+    },
+    "chief_complaint": {
+      "type": "string"
+    },
+    "history_of_present_illness": {
+      "type": "string"
+    },
+    "review_of_systems": {
+      "type": "string"
+    },
+    "past_medical_history": {
+      "type": "string"
+    },
+    "past_surgical_history": {
+      "type": "string"
+    },
+    "family_history": {
+      "type": "string"
+    },
+    "social_history": {
+      "type": "string"
+    },
+    "current_medications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Medication as listed on the document.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Medication name as printed (generic or brand)."
+          },
+          "strength": {
+            "type": "string",
+            "description": "E.g., '500 mg', '10 mg/mL'."
+          },
+          "dose": {
+            "type": "string",
+            "description": "E.g., '1 tablet', '2 puffs'."
+          },
+          "route": {
+            "type": "string",
+            "description": "E.g., 'PO', 'IV', 'SC', 'inhaled'."
+          },
+          "frequency": {
+            "type": "string",
+            "description": "E.g., 'once daily', 'BID with meals', 'q6h PRN pain'."
+          },
+          "sig": {
+            "type": "string",
+            "description": "Full sig string if printed as a single line."
+          },
+          "indication": {
+            "type": "string"
+          },
+          "raw_text": {
+            "type": "string",
+            "description": "Verbatim line as printed, if it doesn't split cleanly."
+          }
+        }
+      }
+    },
+    "allergies": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "Allergy as printed, including reaction if listed: 'Penicillin \u2014 rash'."
+      }
+    },
+    "vital_signs": {
+      "type": "object",
+      "description": "Vital signs as printed on the encounter note. Captured as strings to tolerate formatting variation.",
+      "properties": {
+        "bp": {
+          "type": "string",
+          "description": "Blood pressure as printed: '138/84'."
+        },
+        "pulse": {
+          "type": "string"
+        },
+        "respiratory_rate": {
+          "type": "string"
+        },
+        "temperature": {
+          "type": "string"
+        },
+        "spo2": {
+          "type": "string"
+        },
+        "height": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "string"
+        },
+        "bmi": {
+          "type": "string"
+        },
+        "pain_score": {
+          "type": "string"
+        }
+      }
+    },
+    "physical_exam": {
+      "type": "string"
+    },
+    "assessment_and_plan": {
+      "type": "string",
+      "description": "Full A&P section verbatim."
+    },
+    "diagnoses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Diagnosis as printed.",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Diagnosis text as printed."
+          },
+          "icd10": {
+            "type": "string",
+            "description": "ICD-10 code only if printed on the fax."
+          }
+        }
+      }
+    },
+    "recommendations_to_pcp": {
+      "type": "string",
+      "description": "Specific recommendations directed at the PCP, if called out as a separate section."
+    },
+    "medications_prescribed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Medication as listed on the document.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Medication name as printed (generic or brand)."
+          },
+          "strength": {
+            "type": "string",
+            "description": "E.g., '500 mg', '10 mg/mL'."
+          },
+          "dose": {
+            "type": "string",
+            "description": "E.g., '1 tablet', '2 puffs'."
+          },
+          "route": {
+            "type": "string",
+            "description": "E.g., 'PO', 'IV', 'SC', 'inhaled'."
+          },
+          "frequency": {
+            "type": "string",
+            "description": "E.g., 'once daily', 'BID with meals', 'q6h PRN pain'."
+          },
+          "sig": {
+            "type": "string",
+            "description": "Full sig string if printed as a single line."
+          },
+          "indication": {
+            "type": "string"
+          },
+          "raw_text": {
+            "type": "string",
+            "description": "Verbatim line as printed, if it doesn't split cleanly."
+          }
+        }
+      },
+      "description": "Medications prescribed or changed at this visit."
+    },
+    "procedures_performed": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "Procedure as printed."
+      }
+    },
+    "tests_ordered": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "follow_up": {
+      "type": "string",
+      "description": "Follow-up plan as printed."
+    },
+    "signed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category",
+    "patient"
+  ],
+  "examples": [
+    {
+      "document_category": "consult_note",
+      "document_subcategory": "initial_consult",
+      "patient": {
+        "name": {
+          "raw_text": "Kim, Min-Jun",
+          "first_name": "Min-Jun",
+          "last_name": "Kim"
+        },
+        "dob": "1967-02-19",
+        "dob_raw": "02/19/1967",
+        "sex": "M"
+      },
+      "sender": {
+        "name": "North Texas Endocrinology Associates",
+        "address": {
+          "raw_text": "8440 Walnut Hill Ln, Suite 600, Dallas, TX 75231",
+          "line1": "8440 Walnut Hill Ln",
+          "line2": "Suite 600",
+          "city": "Dallas",
+          "state": "TX",
+          "postal_code": "75231"
+        }
+      },
+      "providers": [
+        {
+          "role": "Referring",
+          "name": {
+            "raw_text": "Priya Patel, DO",
+            "first_name": "Priya",
+            "last_name": "Patel"
+          },
+          "credentials": [
+            "DO"
+          ]
+        },
+        {
+          "role": "Consulting",
+          "name": {
+            "raw_text": "Jennifer Wong, MD",
+            "first_name": "Jennifer",
+            "last_name": "Wong"
+          },
+          "credentials": [
+            "MD"
+          ],
+          "specialty": "Endocrinology"
+        }
+      ],
+      "encounter_date": "2026-04-10",
+      "encounter_date_raw": "04/10/2026",
+      "specialty": "Endocrinology",
+      "chief_complaint": "Uncontrolled Type 2 Diabetes.",
+      "history_of_present_illness": "58yo male with 12-year history of Type 2 diabetes. A1c trending up over past 6 months from 7.4 to 9.1 despite adherence to metformin 1000 mg BID and glipizide 10 mg BID.",
+      "current_medications": [
+        {
+          "name": "Metformin",
+          "strength": "1000 mg",
+          "dose": "1 tablet",
+          "route": "PO",
+          "frequency": "BID"
+        },
+        {
+          "name": "Glipizide",
+          "strength": "10 mg",
+          "dose": "1 tablet",
+          "route": "PO",
+          "frequency": "BID"
+        },
+        {
+          "name": "Lisinopril",
+          "strength": "20 mg",
+          "dose": "1 tablet",
+          "route": "PO",
+          "frequency": "daily"
+        }
+      ],
+      "vital_signs": {
+        "bp": "138/84",
+        "pulse": "78",
+        "weight": "198 lb",
+        "height": "68 in",
+        "bmi": "30.1"
+      },
+      "assessment_and_plan": "1. Uncontrolled Type 2 DM, A1c 9.1%. D/C glipizide. Start semaglutide 0.25 mg weekly, titrate to 1 mg over 4 weeks. Continue metformin. 2. Obesity BMI 30.1. 3. HTN, suboptimal.",
+      "diagnoses": [
+        {
+          "description": "Type 2 diabetes mellitus with hyperglycemia",
+          "icd10": "E11.65"
+        },
+        {
+          "description": "Obesity, unspecified",
+          "icd10": "E66.9"
+        },
+        {
+          "description": "Essential hypertension",
+          "icd10": "I10"
+        }
+      ],
+      "recommendations_to_pcp": "Please recheck A1c in 3 months. Obtain CMP prior to starting semaglutide. Monitor BP every 2 weeks.",
+      "medications_prescribed": [
+        {
+          "name": "Semaglutide (Ozempic)",
+          "strength": "0.25 mg/dose pen",
+          "sig": "Inject 0.25 mg SC once weekly x 4 weeks, then increase per instructions"
+        }
+      ],
+      "follow_up": "Return to endocrine clinic in 3 months with repeat A1c, CMP, lipid panel.",
+      "signed_at": "2026-04-12T09:15:00",
+      "fax_envelope": {
+        "received_at": "2026-04-12T10:44:17",
+        "page_count": 3
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/consult_note.schema.json",
+        "extracted_at": "2026-04-12T10:45:02"
+      }
+    }
+  ]
+}

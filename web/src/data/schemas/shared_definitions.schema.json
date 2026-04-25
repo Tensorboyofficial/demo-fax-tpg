@@ -1,0 +1,135 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/shared_definitions.schema.json",
+  "title": "Cevi AI — Shared Definitions",
+  "description": "Canonical shared blocks for Cevi AI fax-extraction schemas. Every category schema inlines equivalent structures so extractors without $ref support (e.g., Gemini structured output) can consume them directly. This file is the single source of truth for downstream code and post-extraction validation. All schemas capture what appears on the fax, not downstream derived fields (patient matching, urgency, review priority, etc.) which are separate pipeline stages.",
+  "type": "object",
+  "definitions": {
+    "person_name": {
+      "type": "object",
+      "description": "Person name captured from document. raw_text is the verbatim string exactly as printed; first_name/middle_name/last_name/suffix are parsed components for separate copy-paste into eCW fields. Preserve hyphens, apostrophes, and multi-part surnames (O'Brien, Rodriguez-Hernandez, de la Cruz).",
+      "properties": {
+        "raw_text": { "type": "string", "description": "Verbatim name string exactly as it appears on the document." },
+        "first_name": { "type": "string" },
+        "middle_name": { "type": "string" },
+        "last_name": { "type": "string" },
+        "suffix": { "type": "string", "description": "Jr., Sr., II, III, etc." }
+      }
+    },
+    "address": {
+      "type": "object",
+      "description": "Postal address captured from document. Each component is its own field for individual copy-paste.",
+      "properties": {
+        "raw_text": { "type": "string", "description": "Verbatim multi-line address as printed." },
+        "line1": { "type": "string" },
+        "line2": { "type": "string", "description": "Apt, Suite, Unit, etc." },
+        "city": { "type": "string" },
+        "state": { "type": "string", "description": "2-letter state code when visible on fax." },
+        "postal_code": { "type": "string" }
+      }
+    },
+    "phone": {
+      "type": "object",
+      "description": "Phone/fax number as shown. raw_text preserves formatting; digits is 10 digits only for dialing.",
+      "properties": {
+        "raw_text": { "type": "string" },
+        "digits": { "type": "string", "description": "10-digit US number, digits only." },
+        "extension": { "type": "string" }
+      }
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or any downstream matcher output — the matcher runs after extraction and consumes this block + the identifiers to find the eCW patient record.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Patient name. See person_name definition.",
+          "properties": {
+            "raw_text": { "type": "string" },
+            "first_name": { "type": "string" },
+            "middle_name": { "type": "string" },
+            "last_name": { "type": "string" },
+            "suffix": { "type": "string" }
+          }
+        },
+        "dob": { "type": "string", "format": "date", "description": "ISO date YYYY-MM-DD. If OCR ambiguous or date not printed, omit this field; dob_raw is still populated." },
+        "dob_raw": { "type": "string", "description": "Verbatim DOB string as printed, e.g. '04/17/1958' or '17-APR-1958'." },
+        "sex": { "type": "string", "description": "Sex as printed on the document. Typical values: M, F, Male, Female, Unknown. Preserve verbatim." },
+        "address": { "$ref": "#/definitions/address" },
+        "phone": { "$ref": "#/definitions/phone" },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax (lab MRN, hospital MRN, insurance member ID, Medicare number, etc.). Captured as printed — no normalization, no namespacing. Matcher uses these downstream to find eCW record.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "type": "string", "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', 'Medicare', 'SSN', 'Patient ID', etc." },
+              "value": { "type": "string" }
+            },
+            "required": ["label", "value"]
+          }
+        }
+      }
+    },
+    "provider": {
+      "type": "object",
+      "description": "Provider as identified on the fax (ordering physician, interpreting radiologist, signing hospitalist, etc.). Only populated from text actually on the page.",
+      "properties": {
+        "role": { "type": "string", "description": "Role as printed or implied by section label: 'Ordering', 'Attending', 'Referring', 'Signed by', 'PCP', 'Radiologist', etc." },
+        "name": {
+          "type": "object",
+          "properties": {
+            "raw_text": { "type": "string" },
+            "prefix": { "type": "string", "description": "Dr., etc., if printed." },
+            "first_name": { "type": "string" },
+            "middle_name": { "type": "string" },
+            "last_name": { "type": "string" },
+            "suffix": { "type": "string" }
+          }
+        },
+        "credentials": {
+          "type": "array",
+          "description": "Credentials as printed: ['MD'], ['DO', 'FACP'], ['NP'], ['PA-C']. One entry per credential.",
+          "items": { "type": "string" }
+        },
+        "npi": { "type": "string", "description": "NPI ONLY if printed on the fax. Do not look up." },
+        "specialty": { "type": "string" },
+        "phone": { "$ref": "#/definitions/phone" },
+        "fax": { "$ref": "#/definitions/phone" }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, imaging center, hospital, pharmacy, law firm, payer, etc.) as identified on the document.",
+      "properties": {
+        "name": { "type": "string" },
+        "address": { "$ref": "#/definitions/address" },
+        "phone": { "$ref": "#/definitions/phone" },
+        "fax": { "$ref": "#/definitions/phone" },
+        "clia_number": { "type": "string", "description": "CLIA ONLY if printed on the fax." },
+        "lab_director": { "type": "string", "description": "Laboratory director name string, if printed." }
+      }
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata about the fax itself from the fax service (Updox, SRFax, etc.) — not content from the document.",
+      "properties": {
+        "received_at": { "type": "string", "format": "date-time" },
+        "from_fax_number": { "type": "string" },
+        "to_fax_number": { "type": "string" },
+        "csid_banner": { "type": "string", "description": "Top banner CSID string printed by the sending fax device, e.g. 'QUEST DIAGNOSTICS'." },
+        "page_count": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "description": "Metadata about the extraction itself.",
+      "properties": {
+        "extractor_version": { "type": "string" },
+        "model": { "type": "string" },
+        "schema_id": { "type": "string" },
+        "extracted_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

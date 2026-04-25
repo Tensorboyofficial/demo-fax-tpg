@@ -1,0 +1,676 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/eob_era.schema.json",
+  "title": "Cevi AI \u2014 Paper EOB / Remittance Advice",
+  "description": "Paper/PDF Explanation of Benefits from commercial payers, Medicare Part B (Novitas for Texas), Medicare Advantage, and Medicaid MCOs. Multi-patient EOBs are common \u2014 the claims[] array holds one entry per patient/date-range. Adjustment codes (CO-45, PR-2) are preserved as printed strings; individual code lookup is downstream enrichment.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "eob_era"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "medicare_paper_eob",
+        "medicare_advantage_eob",
+        "commercial_paper_eob",
+        "medicaid_tx_paper_eob",
+        "workers_comp_eob",
+        "auto_injury_eob",
+        "denial_only",
+        "reversal_or_recoupment",
+        "patient_responsibility_notice",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "payee": {
+      "type": "object",
+      "description": "Payment recipient (the practice/billing entity) as printed.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "tin": {
+          "type": "string",
+          "description": "TIN only if printed."
+        },
+        "npi": {
+          "type": "string",
+          "description": "NPI only if printed."
+        }
+      }
+    },
+    "remittance": {
+      "type": "object",
+      "properties": {
+        "check_or_eft_number": {
+          "type": "string"
+        },
+        "check_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "check_date_raw": {
+          "type": "string"
+        },
+        "check_amount": {
+          "type": "string"
+        },
+        "payment_method": {
+          "type": "string",
+          "description": "As printed: 'Check', 'EFT', 'Virtual card'."
+        }
+      }
+    },
+    "total_paid_this_remittance": {
+      "type": "string"
+    },
+    "claim_count": {
+      "type": "integer"
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "One adjudicated claim for one patient, one date range. Multi-patient paper EOBs will have multiple entries here.",
+        "properties": {
+          "patient_name_on_claim": {
+            "type": "string",
+            "description": "Patient name as printed on this claim line. Used by matcher downstream."
+          },
+          "patient_dob": {
+            "type": "string",
+            "description": "DOB on the claim, if printed."
+          },
+          "patient_dob_raw": {
+            "type": "string"
+          },
+          "subscriber_name": {
+            "type": "string"
+          },
+          "member_id": {
+            "type": "string"
+          },
+          "group_number": {
+            "type": "string"
+          },
+          "claim_number": {
+            "type": "string",
+            "description": "Payer's claim number / ICN."
+          },
+          "patient_account_number": {
+            "type": "string",
+            "description": "Billing side patient account number."
+          },
+          "service_from": {
+            "type": "string",
+            "format": "date"
+          },
+          "service_from_raw": {
+            "type": "string"
+          },
+          "service_to": {
+            "type": "string",
+            "format": "date"
+          },
+          "service_to_raw": {
+            "type": "string"
+          },
+          "claim_status": {
+            "type": "string",
+            "description": "As printed: 'Processed', 'Denied', 'Pending', 'Reversed', 'Adjusted'."
+          },
+          "rendering_provider": {
+            "type": "string"
+          },
+          "total_billed": {
+            "type": "string"
+          },
+          "total_allowed": {
+            "type": "string"
+          },
+          "total_paid": {
+            "type": "string"
+          },
+          "total_patient_responsibility": {
+            "type": "string"
+          },
+          "total_adjustments": {
+            "type": "string"
+          },
+          "service_lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "description": "One service line within a claim. Values captured as printed.",
+              "properties": {
+                "date_of_service": {
+                  "type": "string",
+                  "description": "DOS as printed, may be a single date or date range."
+                },
+                "cpt_or_hcpcs": {
+                  "type": "string"
+                },
+                "procedure_description": {
+                  "type": "string"
+                },
+                "modifiers": {
+                  "type": "string",
+                  "description": "Modifiers as printed: '25', '59', 'RT', etc."
+                },
+                "place_of_service": {
+                  "type": "string"
+                },
+                "units": {
+                  "type": "string"
+                },
+                "billed_amount": {
+                  "type": "string"
+                },
+                "allowed_amount": {
+                  "type": "string"
+                },
+                "deductible_applied": {
+                  "type": "string"
+                },
+                "coinsurance_applied": {
+                  "type": "string"
+                },
+                "copay_applied": {
+                  "type": "string"
+                },
+                "paid_amount": {
+                  "type": "string"
+                },
+                "patient_responsibility": {
+                  "type": "string"
+                },
+                "adjustment_codes_and_amounts": {
+                  "type": "string",
+                  "description": "Raw text of the adjustment-codes column (CO-45, PR-2, etc.). Preserved verbatim \u2014 parsing individual codes is downstream enrichment."
+                },
+                "denial_reason": {
+                  "type": "string"
+                },
+                "remark_codes": {
+                  "type": "string",
+                  "description": "Remark codes (M/MA/N/NA) as printed."
+                }
+              }
+            }
+          },
+          "claim_remarks": {
+            "type": "string"
+          },
+          "diagnosis_codes": {
+            "type": "string",
+            "description": "ICD-10 codes as printed on the claim (often a comma-separated list)."
+          }
+        }
+      }
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category"
+  ],
+  "examples": [
+    {
+      "document_category": "eob_era",
+      "document_subcategory": "commercial_paper_eob",
+      "patient": {
+        "name": {
+          "raw_text": "(multiple \u2014 see claims)"
+        },
+        "identifiers": []
+      },
+      "sender": {
+        "name": "Blue Cross Blue Shield of Texas",
+        "address": {
+          "raw_text": "PO Box 660044, Dallas, TX 75266",
+          "line1": "PO Box 660044",
+          "city": "Dallas",
+          "state": "TX",
+          "postal_code": "75266"
+        },
+        "phone": {
+          "raw_text": "800-521-8836",
+          "digits": "8005218836"
+        }
+      },
+      "providers": [],
+      "payee": {
+        "name": "Transcend Medical Group PLLC",
+        "tin": "75-1234567",
+        "npi": "1478293746"
+      },
+      "remittance": {
+        "check_or_eft_number": "EFT-2026-0424-8473829",
+        "check_date": "2026-04-24",
+        "check_date_raw": "04/24/2026",
+        "check_amount": "$1,847.32",
+        "payment_method": "EFT"
+      },
+      "total_paid_this_remittance": "$1,847.32",
+      "claim_count": 3,
+      "claims": [
+        {
+          "patient_name_on_claim": "RODRIGUEZ-HERNANDEZ, MARIA E",
+          "patient_dob": "1965-03-14",
+          "patient_dob_raw": "03/14/1965",
+          "member_id": "XOH924857103",
+          "claim_number": "BCBS26112384792",
+          "patient_account_number": "TMG-00145892-V26413",
+          "service_from": "2026-04-08",
+          "service_from_raw": "04/08/2026",
+          "service_to": "2026-04-08",
+          "service_to_raw": "04/08/2026",
+          "claim_status": "Processed",
+          "rendering_provider": "Patel, Priya DO",
+          "total_billed": "$325.00",
+          "total_allowed": "$178.50",
+          "total_paid": "$142.80",
+          "total_patient_responsibility": "$35.70",
+          "total_adjustments": "$146.50",
+          "service_lines": [
+            {
+              "date_of_service": "04/08/2026",
+              "cpt_or_hcpcs": "99214",
+              "procedure_description": "Office visit, established patient, moderate complexity",
+              "place_of_service": "11",
+              "units": "1",
+              "billed_amount": "$325.00",
+              "allowed_amount": "$178.50",
+              "coinsurance_applied": "$35.70",
+              "paid_amount": "$142.80",
+              "adjustment_codes_and_amounts": "CO-45 $146.50; PR-2 $35.70"
+            }
+          ],
+          "diagnosis_codes": "E78.5, I10"
+        },
+        {
+          "patient_name_on_claim": "THOMPSON, JAMES A JR",
+          "patient_dob": "1952-07-22",
+          "patient_dob_raw": "07/22/1952",
+          "member_id": "XOH773219584",
+          "claim_number": "BCBS26112384801",
+          "patient_account_number": "TMG-00056712-V26420",
+          "service_from": "2026-04-10",
+          "service_to": "2026-04-10",
+          "claim_status": "Denied",
+          "total_billed": "$485.00",
+          "total_allowed": "$0.00",
+          "total_paid": "$0.00",
+          "service_lines": [
+            {
+              "date_of_service": "04/10/2026",
+              "cpt_or_hcpcs": "93224",
+              "procedure_description": "External patient ambulatory ECG, up to 48 hrs, report",
+              "billed_amount": "$485.00",
+              "allowed_amount": "$0.00",
+              "paid_amount": "$0.00",
+              "adjustment_codes_and_amounts": "CO-197 $485.00",
+              "denial_reason": "Precertification/authorization absent",
+              "remark_codes": "N362"
+            }
+          ]
+        },
+        {
+          "patient_name_on_claim": "WASHINGTON, DESHAWN",
+          "patient_dob": "1971-09-03",
+          "patient_dob_raw": "09/03/1971",
+          "member_id": "XOH549218372",
+          "claim_number": "BCBS26112384815",
+          "patient_account_number": "TMG-00102847-V26422",
+          "service_from": "2026-04-09",
+          "service_to": "2026-04-09",
+          "claim_status": "Processed",
+          "total_billed": "$425.00",
+          "total_allowed": "$215.00",
+          "total_paid": "$172.00",
+          "total_patient_responsibility": "$43.00",
+          "service_lines": [
+            {
+              "date_of_service": "04/09/2026",
+              "cpt_or_hcpcs": "99213",
+              "procedure_description": "Office visit, established, low complexity",
+              "billed_amount": "$215.00",
+              "allowed_amount": "$125.00",
+              "paid_amount": "$100.00",
+              "coinsurance_applied": "$25.00",
+              "adjustment_codes_and_amounts": "CO-45 $90.00; PR-2 $25.00"
+            },
+            {
+              "date_of_service": "04/09/2026",
+              "cpt_or_hcpcs": "11102",
+              "procedure_description": "Tangential biopsy of skin, single lesion",
+              "billed_amount": "$210.00",
+              "allowed_amount": "$90.00",
+              "paid_amount": "$72.00",
+              "coinsurance_applied": "$18.00",
+              "adjustment_codes_and_amounts": "CO-45 $120.00; PR-2 $18.00"
+            }
+          ]
+        }
+      ],
+      "fax_envelope": {
+        "received_at": "2026-04-24T12:48:17",
+        "page_count": 5
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/eob_era.schema.json",
+        "extracted_at": "2026-04-24T12:49:32"
+      }
+    }
+  ]
+}

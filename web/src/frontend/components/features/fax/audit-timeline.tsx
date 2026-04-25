@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import type { FaxEvent } from "@/shared/types";
 import { formatDateTime, cn } from "@/shared/utils";
-import { modelLabelFromId } from "@/backend/config/models.config";
+import { modelLabelFromId } from "@/shared/constants";
 
 const KIND_META: Record<
   FaxEvent["kind"],

@@ -1,4 +1,4 @@
-import type { FaxType, FaxStatus, Urgency } from "@/shared/constants";
+import type { Urgency } from "@/shared/constants";
 import type { MatchCandidate } from "./patient.types";
 
 export interface ExtractedFields {
@@ -15,23 +15,15 @@ export interface ExtractedFields {
   icd10?: string[];
   cpt?: string[];
   summary?: string;
+  /** Category-specific extracted data (panels, tests, etc.) */
+  [key: string]: unknown;
 }
 
 export interface FaxEvent {
   id: string;
   faxId: string;
   at: string; // ISO
-  kind:
-    | "received"
-    | "ocr"
-    | "classified"
-    | "matched"
-    | "extracted"
-    | "routed"
-    | "notified"
-    | "written_back"
-    | "human_override"
-    | "flagged";
+  kind: string;
   actor: string;
   detail: string;
   model?: string;
@@ -48,8 +40,10 @@ export interface Fax {
   fromOrg: string;
   faxNumberTo: string;
   toClinic: string;
-  status: FaxStatus;
-  type: FaxType;
+  /** Lifecycle status — MVP values: unopened, opened, archived, needs_review */
+  status: string;
+  /** Category — MVP values: lab, imaging, consult, referral, prior_auth, dme, forms, records_request, eob, discharge, other */
+  type: string;
   typeConfidence: number; // 0..1
   urgency: Urgency;
   matchedPatientId: string | null;
@@ -61,5 +55,7 @@ export interface Fax {
   ocrText: string;
   aiSummary?: string;
   modelUsed?: string;
+  /** parent_id for split faxes (e.g. multi-patient EOBs) */
+  parentId?: string;
   isHero?: boolean;
 }

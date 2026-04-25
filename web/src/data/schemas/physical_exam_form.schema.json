@@ -1,0 +1,577 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/physical_exam_form.schema.json",
+  "title": "Cevi AI \u2014 Physical Examination Form",
+  "description": "Provider-completed physical exam forms: FMCSA DOT (MCSA-5875/5876), Texas UIL Pre-Participation Physical Exam for student athletes, school physicals, DMV driver medical, CDL non-DOT, commercial pre-employment, police/fire, foster parent, USCIS I-693 immigration. Health history responses captured as a flexible array since each form has different questions.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "physical_exam_form"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "dot_medical_mcsa5875",
+        "dot_medical_examination_report_mcsa5876",
+        "uil_ppe_texas_athletic",
+        "school_sports_physical_generic",
+        "school_physical_mandatory_grade_entry",
+        "dmv_driver_medical_generic",
+        "cdl_non_dot",
+        "commercial_pre_employment",
+        "police_fire_preplacement",
+        "foster_parent_adoption",
+        "scouts_camp",
+        "college_health_entry",
+        "immigration_uscis_i693",
+        "peace_corps",
+        "daycare_childcare_staff",
+        "generic_fit_for_duty",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "form_name": {
+      "type": "string",
+      "description": "Form title as printed: 'FMCSA MCSA-5875 Medical Examiner's Certificate', 'UIL Pre-Participation Physical Evaluation', 'School Physical', etc."
+    },
+    "requesting_organization": {
+      "type": "string"
+    },
+    "exam_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "exam_date_raw": {
+      "type": "string"
+    },
+    "exam_valid_through": {
+      "type": "string",
+      "format": "date"
+    },
+    "patient_details_on_form": {
+      "type": "object",
+      "properties": {
+        "sport_or_activity": {
+          "type": "string",
+          "description": "For UIL/school forms."
+        },
+        "grade_level": {
+          "type": "string"
+        },
+        "school_name": {
+          "type": "string"
+        },
+        "cdl_class": {
+          "type": "string"
+        },
+        "license_number": {
+          "type": "string"
+        }
+      }
+    },
+    "health_history_responses": {
+      "type": "array",
+      "description": "Yes/no/explanation responses to the form's health history questions. Each form has different questions.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "response": {
+            "type": "string",
+            "description": "As marked: 'Yes', 'No', 'Unknown', 'Declined', empty."
+          },
+          "explanation": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "vital_signs": {
+      "type": "object",
+      "properties": {
+        "bp": {
+          "type": "string"
+        },
+        "pulse": {
+          "type": "string"
+        },
+        "respiratory_rate": {
+          "type": "string"
+        },
+        "temperature": {
+          "type": "string"
+        },
+        "height": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "string"
+        },
+        "bmi": {
+          "type": "string"
+        },
+        "vision_right_corrected": {
+          "type": "string"
+        },
+        "vision_left_corrected": {
+          "type": "string"
+        },
+        "vision_both_corrected": {
+          "type": "string"
+        },
+        "color_vision": {
+          "type": "string"
+        },
+        "hearing_right": {
+          "type": "string"
+        },
+        "hearing_left": {
+          "type": "string"
+        },
+        "urinalysis_protein": {
+          "type": "string"
+        },
+        "urinalysis_glucose": {
+          "type": "string"
+        },
+        "urinalysis_blood": {
+          "type": "string"
+        }
+      }
+    },
+    "exam_findings": {
+      "type": "string",
+      "description": "Physical exam findings narrative or as printed."
+    },
+    "certification_decision": {
+      "type": "string",
+      "description": "As printed: 'Meets standards - 2 year', 'Meets standards - 1 year', 'Does not meet standards', 'Cleared for all sports', 'Cleared with restrictions', 'Not cleared', 'Pending further evaluation'."
+    },
+    "certification_decision_notes": {
+      "type": "string"
+    },
+    "restrictions_or_monitoring": {
+      "type": "string"
+    },
+    "medications_disclosed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "dose": {
+            "type": "string"
+          },
+          "indication": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "provider_signature_present": {
+      "type": "string"
+    },
+    "provider_signature_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "provider_national_registry_number": {
+      "type": "string",
+      "description": "For DOT exams: FMCSA National Registry number if printed."
+    },
+    "provider_license_number": {
+      "type": "string"
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category",
+    "patient"
+  ],
+  "examples": [
+    {
+      "document_category": "physical_exam_form",
+      "document_subcategory": "dot_medical_mcsa5875",
+      "patient": {
+        "name": {
+          "raw_text": "Jackson, Anthony Ray",
+          "first_name": "Anthony",
+          "middle_name": "Ray",
+          "last_name": "Jackson"
+        },
+        "dob": "1968-05-12",
+        "dob_raw": "05/12/1968",
+        "sex": "M"
+      },
+      "sender": {
+        "name": "FMCSA DOT Medical Certification"
+      },
+      "providers": [
+        {
+          "role": "Examining",
+          "name": {
+            "raw_text": "Michael Harrison, MD",
+            "first_name": "Michael",
+            "last_name": "Harrison"
+          },
+          "credentials": [
+            "MD"
+          ],
+          "specialty": "Internal Medicine"
+        }
+      ],
+      "form_name": "FMCSA MCSA-5875 Medical Examiner's Certificate",
+      "requesting_organization": "Lone Star Freight Lines, LLC",
+      "exam_date": "2026-04-22",
+      "exam_date_raw": "04/22/2026",
+      "exam_valid_through": "2027-04-22",
+      "patient_details_on_form": {
+        "cdl_class": "Class A",
+        "license_number": "TX12345678"
+      },
+      "vital_signs": {
+        "bp": "128/78",
+        "pulse": "72",
+        "height": "70 in",
+        "weight": "225 lb",
+        "bmi": "32.3",
+        "vision_both_corrected": "20/40",
+        "color_vision": "Normal",
+        "hearing_right": "5 ft forced whisper",
+        "hearing_left": "5 ft forced whisper",
+        "urinalysis_protein": "Negative",
+        "urinalysis_glucose": "Negative",
+        "urinalysis_blood": "Negative"
+      },
+      "exam_findings": "Overweight but well-appearing. Cardiovascular: RRR no murmurs. Lungs clear. No hernia. Full ROM. Neurologic intact.",
+      "certification_decision": "Meets Standards \u2014 1 Year Certificate",
+      "restrictions_or_monitoring": "Annual re-certification due to BMI >30 with borderline BP.",
+      "provider_signature_present": "Yes",
+      "provider_signature_date": "2026-04-22",
+      "provider_national_registry_number": "1234567890",
+      "provider_license_number": "L54829",
+      "fax_envelope": {
+        "received_at": "2026-04-22T15:44:11",
+        "page_count": 4
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/physical_exam_form.schema.json",
+        "extracted_at": "2026-04-22T15:45:02"
+      }
+    }
+  ]
+}

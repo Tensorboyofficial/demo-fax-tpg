@@ -1,0 +1,582 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/ed_visit_summary.schema.json",
+  "title": "Cevi AI \u2014 Emergency Department Visit Summary",
+  "description": "ED visit summaries from hospital EDs (no HL7 feed) and freestanding emergency rooms (common in Texas). Captures arrival/discharge times, chief complaint, ED course, medications given, diagnoses, disposition, discharge meds, and follow-up plan.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "ed_visit_summary"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "hospital_ed",
+        "freestanding_er",
+        "urgent_care",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "visit_number": {
+      "type": "string"
+    },
+    "arrival_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "arrival_at_raw": {
+      "type": "string"
+    },
+    "discharge_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "discharge_at_raw": {
+      "type": "string"
+    },
+    "chief_complaint": {
+      "type": "string"
+    },
+    "triage_acuity": {
+      "type": "string",
+      "description": "ESI level as printed: '1'-'5'."
+    },
+    "mode_of_arrival": {
+      "type": "string"
+    },
+    "history_of_present_illness": {
+      "type": "string"
+    },
+    "ed_course": {
+      "type": "string"
+    },
+    "diagnostic_studies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tests/imaging performed, as printed."
+    },
+    "medications_given": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "medication": {
+            "type": "string"
+          },
+          "dose": {
+            "type": "string"
+          },
+          "route": {
+            "type": "string"
+          },
+          "given_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "diagnoses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "icd10": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "disposition": {
+      "type": "string",
+      "description": "As printed: 'Discharged home', 'Admitted', 'Transferred', 'AMA', 'LWBS'."
+    },
+    "discharge_medications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Medication as listed on the document.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Medication name as printed (generic or brand)."
+          },
+          "strength": {
+            "type": "string",
+            "description": "E.g., '500 mg', '10 mg/mL'."
+          },
+          "dose": {
+            "type": "string",
+            "description": "E.g., '1 tablet', '2 puffs'."
+          },
+          "route": {
+            "type": "string",
+            "description": "E.g., 'PO', 'IV', 'SC', 'inhaled'."
+          },
+          "frequency": {
+            "type": "string",
+            "description": "E.g., 'once daily', 'BID with meals', 'q6h PRN pain'."
+          },
+          "sig": {
+            "type": "string",
+            "description": "Full sig string if printed as a single line."
+          },
+          "indication": {
+            "type": "string"
+          },
+          "raw_text": {
+            "type": "string",
+            "description": "Verbatim line as printed, if it doesn't split cleanly."
+          }
+        }
+      }
+    },
+    "discharge_instructions": {
+      "type": "string"
+    },
+    "return_precautions": {
+      "type": "string"
+    },
+    "follow_up": {
+      "type": "string"
+    },
+    "work_excuse_days": {
+      "type": "string",
+      "description": "As printed."
+    },
+    "signed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category",
+    "patient"
+  ],
+  "examples": [
+    {
+      "document_category": "ed_visit_summary",
+      "document_subcategory": "hospital_ed",
+      "patient": {
+        "name": {
+          "raw_text": "TRAN, LINH",
+          "first_name": "Linh",
+          "last_name": "Tran"
+        },
+        "dob": "1989-04-15",
+        "dob_raw": "04/15/1989",
+        "sex": "F"
+      },
+      "sender": {
+        "name": "Lone Star Emergency Center - Mansfield",
+        "address": {
+          "raw_text": "2100 US-287, Mansfield, TX 76063",
+          "line1": "2100 US-287",
+          "city": "Mansfield",
+          "state": "TX",
+          "postal_code": "76063"
+        }
+      },
+      "providers": [
+        {
+          "role": "Attending",
+          "name": {
+            "raw_text": "Steven Park, MD",
+            "first_name": "Steven",
+            "last_name": "Park"
+          },
+          "credentials": [
+            "MD"
+          ],
+          "specialty": "Emergency Medicine"
+        },
+        {
+          "role": "PCP",
+          "name": {
+            "raw_text": "Priya Patel, DO",
+            "first_name": "Priya",
+            "last_name": "Patel"
+          },
+          "credentials": [
+            "DO"
+          ]
+        }
+      ],
+      "arrival_at": "2026-04-22T22:18:00",
+      "arrival_at_raw": "04/22/2026 22:18",
+      "discharge_at": "2026-04-23T02:44:00",
+      "discharge_at_raw": "04/23/2026 02:44",
+      "chief_complaint": "Severe headache x 6 hours",
+      "triage_acuity": "3",
+      "mode_of_arrival": "Private auto",
+      "history_of_present_illness": "36yo F with history of migraine presenting with severe R-sided headache, photophobia, nausea, started 6 hours prior. Similar to prior migraines but more severe. Denies neck stiffness, fever, weakness, vision changes.",
+      "ed_course": "Treated with IV fluids, ketorolac 30 mg IV, ondansetron 4 mg IV, prochlorperazine 10 mg IV with significant improvement. Pain 8/10 \u2192 2/10. CT head without contrast: normal.",
+      "diagnostic_studies": [
+        "CT head without contrast \u2014 normal"
+      ],
+      "medications_given": [
+        {
+          "medication": "Ondansetron",
+          "dose": "4 mg",
+          "route": "IV",
+          "given_at": "2026-04-22T22:48:00"
+        },
+        {
+          "medication": "Ketorolac",
+          "dose": "30 mg",
+          "route": "IV",
+          "given_at": "2026-04-22T22:50:00"
+        },
+        {
+          "medication": "Prochlorperazine",
+          "dose": "10 mg",
+          "route": "IV",
+          "given_at": "2026-04-22T23:05:00"
+        }
+      ],
+      "diagnoses": [
+        {
+          "description": "Migraine without aura, not intractable, without status migrainosus",
+          "icd10": "G43.009"
+        }
+      ],
+      "disposition": "Discharged home",
+      "discharge_medications": [
+        {
+          "name": "Sumatriptan",
+          "strength": "50 mg",
+          "sig": "Take 1 tablet at onset of migraine; may repeat in 2 hours if needed. Max 200 mg/24hr."
+        }
+      ],
+      "discharge_instructions": "Rest in dark quiet room. Avoid known triggers. Follow up with PCP for preventive migraine management.",
+      "return_precautions": "Return to ED for worst-headache-of-life, neurologic symptoms, fever, vision changes, persistent vomiting.",
+      "follow_up": "PCP within 1-2 weeks. Consider neurology if >4 migraines/month.",
+      "work_excuse_days": "1 day",
+      "signed_at": "2026-04-23T03:12:00",
+      "fax_envelope": {
+        "received_at": "2026-04-23T08:14:17",
+        "page_count": 3
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/ed_visit_summary.schema.json",
+        "extracted_at": "2026-04-23T08:15:03"
+      }
+    }
+  ]
+}

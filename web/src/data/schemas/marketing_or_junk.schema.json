@@ -1,0 +1,406 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/marketing_or_junk.schema.json",
+  "title": "Cevi AI \u2014 Marketing / Junk Fax",
+  "description": "Unsolicited commercial faxes, vendor solicitations, pharma rep offers, suspicious diabetic-supply/CGM/brace/genetic-testing pitches soliciting patient lists, misrouted faxes with no patient identifier, duplicates, potential phishing. Category exists to auto-archive and build sender-block-list patterns downstream.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "marketing_or_junk"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "pharmaceutical_rep",
+        "dme_solicitation",
+        "staffing_agency",
+        "billing_vendor_solicitation",
+        "ehr_vendor_solicitation",
+        "genetic_test_lab_solicitation",
+        "cgm_solicitation",
+        "brace_orthotic_solicitation",
+        "ce_cme_advertisement",
+        "medical_association_newsletter",
+        "political",
+        "insurance_broker",
+        "real_estate",
+        "wrong_number_no_patient_info",
+        "duplicate_of_prior_fax",
+        "spam_phishing_suspected",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "sender_type": {
+      "type": "string",
+      "description": "As evident: 'Pharmaceutical rep', 'DME solicitation', 'CGM solicitation', 'Staffing agency', 'Billing vendor', 'Genetic test solicitation', 'CE/CME advertisement', 'Wrong number', 'Duplicate', 'Spam/phishing suspected'."
+    },
+    "offer_summary": {
+      "type": "string",
+      "description": "Brief summary of what is being offered or asked for."
+    },
+    "product_or_service": {
+      "type": "string"
+    },
+    "call_to_action": {
+      "type": "string"
+    },
+    "opt_out_instructions": {
+      "type": "string",
+      "description": "Opt-out text as printed (TCPA Junk Fax Prevention Act requires this)."
+    },
+    "contains_no_patient_identifier": {
+      "type": "string",
+      "description": "As observed: 'Yes' (no patient info in fax, likely junk)."
+    },
+    "contains_phi": {
+      "type": "string",
+      "description": "As observed: 'Yes' (PHI in what appears to be junk \u2014 possible misrouted fax)."
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category"
+  ],
+  "examples": [
+    {
+      "document_category": "marketing_or_junk",
+      "document_subcategory": "cgm_solicitation",
+      "patient": {
+        "name": {
+          "raw_text": ""
+        },
+        "identifiers": []
+      },
+      "sender": {
+        "name": "Continuous Glucose Monitor Direct LLC"
+      },
+      "providers": [],
+      "sender_type": "CGM solicitation",
+      "offer_summary": "Free continuous glucose monitor shipped to diabetic patients, billed directly to insurance. 'No cost to your practice \u2014 we handle all billing and patient follow-up.'",
+      "product_or_service": "Dexcom G7 CGM mail-order enrollment",
+      "call_to_action": "Fax diabetic patient list with insurance info to 888-555-3344 for setup.",
+      "opt_out_instructions": "To remove from our list, fax 888-555-3345 or call 800-555-1212",
+      "contains_no_patient_identifier": "Yes",
+      "contains_phi": "No",
+      "fax_envelope": {
+        "received_at": "2026-04-22T16:14:18",
+        "page_count": 1,
+        "csid_banner": "CGM DIRECT LLC"
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/marketing_or_junk.schema.json",
+        "extracted_at": "2026-04-22T16:14:52"
+      }
+    }
+  ]
+}

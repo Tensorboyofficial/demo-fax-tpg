@@ -1,0 +1,716 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/home_health_order.schema.json",
+  "title": "Cevi AI \u2014 Home Health Order / CMS-485 Plan of Care",
+  "description": "Home health plan of care (CMS-485), recertifications, face-to-face attestations, verbal orders. Captures certification period, diagnoses, ordered disciplines (SN/PT/OT/ST/MSW/HHA) with frequency and duration, homebound justification, and face-to-face encounter info as printed.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "home_health_order"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "cms_485_initial",
+        "cms_485_recert",
+        "verbal_order",
+        "face_to_face_attestation",
+        "interim_order",
+        "plan_of_care_update",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "form_type": {
+      "type": "string",
+      "description": "Form title as printed: 'CMS-485 Home Health Certification and Plan of Care', 'Verbal Order', 'Face-to-Face Encounter', etc."
+    },
+    "start_of_care_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "start_of_care_date_raw": {
+      "type": "string"
+    },
+    "certification_period_start": {
+      "type": "string",
+      "format": "date"
+    },
+    "certification_period_end": {
+      "type": "string",
+      "format": "date"
+    },
+    "certification_period_raw": {
+      "type": "string",
+      "description": "Verbatim certification period as printed."
+    },
+    "principal_diagnosis": {
+      "type": "object",
+      "description": "Diagnosis as printed.",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Diagnosis text as printed."
+        },
+        "icd10": {
+          "type": "string",
+          "description": "ICD-10 code only if printed on the fax."
+        }
+      }
+    },
+    "other_diagnoses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Diagnosis as printed.",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Diagnosis text as printed."
+          },
+          "icd10": {
+            "type": "string",
+            "description": "ICD-10 code only if printed on the fax."
+          }
+        }
+      }
+    },
+    "dme_and_supplies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "safety_measures": {
+      "type": "string"
+    },
+    "nutritional_requirements": {
+      "type": "string"
+    },
+    "allergies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "functional_limitations": {
+      "type": "string",
+      "description": "As printed, typically checkbox list narrative."
+    },
+    "activities_permitted": {
+      "type": "string"
+    },
+    "mental_status": {
+      "type": "string"
+    },
+    "prognosis": {
+      "type": "string"
+    },
+    "disciplines_ordered": {
+      "type": "array",
+      "description": "One entry per discipline ordered. 'SN', 'PT', 'OT', 'ST', 'MSW', 'HHA'.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "discipline": {
+            "type": "string"
+          },
+          "frequency": {
+            "type": "string",
+            "description": "As printed: '3x/week x 2 weeks, then 2x/week x 4 weeks'."
+          },
+          "duration": {
+            "type": "string"
+          },
+          "services": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "medications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Medication as listed on the document.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Medication name as printed (generic or brand)."
+          },
+          "strength": {
+            "type": "string",
+            "description": "E.g., '500 mg', '10 mg/mL'."
+          },
+          "dose": {
+            "type": "string",
+            "description": "E.g., '1 tablet', '2 puffs'."
+          },
+          "route": {
+            "type": "string",
+            "description": "E.g., 'PO', 'IV', 'SC', 'inhaled'."
+          },
+          "frequency": {
+            "type": "string",
+            "description": "E.g., 'once daily', 'BID with meals', 'q6h PRN pain'."
+          },
+          "sig": {
+            "type": "string",
+            "description": "Full sig string if printed as a single line."
+          },
+          "indication": {
+            "type": "string"
+          },
+          "raw_text": {
+            "type": "string",
+            "description": "Verbatim line as printed, if it doesn't split cleanly."
+          }
+        }
+      }
+    },
+    "goals_rehab_potential": {
+      "type": "string"
+    },
+    "discharge_plans": {
+      "type": "string"
+    },
+    "homebound_status": {
+      "type": "object",
+      "properties": {
+        "is_homebound": {
+          "type": "string",
+          "description": "As printed: 'Yes', 'No'."
+        },
+        "reason": {
+          "type": "string"
+        },
+        "taxing_effort_details": {
+          "type": "string"
+        }
+      }
+    },
+    "face_to_face_encounter": {
+      "type": "object",
+      "properties": {
+        "encounter_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "encounter_date_raw": {
+          "type": "string"
+        },
+        "encounter_provider_name": {
+          "type": "string"
+        },
+        "encounter_provider_npi": {
+          "type": "string",
+          "description": "NPI only if printed."
+        },
+        "clinical_findings": {
+          "type": "string"
+        }
+      }
+    },
+    "verbal_orders_attached": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "order_text": {
+            "type": "string"
+          },
+          "order_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "taken_by": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "physician_signature_present": {
+      "type": "string",
+      "description": "As seen on document: 'Yes', 'No', 'Pending'."
+    },
+    "physician_signature_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category",
+    "patient"
+  ],
+  "examples": [
+    {
+      "document_category": "home_health_order",
+      "document_subcategory": "cms_485_initial",
+      "patient": {
+        "name": {
+          "raw_text": "JACKSON, ANTHONY RAY",
+          "first_name": "Anthony",
+          "middle_name": "Ray",
+          "last_name": "Jackson"
+        },
+        "dob": "1948-05-12",
+        "dob_raw": "05/12/1948",
+        "sex": "M",
+        "address": {
+          "raw_text": "3421 Bomar Ave, Fort Worth, TX 76116",
+          "line1": "3421 Bomar Ave",
+          "city": "Fort Worth",
+          "state": "TX",
+          "postal_code": "76116"
+        },
+        "identifiers": [
+          {
+            "label": "Medicare",
+            "value": "1EG4TE5MK73"
+          }
+        ]
+      },
+      "sender": {
+        "name": "Encompass Home Health of Fort Worth",
+        "address": {
+          "raw_text": "2200 W 7th St, Suite 301, Fort Worth, TX 76107",
+          "line1": "2200 W 7th St",
+          "line2": "Suite 301",
+          "city": "Fort Worth",
+          "state": "TX",
+          "postal_code": "76107"
+        },
+        "phone": {
+          "raw_text": "817-555-8800",
+          "digits": "8175558800"
+        },
+        "fax": {
+          "raw_text": "817-555-8801",
+          "digits": "8175558801"
+        }
+      },
+      "providers": [
+        {
+          "role": "Certifying",
+          "name": {
+            "raw_text": "Michael Harrison, MD",
+            "first_name": "Michael",
+            "last_name": "Harrison"
+          },
+          "credentials": [
+            "MD"
+          ]
+        },
+        {
+          "role": "Face-to-face examining",
+          "name": {
+            "raw_text": "William Carter, MD",
+            "first_name": "William",
+            "last_name": "Carter"
+          },
+          "credentials": [
+            "MD"
+          ]
+        }
+      ],
+      "form_type": "CMS-485 Home Health Certification and Plan of Care",
+      "start_of_care_date": "2026-04-15",
+      "start_of_care_date_raw": "04/15/2026",
+      "certification_period_start": "2026-04-15",
+      "certification_period_end": "2026-06-13",
+      "certification_period_raw": "04/15/2026 \u2013 06/13/2026",
+      "principal_diagnosis": {
+        "description": "Acute on chronic systolic heart failure",
+        "icd10": "I50.23"
+      },
+      "other_diagnoses": [
+        {
+          "description": "Hypertensive heart disease",
+          "icd10": "I11.0"
+        },
+        {
+          "description": "Type 2 diabetes mellitus",
+          "icd10": "E11.9"
+        },
+        {
+          "description": "CKD stage 3a",
+          "icd10": "N18.31"
+        }
+      ],
+      "dme_and_supplies": [
+        "Home BP monitor",
+        "Scale for daily weights",
+        "Pulse oximeter"
+      ],
+      "safety_measures": "Fall precautions. Daily weights. Low sodium diet. Fluid restriction 2L/day.",
+      "disciplines_ordered": [
+        {
+          "discipline": "Skilled Nursing",
+          "frequency": "3x/week x 2 weeks, then 2x/week x 4 weeks, then 1x/week x 3 weeks",
+          "duration": "9 weeks",
+          "services": "CHF management, medication management, daily weight monitoring, teach home diuretic sliding scale, symptom assessment."
+        },
+        {
+          "discipline": "Physical Therapy",
+          "frequency": "2x/week x 4 weeks",
+          "duration": "4 weeks",
+          "services": "Endurance conditioning, functional mobility, home safety assessment."
+        },
+        {
+          "discipline": "Home Health Aide",
+          "frequency": "3x/week x 4 weeks",
+          "duration": "4 weeks",
+          "services": "Bathing, personal care assistance."
+        }
+      ],
+      "medications": [
+        {
+          "name": "Metoprolol succinate",
+          "strength": "50 mg",
+          "sig": "1 tab PO daily"
+        },
+        {
+          "name": "Empagliflozin",
+          "strength": "10 mg",
+          "sig": "1 tab PO daily"
+        },
+        {
+          "name": "Furosemide",
+          "strength": "40 mg",
+          "sig": "1 tab PO daily, increase to BID if weight gain >2 lb/day"
+        }
+      ],
+      "homebound_status": {
+        "is_homebound": "Yes",
+        "reason": "Severe dyspnea with minimal exertion; requires assistance to leave home safely.",
+        "taxing_effort_details": "Ambulates <20 feet before requiring rest. NYHA Class III."
+      },
+      "face_to_face_encounter": {
+        "encounter_date": "2026-04-12",
+        "encounter_date_raw": "04/12/2026",
+        "encounter_provider_name": "Dr. William Carter",
+        "encounter_provider_npi": "1629384756",
+        "clinical_findings": "Patient seen during inpatient stay for acute on chronic HFrEF. Homebound due to severe dyspnea and post-hospital deconditioning."
+      },
+      "physician_signature_present": "No, pending",
+      "fax_envelope": {
+        "received_at": "2026-04-15T16:32:18",
+        "page_count": 4
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/home_health_order.schema.json",
+        "extracted_at": "2026-04-15T16:33:07"
+      }
+    }
+  ]
+}

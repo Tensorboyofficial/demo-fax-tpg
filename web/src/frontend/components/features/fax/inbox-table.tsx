@@ -1,298 +1,501 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback, useRef } from "react";
 import {
-  Stethoscope,
   FlaskConical,
+  Stethoscope,
   ShieldCheck,
   FileText,
-  Pill,
   FileSearch,
   Image as ImageIcon,
   HelpCircle,
+  Receipt,
+  ClipboardList,
+  HeartPulse,
+  Pill,
+  Upload,
+  Download,
+  Search,
+  ExternalLink,
 } from "lucide-react";
-import {
-  Badge,
-  typeBadgeVariant,
-  statusBadgeVariant,
-  urgencyBadgeVariant,
-} from "@/frontend/components/ui/badge";
-import { ConfidenceMeter } from "@/frontend/components/composed/confidence-meter";
-import { faxes as seedFaxes } from "@/data/seed/faxes";
+import { Badge, typeBadgeVariant } from "@/frontend/components/ui/badge";
+import { StateChip } from "@/frontend/components/ui/state-chip";
+import { ConfidenceValue } from "@/frontend/components/ui/confidence-value";
+import { CategoryPill } from "@/frontend/components/ui/category-pill";
+import { KeyboardShortcutsBar } from "@/frontend/components/ui/keyboard-shortcuts-bar";
+import { FaxThumbnail } from "@/frontend/components/features/fax/fax-thumbnail";
+import { FaxModal } from "@/frontend/components/features/fax/fax-modal";
+import { HoverPreview } from "@/frontend/components/features/fax/hover-preview";
+import { useSpreadsheetSelection } from "@/frontend/hooks/use-spreadsheet-selection";
+import { useKeyboardNav } from "@/frontend/hooks/use-keyboard-nav";
+import { useToast } from "@/frontend/components/ui/toast";
 import { patients } from "@/data/seed/patients";
-import { providers } from "@/data/seed/providers";
-import { agents } from "@/data/seed/agents";
 import { formatRelative, cn } from "@/shared/utils";
-import type { Fax, FaxType, FaxStatus } from "@/shared/types";
-// (client component — data is passed in via props when available, else seed fallback)
+import type { Fax } from "@/shared/types";
 
-const TYPE_LABELS: Record<FaxType, string> = {
-  referral: "Referral",
-  lab_result: "Lab Result",
-  prior_auth: "Prior Auth",
-  records_request: "Records Req",
-  rx_refill: "Rx Refill",
-  specialist_consult: "Specialist",
-  imaging_report: "Imaging",
-  unknown: "Unclassified",
-};
+/* ─── Lifecycle ─── */
+type Lifecycle = "all" | "unopened" | "opened" | "archived" | "needs_review";
 
-const STATUS_LABELS: Record<FaxStatus, string> = {
-  received: "Received",
-  processing: "Processing",
-  auto_routed: "Auto-routed",
-  needs_review: "Needs review",
-  failed_match: "No match",
-  routed: "Routed",
-  completed: "Completed",
-};
-
-const TYPE_ICON: Record<FaxType, React.ReactNode> = {
-  referral: <Stethoscope className="h-3.5 w-3.5" strokeWidth={1.5} />,
-  lab_result: <FlaskConical className="h-3.5 w-3.5" strokeWidth={1.5} />,
-  prior_auth: <ShieldCheck className="h-3.5 w-3.5" strokeWidth={1.5} />,
-  records_request: <FileSearch className="h-3.5 w-3.5" strokeWidth={1.5} />,
-  rx_refill: <Pill className="h-3.5 w-3.5" strokeWidth={1.5} />,
-  specialist_consult: <FileText className="h-3.5 w-3.5" strokeWidth={1.5} />,
-  imaging_report: <ImageIcon className="h-3.5 w-3.5" strokeWidth={1.5} />,
-  unknown: <HelpCircle className="h-3.5 w-3.5" strokeWidth={1.5} />,
-};
-
-const TYPE_FILTERS: { key: "all" | FaxType; label: string }[] = [
+const STATUS_TABS: { key: Lifecycle; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "specialist_consult", label: "Specialist" },
-  { key: "lab_result", label: "Lab" },
-  { key: "prior_auth", label: "Prior Auth" },
-  { key: "referral", label: "Referrals" },
-  { key: "rx_refill", label: "Rx" },
-  { key: "records_request", label: "Records" },
-  { key: "imaging_report", label: "Imaging" },
-  { key: "unknown", label: "Unclassified" },
+  { key: "unopened", label: "Unopened" },
+  { key: "opened", label: "Opened" },
+  { key: "archived", label: "Archived" },
+  { key: "needs_review", label: "Needs Review" },
 ];
 
-const STATUS_FILTERS: { key: "all" | "needs_review" | "auto_routed" | "completed"; label: string }[] = [
-  { key: "all", label: "All statuses" },
-  { key: "needs_review", label: "Needs review" },
-  { key: "auto_routed", label: "Auto-routed" },
-  { key: "completed", label: "Completed" },
-];
-
-function routeLabel(fax: Fax): string {
-  if (!fax.routedTo) return "—";
-  if (fax.routedTo.startsWith("P-")) {
-    const prov = providers.find((p) => p.id === fax.routedTo);
-    return prov ? prov.name.split(",")[0] : fax.routedTo;
+function toLifecycle(status: string): Lifecycle {
+  switch (status) {
+    case "unopened": return "unopened";
+    case "opened": return "opened";
+    case "archived": return "archived";
+    case "needs_review": case "failed_match": return "needs_review";
+    case "received": case "processing": return "unopened";
+    case "auto_routed": case "routed": return "opened";
+    case "completed": return "archived";
+    default: return "unopened";
   }
-  if (fax.routedTo.startsWith("agent:")) {
-    const key = fax.routedTo.slice("agent:".length);
-    const ag = agents.find((a) => a.key === key);
-    return ag ? ag.name.split(" ").slice(0, 2).join(" ") : key;
-  }
-  return fax.routedTo;
 }
 
-function patientLabel(fax: Fax): { primary: string; secondary: string } {
+/* ─── Type labels ─── */
+const TYPE_LABELS: Record<string, string> = {
+  lab: "Lab", imaging: "Imaging", consult: "Consult", referral: "Referral",
+  prior_auth: "Prior Auth", dme: "DME", forms: "Forms", records_request: "Records",
+  eob: "EOB", discharge: "Discharge", other: "Other",
+  lab_result: "Lab", specialist_consult: "Consult", imaging_report: "Imaging",
+  rx_refill: "Rx Refill", unknown: "Other",
+};
+
+const TYPE_ICON: Record<string, React.ReactNode> = {
+  lab: <FlaskConical className="h-3 w-3" strokeWidth={1.5} />,
+  lab_result: <FlaskConical className="h-3 w-3" strokeWidth={1.5} />,
+  imaging: <ImageIcon className="h-3 w-3" strokeWidth={1.5} />,
+  imaging_report: <ImageIcon className="h-3 w-3" strokeWidth={1.5} />,
+  consult: <FileText className="h-3 w-3" strokeWidth={1.5} />,
+  specialist_consult: <FileText className="h-3 w-3" strokeWidth={1.5} />,
+  referral: <Stethoscope className="h-3 w-3" strokeWidth={1.5} />,
+  prior_auth: <ShieldCheck className="h-3 w-3" strokeWidth={1.5} />,
+  dme: <ClipboardList className="h-3 w-3" strokeWidth={1.5} />,
+  forms: <FileText className="h-3 w-3" strokeWidth={1.5} />,
+  records_request: <FileSearch className="h-3 w-3" strokeWidth={1.5} />,
+  eob: <Receipt className="h-3 w-3" strokeWidth={1.5} />,
+  discharge: <HeartPulse className="h-3 w-3" strokeWidth={1.5} />,
+  other: <HelpCircle className="h-3 w-3" strokeWidth={1.5} />,
+  unknown: <HelpCircle className="h-3 w-3" strokeWidth={1.5} />,
+  rx_refill: <Pill className="h-3 w-3" strokeWidth={1.5} />,
+};
+
+const CATEGORY_OPTIONS = [
+  { key: "all", label: "All Types" },
+  { key: "lab_result", label: "Lab" },
+  { key: "referral", label: "Referral" },
+  { key: "prior_auth", label: "Prior Auth" },
+  { key: "specialist_consult", label: "Consult" },
+  { key: "imaging_report", label: "Imaging" },
+  { key: "rx_refill", label: "Rx Refill" },
+  { key: "records_request", label: "Records" },
+  { key: "unknown", label: "Other" },
+];
+
+const SHORTCUTS = [
+  { keys: ["\u2191\u2193", "\u2190\u2192"], label: "navigate" },
+  { keys: ["\u21B5"], label: "copy & down" },
+  { keys: ["\u21E5"], label: "copy & right" },
+  { keys: ["\u2318C"], label: "copy cell or range" },
+  { keys: ["\u21E7+click"], label: "range" },
+];
+
+function patientLabel(fax: Fax): string {
   if (!fax.matchedPatientId) {
-    return {
-      primary: fax.extracted.patientNameOnDoc ?? "No match",
-      secondary: "Needs human review",
-    };
+    return fax.extracted.patientNameOnDoc ?? "Unmatched";
   }
   const p = patients.find((pt) => pt.id === fax.matchedPatientId);
-  if (!p) return { primary: "Unknown", secondary: "" };
-  return {
-    primary: `${p.firstName} ${p.lastName}`,
-    secondary: `${p.mrn} · DOB ${new Date(p.dob).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit", year: "2-digit", timeZone: "UTC" })}`,
-  };
+  if (!p) return "Unknown";
+  return `${p.lastName}, ${p.firstName}`;
 }
 
+/* ─── Column definitions ─── */
+interface ColDef {
+  key: string;
+  header: string;
+  width: string;
+  getValue: (fax: Fax) => string;
+  render: (fax: Fax) => React.ReactNode;
+}
+
+function makeCols(): ColDef[] {
+  return [
+    {
+      key: "document",
+      header: "Document",
+      width: "w-[120px]",
+      getValue: (f) => f.id,
+      render: (f) => (
+        <div>
+          <div className="text-[11px] font-mono text-[#1A1A1A] font-medium">{f.id.replace("FAX-20260423-", "FAX-")}</div>
+          <div className="text-[10px] text-[#9CA3AF]">{f.pages} pg</div>
+        </div>
+      ),
+    },
+    {
+      key: "preview",
+      header: "Preview",
+      width: "w-[70px]",
+      getValue: () => "",
+      render: () => null, // handled separately with FaxThumbnail
+    },
+    {
+      key: "type",
+      header: "Type",
+      width: "w-[90px]",
+      getValue: (f) => TYPE_LABELS[f.type] ?? f.type,
+      render: (f) => (
+        <Badge variant={typeBadgeVariant(f.type)} size="sm">
+          <span className="inline-flex items-center gap-1">
+            {TYPE_ICON[f.type]}
+            {TYPE_LABELS[f.type] ?? f.type}
+          </span>
+        </Badge>
+      ),
+    },
+    {
+      key: "patient",
+      header: "Patient",
+      width: "min-w-[160px]",
+      getValue: (f) => patientLabel(f),
+      render: (f) => (
+        <span className="text-[12px] text-[#1A1A1A]">
+          {patientLabel(f)}
+        </span>
+      ),
+    },
+    {
+      key: "sender",
+      header: "Sender",
+      width: "w-[160px]",
+      getValue: (f) => f.fromOrg,
+      render: (f) => (
+        <span className="text-[12px] text-[#1A1A1A] font-medium truncate block">
+          {f.fromOrg}
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      width: "w-[120px]",
+      getValue: (f) => toLifecycle(f.status),
+      render: (f) => <StateChip state={toLifecycle(f.status)} />,
+    },
+    {
+      key: "confidence",
+      header: "Confidence",
+      width: "w-[100px]",
+      getValue: (f) => f.matchConfidence != null ? `${Math.round(f.matchConfidence * 100)}%` : "\u2014",
+      render: (f) => <ConfidenceValue value={f.matchConfidence} variant="dot" />,
+    },
+    {
+      key: "received",
+      header: "Received",
+      width: "w-[90px]",
+      getValue: (f) => formatRelative(f.receivedAt),
+      render: (f) => (
+        <span className="text-[11px] text-[#9CA3AF] font-medium tabular-nums">
+          {formatRelative(f.receivedAt)}
+        </span>
+      ),
+    },
+    {
+      key: "action",
+      header: "",
+      width: "w-[50px]",
+      getValue: () => "",
+      render: (f) => (
+        <Link
+          href={`/inbox/${f.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium text-[var(--cevi-text-muted)] hover:text-[var(--cevi-accent)] hover:bg-[var(--cevi-accent-light)] transition-colors"
+          title="View details"
+        >
+          <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
+        </Link>
+      ),
+    },
+  ];
+}
+
+/* ─── Main Component ─── */
 interface Props {
-  initialFilter?: "all" | FaxType | FaxStatus;
   faxes?: Fax[];
 }
 
-export function InboxTable({ initialFilter = "all", faxes: faxesProp }: Props) {
-  const faxes = faxesProp ?? seedFaxes;
-  const [typeFilter, setTypeFilter] = useState<string>(
-    initialFilter === "all" ? "all" : initialFilter,
-  );
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+export function InboxTable({ faxes: faxesProp }: Props) {
+  const { toast } = useToast();
+  const faxes = faxesProp ?? [];
+  const cols = useMemo(() => makeCols(), []);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const editRef = useRef<HTMLInputElement>(null);
+
+  const [statusFilter, setStatusFilter] = useState<Lifecycle>("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [search, setSearch] = useState("");
+
+  // Modal & hover state
+  const [modalFax, setModalFax] = useState<Fax | null>(null);
+  const [hoverFax, setHoverFax] = useState<Fax | null>(null);
+  const [hoverPos, setHoverPos] = useState<{ x: number; y: number } | null>(null);
+
+  // Inline edit state
+  const [editCell, setEditCell] = useState<{ r: number; c: number } | null>(null);
+  const [editValue, setEditValue] = useState("");
 
   const filtered = useMemo(() => {
     return faxes.filter((f) => {
-      const typeOK = typeFilter === "all" || f.type === typeFilter;
-      const statusOK = statusFilter === "all" || f.status === statusFilter;
-      return typeOK && statusOK;
+      const lifecycle = toLifecycle(f.status);
+      const statusOK = statusFilter === "all" || lifecycle === statusFilter;
+      const catOK = categoryFilter === "all" || f.type === categoryFilter;
+      const q = search.toLowerCase();
+      const searchOK = !q ||
+        f.fromOrg.toLowerCase().includes(q) ||
+        f.id.toLowerCase().includes(q) ||
+        (f.extracted.patientNameOnDoc ?? "").toLowerCase().includes(q);
+      return statusOK && catOK && searchOK;
     });
-  }, [faxes, typeFilter, statusFilter]);
+  }, [faxes, statusFilter, categoryFilter, search]);
+
+  const counts = useMemo(() => {
+    const c: Record<string, number> = { all: faxes.length, unopened: 0, opened: 0, archived: 0, needs_review: 0 };
+    for (const f of faxes) c[toLifecycle(f.status)]++;
+    return c;
+  }, [faxes]);
+
+  const needsReviewCount = counts.needs_review;
+
+  // Selection
+  const getCellValue = useCallback(
+    (r: number, c: number) => {
+      const fax = filtered[r];
+      if (!fax) return "";
+      return cols[c].getValue(fax);
+    },
+    [filtered, cols],
+  );
+
+  const selection = useSpreadsheetSelection({
+    rowCount: filtered.length,
+    colCount: cols.length,
+    getCellValue,
+    onCopy: (text) => toast(text),
+  });
+
+  useKeyboardNav({
+    wrapperRef: gridRef,
+    move: selection.move,
+    extendSelection: selection.extendSelection,
+    copyCurrent: selection.copyCurrent,
+    selectAll: selection.selectAll,
+    onEscape: () => setModalFax(null),
+  });
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between flex-wrap gap-3">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {TYPE_FILTERS.map((f) => (
-            <button
-              key={f.key}
-              onClick={() => setTypeFilter(f.key)}
-              className={cn(
-                "h-7 px-3 rounded-full text-[11px] font-semibold uppercase tracking-[0.04em] transition-colors",
-                typeFilter === f.key
-                  ? "bg-[var(--cevi-accent)] text-white"
-                  : "bg-white border border-[var(--cevi-border)] text-[var(--cevi-text-secondary)] hover:border-[var(--cevi-text-muted)]",
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
+      {/* Search row */}
+      <div className="flex items-center gap-3 px-5 py-3">
+        <div className="flex-1 flex items-center">
+          <Search className="h-5 w-5 text-[#9CA3AF] mr-2 shrink-0" strokeWidth={1.5} />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search..."
+            className="search-clean flex-1 border-0 outline-none bg-transparent text-[18px] font-medium text-[#1A1A1A] placeholder:text-[#9CA3AF] py-1"
+          />
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] uppercase tracking-[0.08em] text-[var(--cevi-text-tertiary)] font-semibold">
-            Status
-          </span>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-8 px-2 pr-7 rounded-md border border-[var(--cevi-border)] bg-white text-[12px] text-[var(--cevi-text)] focus:outline-none focus:border-[var(--cevi-text)] focus:ring-2 focus:ring-[var(--cevi-accent)]/20"
-          >
-            {STATUS_FILTERS.map((s) => (
-              <option key={s.key} value={s.key}>
-                {s.label}
-              </option>
-            ))}
-          </select>
+        <Link href="/upload">
+          <button className="inline-flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium text-[#1A1A1A] bg-white border border-[#D4D4D4] rounded-[10px] hover:bg-[#F5F5F5] transition-colors">
+            <Upload className="h-3.5 w-3.5" strokeWidth={2} />
+            Upload
+          </button>
+        </Link>
+        <button className="inline-flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium text-[#1A1A1A] bg-white border border-[#D4D4D4] rounded-[10px] hover:bg-[#F5F5F5] transition-colors">
+          <Download className="h-3.5 w-3.5" strokeWidth={2} />
+          Export
+        </button>
+        <div className="h-8 w-8 rounded-full bg-[var(--cevi-accent)] text-white font-semibold text-[11px] inline-flex items-center justify-center shrink-0 cursor-pointer">
+          T
         </div>
       </div>
 
-      <div className="rounded-lg border border-[var(--cevi-border)] bg-white overflow-hidden">
-        <table className="w-full">
+      {/* Category row */}
+      <div className="flex items-center justify-between px-5 pb-3 gap-3">
+        <div className="flex items-center gap-3">
+          <CategoryPill
+            value={categoryFilter}
+            onChange={setCategoryFilter}
+            options={CATEGORY_OPTIONS}
+          />
+          <span className="text-[12px] text-[#9CA3AF] font-medium">
+            {selection.selectedCellCount > 1
+              ? `${selection.selectedCellCount} cells selected`
+              : `${filtered.length} faxes`}
+          </span>
+        </div>
+      </div>
+
+      {/* Keyboard shortcuts bar */}
+      <KeyboardShortcutsBar shortcuts={SHORTCUTS} />
+
+      {/* Status tabs */}
+      <div className="flex items-center gap-1 px-5 border-t border-[#EAEAEA] border-b border-b-[#EAEAEA] bg-white">
+        {STATUS_TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setStatusFilter(tab.key)}
+            className={cn(
+              "px-[14px] py-2.5 text-[13px] font-medium border-b-2 transition-colors -mb-px",
+              statusFilter === tab.key
+                ? "text-[#1A1A1A] border-b-[#1A1A1A]"
+                : "text-[#6B7280] border-b-transparent hover:text-[#1A1A1A]",
+            )}
+          >
+            {tab.label}
+            {tab.key === "needs_review" && needsReviewCount > 0 && (
+              <span className="ml-1.5 inline-block px-1.5 py-0.5 text-[11px] font-medium text-[#A32D2D] bg-[#FEF2F2] rounded-full">
+                {needsReviewCount}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Grid */}
+      <div ref={gridRef} tabIndex={0} className="overflow-auto max-h-[640px] outline-none">
+        <table className="w-full min-w-max border-collapse text-[12px]">
           <thead>
-            <tr className="bg-[var(--cevi-surface-warm)] text-left text-[10px] font-semibold text-[var(--cevi-text-tertiary)] uppercase tracking-[0.08em]">
-              <th className="px-4 py-3 w-28">Received</th>
-              <th className="px-4 py-3">From</th>
-              <th className="px-4 py-3 w-36">Type</th>
-              <th className="px-4 py-3 w-52">Patient</th>
-              <th className="px-4 py-3 w-24">Clinic</th>
-              <th className="px-4 py-3 w-24">Confidence</th>
-              <th className="px-4 py-3 w-28">Status</th>
-              <th className="px-4 py-3 w-36">Routed</th>
-              <th className="px-4 py-3 w-16 text-right">Pg</th>
+            <tr>
+              {cols.map((col, ci) => (
+                <th
+                  key={col.key}
+                  onClick={() => selection.selectColumn(ci, false)}
+                  className={cn(
+                    "font-medium text-[11px] text-[#6B7280] px-3 py-2 bg-[#FAFAFA] border-r border-b border-[#F0F0F0] text-left sticky top-0 z-[2] whitespace-nowrap cursor-pointer select-none transition-colors hover:bg-[#F0F0F0]",
+                    col.width,
+                    selection.isColSelected(ci) && "grid-colhead col-selected",
+                  )}
+                >
+                  {col.header}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {filtered.map((fax) => {
-              const p = patientLabel(fax);
-              const needsReview = fax.status === "needs_review";
+            {filtered.map((fax, ri) => {
+              const isUnopened = toLifecycle(fax.status) === "unopened";
               return (
-                <tr
-                  key={fax.id}
-                  className={cn(
-                    "border-b border-[var(--cevi-border-light)] last:border-b-0 hover:bg-[var(--cevi-surface-warm)] transition-colors cursor-pointer",
-                    needsReview && "bg-[var(--cevi-accent-light)]/30",
-                  )}
-                >
-                  <td className="px-4 py-3 align-top">
-                    <Link href={`/inbox/${fax.id}`} className="block">
-                      <div className="text-[12px] text-[var(--cevi-text)] font-medium">
-                        {formatRelative(fax.receivedAt)}
+              <tr
+                key={fax.id}
+                className={cn(
+                  "group transition-colors",
+                  isUnopened ? "font-semibold" : "font-normal",
+                  selection.isRowSelected(ri) && "bg-[#FAFAFA]",
+                )}
+              >
+                {cols.map((col, ci) => {
+                  const isEditing = editCell?.r === ri && editCell?.c === ci;
+                  return (
+                  <td
+                    key={col.key}
+                    className={cn(
+                      "border-r border-b border-[#F0F0F0] cursor-cell select-none relative text-[12px] text-[#1A1A1A]",
+                      selection.cellClasses(ri, ci),
+                      !selection.isRowSelected(ri) && "group-hover:bg-[#FAFAFA]",
+                    )}
+                    onMouseDown={(e) => {
+                      if ((e.target as HTMLElement).closest(".fax-thumb")) return;
+                      if ((e.target as HTMLElement).closest("a")) return;
+                      if (isEditing) return;
+                      selection.onMouseDown(ri, ci, e.shiftKey);
+                      gridRef.current?.focus();
+                    }}
+                    onMouseEnter={(e) => selection.onMouseEnter(ri, ci, e.buttons)}
+                    onClick={(e) => {
+                      if ((e.target as HTMLElement).closest(".fax-thumb")) return;
+                      if ((e.target as HTMLElement).closest("a")) return;
+                      if (isEditing) return;
+                      if (col.key === "preview" || col.key === "action") return;
+                      const val = col.getValue(fax);
+                      if (val) {
+                        navigator.clipboard.writeText(val).catch(() => {});
+                        toast("Copied: " + (val.length > 38 ? val.substring(0, 38) + "…" : val));
+                      }
+                    }}
+                    onDoubleClick={(e) => {
+                      if ((e.target as HTMLElement).closest(".fax-thumb")) return;
+                      if ((e.target as HTMLElement).closest("a")) return;
+                      if (col.key === "preview" || col.key === "action") return;
+                      const val = col.getValue(fax);
+                      setEditCell({ r: ri, c: ci });
+                      setEditValue(val);
+                      setTimeout(() => editRef.current?.focus(), 0);
+                    }}
+                  >
+                    {isEditing ? (
+                      <div className="px-3 py-2.5 min-h-[18px] flex items-center">
+                        <input
+                          ref={editRef}
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          onBlur={() => setEditCell(null)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              setEditCell(null);
+                              selection.move(1, 0, false);
+                            }
+                            if (e.key === "Escape") setEditCell(null);
+                            if (e.key === "Tab") {
+                              e.preventDefault();
+                              setEditCell(null);
+                              selection.move(0, e.shiftKey ? -1 : 1, false);
+                            }
+                          }}
+                          className="search-clean w-full bg-transparent border-none outline-none text-[12px] text-[var(--cevi-text)] p-0 m-0"
+                        />
                       </div>
-                      {fax.urgency !== "routine" && (
-                        <Badge
-                          variant={urgencyBadgeVariant(fax.urgency)}
-                          size="sm"
-                          dot
-                          pulse={fax.urgency === "critical"}
-                          className="mt-1"
-                        >
-                          {fax.urgency}
-                        </Badge>
+                    ) : (
+                    <div className="px-3 py-2.5 min-h-[18px] flex items-center gap-1.5">
+                      {col.key === "preview" ? (
+                        <FaxThumbnail
+                          fax={fax}
+                          onClick={() => setModalFax(fax)}
+                          onMouseEnter={(e) => {
+                            setHoverFax(fax);
+                            setHoverPos({ x: e.clientX, y: e.clientY });
+                          }}
+                          onMouseLeave={() => {
+                            setHoverFax(null);
+                            setHoverPos(null);
+                          }}
+                        />
+                      ) : (
+                        col.render(fax)
                       )}
-                    </Link>
+                    </div>
+                    )}
                   </td>
-                  <td className="px-4 py-3 align-top">
-                    <Link href={`/inbox/${fax.id}`} className="block">
-                      <div className="text-[13px] text-[var(--cevi-text)] font-medium line-clamp-1">
-                        {fax.fromOrg}
-                      </div>
-                      <div className="text-[11px] text-[var(--cevi-text-muted)] font-mono">
-                        {fax.fromNumber}
-                      </div>
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 align-top">
-                    <Link href={`/inbox/${fax.id}`} className="block">
-                      <Badge variant={typeBadgeVariant(fax.type)} size="sm">
-                        <span className="inline-flex items-center gap-1">
-                          {TYPE_ICON[fax.type]}
-                          {TYPE_LABELS[fax.type]}
-                        </span>
-                      </Badge>
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 align-top">
-                    <Link href={`/inbox/${fax.id}`} className="block">
-                      <div className="text-[13px] text-[var(--cevi-text)] font-medium">
-                        {p.primary}
-                      </div>
-                      <div className="text-[11px] text-[var(--cevi-text-muted)] font-mono">
-                        {p.secondary}
-                      </div>
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 align-top">
-                    <Link href={`/inbox/${fax.id}`} className="block">
-                      <span className="inline-flex items-center gap-1.5">
-                        <span className="h-1.5 w-1.5 rounded-full bg-[var(--cevi-teal)]" />
-                        <span className="text-[12px] text-[var(--cevi-text-secondary)]">
-                          {fax.toClinic}
-                        </span>
-                      </span>
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 align-top">
-                    <Link href={`/inbox/${fax.id}`} className="block">
-                      <ConfidenceMeter value={fax.matchConfidence} />
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 align-top">
-                    <Link href={`/inbox/${fax.id}`} className="block">
-                      <Badge
-                        variant={statusBadgeVariant(fax.status)}
-                        size="sm"
-                        dot={fax.status !== "completed"}
-                      >
-                        {STATUS_LABELS[fax.status]}
-                      </Badge>
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 align-top">
-                    <Link href={`/inbox/${fax.id}`} className="block">
-                      <div className="text-[12px] text-[var(--cevi-text-secondary)] line-clamp-1">
-                        {routeLabel(fax)}
-                      </div>
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3 align-top text-right">
-                    <Link href={`/inbox/${fax.id}`} className="block">
-                      <span className="text-[12px] text-[var(--cevi-text-muted)] tabular-nums">
-                        {fax.pages} pg
-                      </span>
-                    </Link>
-                  </td>
-                </tr>
+                  );
+                })}
+              </tr>
               );
             })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={9} className="py-16 text-center">
-                  <div className="text-[14px] text-[var(--cevi-text-muted)] mb-2">
+                <td colSpan={cols.length} className="py-16 text-center">
+                  <div className="text-[12px] text-[#9CA3AF] mb-2">
                     No faxes match the current filters.
                   </div>
                   <button
-                    onClick={() => {
-                      setTypeFilter("all");
-                      setStatusFilter("all");
-                    }}
+                    onClick={() => { setStatusFilter("all"); setCategoryFilter("all"); setSearch(""); }}
                     className="text-[12px] font-semibold text-[var(--cevi-accent)] hover:underline"
                   >
                     Clear filters
@@ -304,18 +507,9 @@ export function InboxTable({ initialFilter = "all", faxes: faxesProp }: Props) {
         </table>
       </div>
 
-      <div className="mt-3 text-[11px] text-[var(--cevi-text-muted)] flex items-center gap-2 flex-wrap">
-        <span>
-          Showing {filtered.length} of {faxes.length} faxes · synced from Medsender
-          30s ago
-        </span>
-        {faxes.some((f) => f.id.startsWith("FAX-UP-")) && (
-          <span className="inline-flex items-center gap-1 text-[var(--cevi-jade)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--cevi-jade)]" />
-            {faxes.filter((f) => f.id.startsWith("FAX-UP-")).length} uploaded live
-          </span>
-        )}
-      </div>
+      {/* Hover preview + Modal */}
+      <HoverPreview fax={hoverFax} position={hoverPos} />
+      {modalFax && <FaxModal fax={modalFax} onClose={() => setModalFax(null)} />}
     </div>
   );
 }

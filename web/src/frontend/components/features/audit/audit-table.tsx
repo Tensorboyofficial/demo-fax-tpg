@@ -7,7 +7,7 @@ import { Input } from "@/frontend/components/ui/input";
 import { Badge } from "@/frontend/components/ui/badge";
 import { faxes, buildAuditEvents } from "@/data/seed/faxes";
 import { formatDateTime, cn } from "@/shared/utils";
-import { modelLabelFromId } from "@/backend/config/models.config";
+import { modelLabelFromId } from "@/shared/constants";
 import type { FaxEvent } from "@/shared/types";
 
 const KIND_LABEL: Record<FaxEvent["kind"], string> = {

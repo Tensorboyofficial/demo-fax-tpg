@@ -1,0 +1,705 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/hospital_discharge_summary.schema.json",
+  "title": "Cevi AI \u2014 Hospital Discharge Summary",
+  "description": "Inpatient discharge summary from hospitals without HL7 feed to TMG. Captures admission/discharge dates, diagnoses, procedures, discharge medications (with new/changed markers preserved in raw_text), follow-up appointments with timing, pending tests, code status, and hospital course narrative.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "hospital_discharge_summary"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "medical",
+        "surgical",
+        "cardiac",
+        "obstetric",
+        "psychiatric",
+        "pediatric",
+        "observation_stay",
+        "ama_discharge",
+        "expired",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "hospital_visit_id": {
+      "type": "string",
+      "description": "Visit number / account as printed."
+    },
+    "admission_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "admission_date_raw": {
+      "type": "string"
+    },
+    "discharge_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "discharge_date_raw": {
+      "type": "string"
+    },
+    "length_of_stay": {
+      "type": "string",
+      "description": "LOS as printed: '4 days', '7 days'."
+    },
+    "admission_source": {
+      "type": "string",
+      "description": "As printed: 'ED', 'Direct admit', 'Transfer from SNF'."
+    },
+    "discharge_disposition": {
+      "type": "string",
+      "description": "As printed: 'Home with home health', 'SNF', 'Expired', 'AMA', 'Hospice'."
+    },
+    "chief_complaint": {
+      "type": "string"
+    },
+    "admitting_diagnosis": {
+      "type": "string"
+    },
+    "principal_discharge_diagnosis": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "icd10": {
+          "type": "string"
+        }
+      }
+    },
+    "secondary_diagnoses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "icd10": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "procedures_performed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "date_raw": {
+            "type": "string"
+          },
+          "cpt_or_icd10pcs": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "hospital_course": {
+      "type": "string",
+      "description": "Hospital course narrative verbatim. Usually the longest section."
+    },
+    "discharge_medications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Medication as listed on the document.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Medication name as printed (generic or brand)."
+          },
+          "strength": {
+            "type": "string",
+            "description": "E.g., '500 mg', '10 mg/mL'."
+          },
+          "dose": {
+            "type": "string",
+            "description": "E.g., '1 tablet', '2 puffs'."
+          },
+          "route": {
+            "type": "string",
+            "description": "E.g., 'PO', 'IV', 'SC', 'inhaled'."
+          },
+          "frequency": {
+            "type": "string",
+            "description": "E.g., 'once daily', 'BID with meals', 'q6h PRN pain'."
+          },
+          "sig": {
+            "type": "string",
+            "description": "Full sig string if printed as a single line."
+          },
+          "indication": {
+            "type": "string"
+          },
+          "raw_text": {
+            "type": "string",
+            "description": "Verbatim line as printed, if it doesn't split cleanly."
+          }
+        }
+      },
+      "description": "Medications at discharge. 'New', 'Changed', 'Discontinued' markers preserved in raw_text if printed."
+    },
+    "allergies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "diet": {
+      "type": "string"
+    },
+    "activity_restrictions": {
+      "type": "string"
+    },
+    "follow_up_appointments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "with_provider": {
+            "type": "string"
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "timing": {
+            "type": "string",
+            "description": "As printed: 'Within 7 days', '2 weeks', 'TBD'."
+          },
+          "scheduled_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "pending_tests_at_discharge": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "warning_signs_return_precautions": {
+      "type": "string"
+    },
+    "post_discharge_services": {
+      "type": "string",
+      "description": "Home health / PT / DME ordered, as printed."
+    },
+    "vital_signs_at_discharge": {
+      "type": "object",
+      "properties": {
+        "bp": {
+          "type": "string"
+        },
+        "pulse": {
+          "type": "string"
+        },
+        "spo2": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "string"
+        }
+      }
+    },
+    "code_status": {
+      "type": "string",
+      "description": "As printed: 'Full code', 'DNR', 'DNR/DNI'."
+    },
+    "signed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category",
+    "patient"
+  ],
+  "examples": [
+    {
+      "document_category": "hospital_discharge_summary",
+      "document_subcategory": "medical",
+      "patient": {
+        "name": {
+          "raw_text": "JACKSON, ANTHONY RAY",
+          "first_name": "Anthony",
+          "middle_name": "Ray",
+          "last_name": "Jackson"
+        },
+        "dob": "1948-05-12",
+        "dob_raw": "05/12/1948",
+        "sex": "M",
+        "identifiers": [
+          {
+            "label": "Hospital MRN",
+            "value": "NTRMC-0894721"
+          },
+          {
+            "label": "Medicare",
+            "value": "1EG4TE5MK73"
+          }
+        ]
+      },
+      "sender": {
+        "name": "North Tarrant Regional Medical Center",
+        "address": {
+          "raw_text": "4225 N Beach St, Fort Worth, TX 76137",
+          "line1": "4225 N Beach St",
+          "city": "Fort Worth",
+          "state": "TX",
+          "postal_code": "76137"
+        }
+      },
+      "providers": [
+        {
+          "role": "Attending",
+          "name": {
+            "raw_text": "William Carter, MD",
+            "first_name": "William",
+            "last_name": "Carter"
+          },
+          "credentials": [
+            "MD"
+          ],
+          "specialty": "Hospitalist"
+        },
+        {
+          "role": "PCP",
+          "name": {
+            "raw_text": "Michael Harrison, MD",
+            "first_name": "Michael",
+            "last_name": "Harrison"
+          },
+          "credentials": [
+            "MD"
+          ]
+        }
+      ],
+      "hospital_visit_id": "V26-109473",
+      "admission_date": "2026-04-11",
+      "admission_date_raw": "04/11/2026",
+      "discharge_date": "2026-04-15",
+      "discharge_date_raw": "04/15/2026",
+      "length_of_stay": "4 days",
+      "admission_source": "ED",
+      "discharge_disposition": "Home with home health",
+      "chief_complaint": "Shortness of breath x 3 days",
+      "admitting_diagnosis": "Acute decompensated heart failure",
+      "principal_discharge_diagnosis": {
+        "description": "Acute on chronic systolic heart failure",
+        "icd10": "I50.23"
+      },
+      "secondary_diagnoses": [
+        {
+          "description": "Hypertensive heart disease",
+          "icd10": "I11.0"
+        },
+        {
+          "description": "Type 2 diabetes mellitus",
+          "icd10": "E11.9"
+        },
+        {
+          "description": "Chronic kidney disease, stage 3a",
+          "icd10": "N18.31"
+        }
+      ],
+      "hospital_course": "77yo M with HFrEF admitted via ED with acute decompensated heart failure. BNP on admission 1840 pg/mL. Diuresed with IV furosemide; net -8.2 L over 4 days. GDMT optimized: metoprolol succinate titrated to 50 mg daily, empagliflozin added. Repeat echo day 3 LVEF 32%. Ambulated well day 4.",
+      "discharge_medications": [
+        {
+          "name": "Metoprolol succinate",
+          "strength": "50 mg",
+          "sig": "1 tab PO daily",
+          "raw_text": "Metoprolol succinate 50 mg PO daily (CHANGED from 25 mg)"
+        },
+        {
+          "name": "Empagliflozin",
+          "strength": "10 mg",
+          "sig": "1 tab PO daily",
+          "raw_text": "Empagliflozin 10 mg PO daily (NEW)"
+        },
+        {
+          "name": "Spironolactone",
+          "strength": "25 mg",
+          "sig": "1 tab PO daily"
+        },
+        {
+          "name": "Lisinopril",
+          "strength": "10 mg",
+          "sig": "1 tab PO daily"
+        },
+        {
+          "name": "Furosemide",
+          "strength": "40 mg",
+          "sig": "1 tab PO daily"
+        }
+      ],
+      "allergies": [
+        "Penicillin \u2014 rash"
+      ],
+      "diet": "Low sodium (2g), fluid restriction 2L/day",
+      "activity_restrictions": "As tolerated, daily weights",
+      "follow_up_appointments": [
+        {
+          "with_provider": "Dr. Michael Harrison (PCP)",
+          "specialty": "Internal Medicine",
+          "timing": "Within 7 days",
+          "reason": "Post-hospitalization follow-up, med rec, labs"
+        },
+        {
+          "with_provider": "Dr. Ahmed Nasser",
+          "specialty": "Cardiology",
+          "timing": "2 weeks",
+          "scheduled_date": "2026-04-28T14:00:00",
+          "reason": "HFrEF follow-up"
+        }
+      ],
+      "pending_tests_at_discharge": [
+        "Repeat BMP on 04/17/2026"
+      ],
+      "warning_signs_return_precautions": "Return to ED for worsening SOB, chest pain, weight gain >2 lb/day or >5 lb/week, syncope.",
+      "post_discharge_services": "Home health: Encompass Home Health of Fort Worth.",
+      "vital_signs_at_discharge": {
+        "bp": "118/72",
+        "pulse": "68",
+        "spo2": "96%",
+        "weight": "184 lb"
+      },
+      "code_status": "Full code",
+      "signed_at": "2026-04-15T14:30:00",
+      "fax_envelope": {
+        "received_at": "2026-04-15T15:48:22",
+        "page_count": 6
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/hospital_discharge_summary.schema.json",
+        "extracted_at": "2026-04-15T15:49:17"
+      }
+    }
+  ]
+}

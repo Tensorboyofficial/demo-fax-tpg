@@ -1,8 +1,7 @@
 export type { Provider } from "./provider.types";
-export type { Patient, MatchCandidate } from "./patient.types";
+export type { Patient, PatientRoster, FhirHumanName, MatchCandidate, MatchResult } from "./patient.types";
 export type { Fax, FaxEvent, ExtractedFields } from "./fax.types";
-export type { AgentStat } from "./agent.types";
-export type { Integration } from "./integration.types";
+export type { CategoryConfig, SchemaField, ExtractionSchema } from "./category.types";
 export type {
   ModelTier,
   KPI,
@@ -14,15 +13,12 @@ export type {
   DraftMessageResponse,
   AcknowledgeRequest,
   AcknowledgeResponse,
-  AgentListResponse,
-  AgentDetailResponse,
   AuditResponse,
-  IntegrationListResponse,
   ApiError,
 } from "./api.types";
 
-// Re-export constant-derived types so consumers can import from @/shared/types
+// Re-export constant-derived types
 export type { FaxType } from "@/shared/constants";
 export type { FaxStatus } from "@/shared/constants";
 export type { Urgency } from "@/shared/constants";
-export type { AgentKey } from "@/shared/constants";
+export type { MatchDecision } from "@/shared/constants";

@@ -1,0 +1,486 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/immunization_record.schema.json",
+  "title": "Cevi AI \u2014 Immunization Record",
+  "description": "Vaccine administration records from external sources: retail pharmacies (Walgreens, CVS, HEB, Walmart, Costco), Texas ImmTrac2 registry, out-of-state registries, schools, health departments, urgent care, hospitals, travel clinics. Each administration captured with vaccine name, manufacturer, lot, dose, date, site, route, and administering provider as printed.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "immunization_record"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "tx_immtrac2_registry_query",
+        "pharmacy_admin_record",
+        "school_nurse_record",
+        "hospital_predischarge_vaccines",
+        "public_health_department",
+        "out_of_state_registry",
+        "travel_clinic",
+        "urgent_care",
+        "other_practice",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "record_type": {
+      "type": "string",
+      "description": "As evident: 'Pharmacy admin record', 'Texas ImmTrac2 query', 'School immunization record', 'Out-of-state registry', 'Hospital pre-discharge', 'Travel clinic'."
+    },
+    "vaccines_administered": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "One vaccine administration as printed.",
+        "properties": {
+          "vaccine_name": {
+            "type": "string"
+          },
+          "manufacturer": {
+            "type": "string"
+          },
+          "lot_number": {
+            "type": "string"
+          },
+          "expiration_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "dose_number": {
+            "type": "string",
+            "description": "As printed: '1', '2 of 2', 'Booster'."
+          },
+          "administration_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "administration_date_raw": {
+            "type": "string"
+          },
+          "administration_site": {
+            "type": "string",
+            "description": "As printed: 'Left deltoid', 'Right deltoid'."
+          },
+          "route": {
+            "type": "string",
+            "description": "As printed: 'IM', 'SC', 'Intranasal'."
+          },
+          "administering_provider": {
+            "type": "string"
+          },
+          "administering_organization": {
+            "type": "string"
+          },
+          "funding_source": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "record_completeness_note": {
+      "type": "string",
+      "description": "E.g., 'Complete lifetime record', 'Partial record \u2014 last 5 years only', 'Single pharmacy visits only'."
+    },
+    "reaction_history_note": {
+      "type": "string"
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category",
+    "patient"
+  ],
+  "examples": [
+    {
+      "document_category": "immunization_record",
+      "document_subcategory": "pharmacy_admin_record",
+      "patient": {
+        "name": {
+          "raw_text": "RODRIGUEZ-HERNANDEZ, MARIA E",
+          "first_name": "Maria",
+          "middle_name": "E",
+          "last_name": "Rodriguez-Hernandez"
+        },
+        "dob": "1965-03-14",
+        "dob_raw": "03/14/1965",
+        "sex": "F"
+      },
+      "sender": {
+        "name": "Walgreens Pharmacy #2841",
+        "address": {
+          "raw_text": "5500 S Hulen St, Fort Worth, TX 76132",
+          "line1": "5500 S Hulen St",
+          "city": "Fort Worth",
+          "state": "TX",
+          "postal_code": "76132"
+        },
+        "phone": {
+          "raw_text": "817-555-3690",
+          "digits": "8175553690"
+        }
+      },
+      "providers": [],
+      "record_type": "Pharmacy admin record (Walgreens)",
+      "vaccines_administered": [
+        {
+          "vaccine_name": "Influenza quadrivalent (2025-2026 formulation)",
+          "manufacturer": "Seqirus",
+          "lot_number": "J26548",
+          "expiration_date": "2026-06-30",
+          "dose_number": "1",
+          "administration_date": "2025-10-18",
+          "administration_date_raw": "10/18/2025",
+          "administration_site": "Left deltoid",
+          "route": "IM",
+          "administering_provider": "Amy Bradford, PharmD",
+          "funding_source": "Private insurance"
+        },
+        {
+          "vaccine_name": "Pneumococcal 20 (Prevnar 20)",
+          "manufacturer": "Pfizer",
+          "lot_number": "FK2903",
+          "expiration_date": "2027-02-28",
+          "dose_number": "1",
+          "administration_date": "2025-10-18",
+          "administration_date_raw": "10/18/2025",
+          "administration_site": "Right deltoid",
+          "route": "IM",
+          "administering_provider": "Amy Bradford, PharmD",
+          "funding_source": "Medicare Part B"
+        },
+        {
+          "vaccine_name": "Zoster (Shingrix)",
+          "manufacturer": "GSK",
+          "lot_number": "3W47N",
+          "expiration_date": "2026-10-15",
+          "dose_number": "2 of 2",
+          "administration_date": "2026-03-22",
+          "administration_date_raw": "03/22/2026",
+          "administration_site": "Left deltoid",
+          "route": "IM",
+          "administering_provider": "Amy Bradford, PharmD",
+          "funding_source": "Medicare Part D"
+        }
+      ],
+      "record_completeness_note": "Pharmacy immunization record only (vaccines given at this pharmacy). Patient's lifetime history not available.",
+      "fax_envelope": {
+        "received_at": "2026-04-23T13:44:17",
+        "page_count": 1
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/immunization_record.schema.json",
+        "extracted_at": "2026-04-23T13:44:58"
+      }
+    }
+  ]
+}

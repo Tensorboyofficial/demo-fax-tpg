@@ -5,7 +5,6 @@ import { IconBox } from "@/frontend/components/ui/icon-box";
 import { Button } from "@/frontend/components/ui/button";
 import { Badge } from "@/frontend/components/ui/badge";
 import { providers } from "@/data/seed/providers";
-import { agents } from "@/data/seed/agents";
 import { ArrowRight, Share2 } from "lucide-react";
 import { useState } from "react";
 import type { Fax } from "@/shared/types";
@@ -28,12 +27,7 @@ function routeToLabel(routeTo: string | null): {
     };
   }
   if (routeTo.startsWith("agent:")) {
-    const a = agents.find((x) => x.key === routeTo.slice(6));
-    if (!a) return { primary: routeTo, secondary: "" };
-    return {
-      primary: a.name,
-      secondary: a.subtitle,
-    };
+    return { primary: routeTo.slice(6).replace(/_/g, " "), secondary: "Queue" };
   }
   return { primary: routeTo, secondary: "" };
 }
@@ -44,16 +38,10 @@ export function RoutingCard({ fax }: Props) {
   );
   const labels = routeToLabel(fax.routedTo);
 
-  const alternatives = [
-    ...providers.map((p) => ({
-      id: p.id,
-      label: `${p.name.split(",")[0]} · ${p.clinic}`,
-    })),
-    ...agents.map((a) => ({
-      id: `agent:${a.key}`,
-      label: `${a.name} (agent)`,
-    })),
-  ];
+  const alternatives = providers.map((p) => ({
+    id: p.id,
+    label: `${p.name.split(",")[0]} · ${p.clinic}`,
+  }));
 
   return (
     <Card padding="none">

@@ -1,0 +1,557 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/pharmacy_prior_auth_request.schema.json",
+  "title": "Cevi AI \u2014 Pharmacy Prior Authorization Request",
+  "description": "Inbound PA request forms requiring provider to complete clinical questions, document step therapy, and attest to medical necessity. Platforms: CoverMyMeds (most common), Surescripts ePA, plus direct-from-PBM forms.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "pharmacy_prior_auth_request"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "glp1_agonist",
+        "sglt2_inhibitor",
+        "biologic_autoimmune",
+        "biologic_oncology",
+        "specialty_other",
+        "brand_vs_generic",
+        "quantity_override",
+        "step_therapy_override",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "pa_platform": {
+      "type": "string",
+      "description": "Platform name if identifiable: 'CoverMyMeds', 'Surescripts ePA', 'CVS Caremark Direct', 'OptumRx Direct'."
+    },
+    "payer_or_pbm": {
+      "type": "string"
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "request_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "request_date_raw": {
+      "type": "string"
+    },
+    "urgency": {
+      "type": "string",
+      "description": "As printed: 'Standard', 'Urgent', 'Expedited'."
+    },
+    "medication_requested": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "strength": {
+          "type": "string"
+        },
+        "dosage_form": {
+          "type": "string"
+        },
+        "sig": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "string"
+        },
+        "days_supply": {
+          "type": "string"
+        }
+      }
+    },
+    "diagnoses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Diagnosis as printed.",
+        "properties": {
+          "description": {
+            "type": "string",
+            "description": "Diagnosis text as printed."
+          },
+          "icd10": {
+            "type": "string",
+            "description": "ICD-10 code only if printed on the fax."
+          }
+        }
+      }
+    },
+    "clinical_questions": {
+      "type": "array",
+      "description": "PA form's clinical questions. Each PBM has different questions.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "pre_filled_answer": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "failed_or_tried_medications": {
+      "type": "array",
+      "description": "Step therapy documentation \u2014 prior meds tried/failed.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "medication": {
+            "type": "string"
+          },
+          "dates_tried": {
+            "type": "string"
+          },
+          "reason_discontinued": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "response_deadline": {
+      "type": "string",
+      "format": "date"
+    },
+    "response_fax_number": {
+      "type": "string"
+    },
+    "member_details": {
+      "type": "object",
+      "properties": {
+        "member_id": {
+          "type": "string"
+        },
+        "group_number": {
+          "type": "string"
+        },
+        "plan_name": {
+          "type": "string"
+        }
+      }
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category",
+    "patient"
+  ],
+  "examples": [
+    {
+      "document_category": "pharmacy_prior_auth_request",
+      "document_subcategory": "glp1_agonist",
+      "patient": {
+        "name": {
+          "raw_text": "Kim, Min-Jun",
+          "first_name": "Min-Jun",
+          "last_name": "Kim"
+        },
+        "dob": "1967-02-19",
+        "dob_raw": "02/19/1967",
+        "sex": "M",
+        "identifiers": [
+          {
+            "label": "Member ID",
+            "value": "XBR483920174"
+          }
+        ]
+      },
+      "sender": {
+        "name": "CoverMyMeds on behalf of BCBS Texas / Prime Therapeutics"
+      },
+      "providers": [
+        {
+          "role": "Prescriber",
+          "name": {
+            "raw_text": "Jennifer Wong, MD",
+            "first_name": "Jennifer",
+            "last_name": "Wong"
+          },
+          "credentials": [
+            "MD"
+          ],
+          "specialty": "Endocrinology"
+        }
+      ],
+      "pa_platform": "CoverMyMeds",
+      "payer_or_pbm": "Prime Therapeutics (BCBS TX)",
+      "request_id": "CMM-2026-04-22-8847293",
+      "request_date": "2026-04-22",
+      "request_date_raw": "04/22/2026",
+      "urgency": "Standard",
+      "medication_requested": {
+        "name": "Semaglutide (Ozempic)",
+        "strength": "1 mg/dose pen",
+        "dosage_form": "Subcutaneous injection",
+        "sig": "Inject 1 mg SC once weekly",
+        "quantity": "1.5 mL pen",
+        "days_supply": "28"
+      },
+      "diagnoses": [
+        {
+          "description": "Type 2 diabetes mellitus with hyperglycemia",
+          "icd10": "E11.65"
+        }
+      ],
+      "clinical_questions": [
+        {
+          "question": "What is the patient's most recent HbA1c and date?"
+        },
+        {
+          "question": "Has the patient tried metformin? If not, why?"
+        },
+        {
+          "question": "Has the patient tried a sulfonylurea? If yes, what was the outcome?"
+        },
+        {
+          "question": "Is the patient being prescribed this medication for weight loss only (non-diabetic indication)?"
+        }
+      ],
+      "failed_or_tried_medications": [
+        {
+          "medication": "Metformin 1000 mg BID",
+          "dates_tried": "2014-present",
+          "reason_discontinued": "Continued; partial control, A1c still elevated."
+        },
+        {
+          "medication": "Glipizide 10 mg BID",
+          "dates_tried": "2023-2026",
+          "reason_discontinued": "Lack of efficacy; D/C'd 04/10/2026 per endocrine."
+        }
+      ],
+      "response_deadline": "2026-04-29",
+      "response_fax_number": "866-443-1172",
+      "member_details": {
+        "member_id": "XBR483920174",
+        "group_number": "482910",
+        "plan_name": "BCBS TX PPO"
+      },
+      "fax_envelope": {
+        "received_at": "2026-04-22T14:18:42",
+        "page_count": 4,
+        "csid_banner": "COVERMYMEDS"
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/pharmacy_prior_auth_request.schema.json",
+        "extracted_at": "2026-04-22T14:19:28"
+      }
+    }
+  ]
+}

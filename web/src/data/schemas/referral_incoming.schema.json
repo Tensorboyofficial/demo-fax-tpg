@@ -1,0 +1,578 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/referral_incoming.schema.json",
+  "title": "Cevi AI \u2014 Incoming Referral",
+  "description": "New patient or transfer-in referral TO TMG: hospital discharges needing PCP, ED follow-ups, specialist-to-PCP returns, self-referrals. Captures reason, urgency, diagnoses, current meds, attached documents, and insurance as printed.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "referral_incoming"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "new_patient_pcp_establishment",
+        "hospital_discharge_followup",
+        "ed_followup",
+        "urgent_care_followup",
+        "specialist_return_to_pcp",
+        "transfer_of_care",
+        "second_opinion",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "referral_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "referral_date_raw": {
+      "type": "string"
+    },
+    "urgency": {
+      "type": "string",
+      "description": "Urgency as printed on the referral: 'Routine', 'Urgent', 'STAT', 'Within 7 days'."
+    },
+    "reason_for_referral": {
+      "type": "string"
+    },
+    "diagnoses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "icd10": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "services_requested": {
+      "type": "string",
+      "description": "What the patient is being referred for, as stated."
+    },
+    "clinical_summary": {
+      "type": "string"
+    },
+    "current_medications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "Medication as listed on the document.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Medication name as printed (generic or brand)."
+          },
+          "strength": {
+            "type": "string",
+            "description": "E.g., '500 mg', '10 mg/mL'."
+          },
+          "dose": {
+            "type": "string",
+            "description": "E.g., '1 tablet', '2 puffs'."
+          },
+          "route": {
+            "type": "string",
+            "description": "E.g., 'PO', 'IV', 'SC', 'inhaled'."
+          },
+          "frequency": {
+            "type": "string",
+            "description": "E.g., 'once daily', 'BID with meals', 'q6h PRN pain'."
+          },
+          "sig": {
+            "type": "string",
+            "description": "Full sig string if printed as a single line."
+          },
+          "indication": {
+            "type": "string"
+          },
+          "raw_text": {
+            "type": "string",
+            "description": "Verbatim line as printed, if it doesn't split cleanly."
+          }
+        }
+      }
+    },
+    "allergies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "attached_documents_listed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Documents the sender says are attached: 'Discharge summary', 'Recent labs', 'CT report'."
+    },
+    "insurance": {
+      "type": "object",
+      "description": "Insurance info as printed on the referral cover/intake form.",
+      "properties": {
+        "primary_payer": {
+          "type": "string"
+        },
+        "member_id": {
+          "type": "string"
+        },
+        "group_number": {
+          "type": "string"
+        },
+        "authorization_number": {
+          "type": "string"
+        }
+      }
+    },
+    "patient_preferred_language": {
+      "type": "string"
+    },
+    "interpreter_needed": {
+      "type": "string",
+      "description": "As printed: 'Yes', 'No', or specific language."
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category",
+    "patient"
+  ],
+  "examples": [
+    {
+      "document_category": "referral_incoming",
+      "document_subcategory": "hospital_discharge_followup",
+      "patient": {
+        "name": {
+          "raw_text": "O'BRIEN, CATHERINE MARY",
+          "first_name": "Catherine",
+          "middle_name": "Mary",
+          "last_name": "O'Brien"
+        },
+        "dob": "1972-11-08",
+        "dob_raw": "11/08/1972",
+        "sex": "F",
+        "address": {
+          "raw_text": "2200 Arapaho Rd, Plano, TX 75074",
+          "line1": "2200 Arapaho Rd",
+          "city": "Plano",
+          "state": "TX",
+          "postal_code": "75074"
+        },
+        "phone": {
+          "raw_text": "(972) 555-1847",
+          "digits": "9725551847"
+        },
+        "identifiers": [
+          {
+            "label": "Member ID",
+            "value": "W264819375"
+          }
+        ]
+      },
+      "sender": {
+        "name": "Medical City Plano",
+        "address": {
+          "raw_text": "3901 W 15th St, Plano, TX 75075",
+          "line1": "3901 W 15th St",
+          "city": "Plano",
+          "state": "TX",
+          "postal_code": "75075"
+        },
+        "phone": {
+          "raw_text": "972-596-2000",
+          "digits": "9725962000"
+        }
+      },
+      "providers": [
+        {
+          "role": "Referring",
+          "name": {
+            "raw_text": "Robert Chang, MD",
+            "first_name": "Robert",
+            "last_name": "Chang"
+          },
+          "credentials": [
+            "MD"
+          ],
+          "specialty": "Hospitalist"
+        }
+      ],
+      "referral_date": "2026-04-16",
+      "referral_date_raw": "04/16/2026",
+      "urgency": "Routine \u2014 within 7-14 days",
+      "reason_for_referral": "Establishment of primary care after recent hospitalization for CHF exacerbation. No PCP on file.",
+      "diagnoses": [
+        {
+          "description": "Heart failure with reduced ejection fraction",
+          "icd10": "I50.22"
+        },
+        {
+          "description": "Essential hypertension",
+          "icd10": "I10"
+        },
+        {
+          "description": "Type 2 diabetes mellitus",
+          "icd10": "E11.9"
+        }
+      ],
+      "services_requested": "Primary care establishment, post-hospitalization follow-up within 7-14 days, chronic disease management.",
+      "clinical_summary": "53yo F admitted 04/08/2026 with acute-on-chronic CHF exacerbation (LVEF 32%). Diuresed successfully, discharged 04/14/2026 on optimized GDMT. No established PCP. Strong social support.",
+      "current_medications": [
+        {
+          "name": "Metoprolol succinate",
+          "strength": "50 mg",
+          "sig": "1 tab PO daily"
+        },
+        {
+          "name": "Lisinopril",
+          "strength": "20 mg",
+          "sig": "1 tab PO daily"
+        },
+        {
+          "name": "Spironolactone",
+          "strength": "25 mg",
+          "sig": "1 tab PO daily"
+        },
+        {
+          "name": "Empagliflozin",
+          "strength": "10 mg",
+          "sig": "1 tab PO daily"
+        }
+      ],
+      "allergies": [
+        "Sulfa \u2014 rash"
+      ],
+      "attached_documents_listed": [
+        "Discharge summary",
+        "Recent BMP/BNP",
+        "Echocardiogram report",
+        "Medication reconciliation"
+      ],
+      "insurance": {
+        "primary_payer": "Aetna",
+        "member_id": "W264819375"
+      },
+      "fax_envelope": {
+        "received_at": "2026-04-16T13:22:48",
+        "page_count": 8
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/referral_incoming.schema.json",
+        "extracted_at": "2026-04-16T13:23:31"
+      }
+    }
+  ]
+}

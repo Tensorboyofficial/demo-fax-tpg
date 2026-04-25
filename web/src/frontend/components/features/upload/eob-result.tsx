@@ -13,7 +13,30 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
-import type { EobResult } from "@/app/upload/eob-actions";
+interface EobResult {
+  ok: true;
+  payer: string;
+  checkNumber?: string;
+  checkDate?: string;
+  checkAmount?: number;
+  claims: {
+    patient: string;
+    patientAccount?: string;
+    dos: string;
+    cpt: string;
+    description?: string;
+    billed: number;
+    allowed: number;
+    paid: number;
+    adjustment: number;
+    patientResponsibility: number;
+    denialCodes?: string[];
+  }[];
+  modelLabel: string;
+  latencyMs: number;
+  tokensIn: number;
+  tokensOut: number;
+}
 import { cn } from "@/shared/utils";
 
 interface Props {

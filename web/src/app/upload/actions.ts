@@ -2,11 +2,15 @@
 
 import { getAnthropic, MODELS, MODEL_LABELS, type ModelTier } from "@/backend/config/models.config";
 import { PROMPTS_CONFIG } from "@/backend/config/prompts.config";
+import { loadCategorySchema } from "@/backend/config/schema-loader";
 import { insertUploadedFax } from "@/backend/repositories/supabase/supabase-writes";
 import { saveFaxInMemory } from "@/backend/repositories/memory/memory-fax.repository";
+import { insertFaxSqlite, insertExtractionSqlite } from "@/backend/repositories/sqlite/sqlite-fax.repository";
+import { fireWebhooks } from "@/backend/services/webhook.service";
 import { matchPatient } from "@/backend/services/matching.service";
 import { RoutingService } from "@/backend/services/routing.service";
 import { guardRate } from "@/backend/middleware/rate-limiter";
+import { SCHEMA_CATEGORIES, CATEGORY_TO_LEGACY } from "@/shared/constants";
 import type {
   ExtractedFields,
   Fax,
@@ -14,6 +18,7 @@ import type {
   FaxType,
   Urgency,
 } from "@/shared/types";
+import type { SchemaCategory } from "@/shared/constants";
 
 export interface UploadResult {
   ok: true;
@@ -24,6 +29,9 @@ export interface UploadResult {
   latencyMs: number;
   persisted: boolean;
   persistError?: string;
+  /** Category-specific structured extraction matching the JSON schema */
+  structuredExtraction?: Record<string, unknown>;
+  extractionLatencyMs?: number;
 }
 
 export interface UploadError {
@@ -124,6 +132,61 @@ async function classifyBlocks(
   };
 }
 
+/**
+ * Pass 2: Schema-driven structured extraction.
+ * Given the classified category, load its JSON schema and ask Claude
+ * to extract all data matching that schema from the document.
+ */
+async function extractWithSchema(
+  tier: ModelTier,
+  category: SchemaCategory,
+  userContent: UploadContentBlock[],
+): Promise<{ extraction: Record<string, unknown>; latencyMs: number }> {
+  const schema = loadCategorySchema(category);
+  const anthropic = getAnthropic();
+  const model = MODELS[tier];
+  const started = Date.now();
+
+  const response = await anthropic.messages.create({
+    model,
+    max_tokens: 4096,
+    system: [
+      {
+        type: "text",
+        text: PROMPTS_CONFIG.schemaExtraction,
+        cache_control: { type: "ephemeral" },
+      },
+    ],
+    messages: [
+      {
+        role: "user",
+        content: [
+          ...userContent,
+          {
+            type: "text",
+            text: `Document category: ${category}\n\nJSON Schema to follow:\n${schema}\n\nExtract all data from the document into this schema. Return ONLY the JSON object.`,
+          },
+        ],
+      },
+    ],
+  });
+
+  const latencyMs = Date.now() - started;
+  const text = response.content
+    .map((b) => (b.type === "text" ? b.text : ""))
+    .join("")
+    .trim();
+  const m = text.match(/\{[\s\S]*\}/);
+  if (!m) throw new Error("Schema extraction did not return JSON");
+  const extraction = JSON.parse(m[0]);
+  return { extraction, latencyMs };
+}
+
+/** Check if a classified type is a valid schema category */
+function isSchemaCategory(type: string): type is SchemaCategory {
+  return (SCHEMA_CATEGORIES as readonly string[]).includes(type);
+}
+
 export async function uploadFax(formData: FormData): Promise<UploadResult | UploadError> {
   try {
     const rate = await guardRate("upload", 8, 60_000);
@@ -209,6 +272,7 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
       }
     }
 
+    // ── Pass 1: Classification ──
     const {
       parsed,
       modelLabel,
@@ -218,18 +282,59 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
       tokensOut,
     } = await classifyBlocks(tier, userContent);
 
-    // Patient matching
+    // ── Pass 2: Schema-driven structured extraction ──
+    // Re-create content blocks without the classification hint text for extraction
+    const extractionContent: UploadContentBlock[] = userContent.filter(
+      (b) => b.type !== "text",
+    );
+    // For text-only mode, pass the original OCR text
+    if (extractionContent.length === 0 && mode === "text") {
+      const text = formData.get("text")?.toString().trim() ?? "";
+      extractionContent.push({ type: "text", text });
+    }
+
+    let structuredExtraction: Record<string, unknown> | undefined;
+    let extractionLatencyMs: number | undefined;
+
+    const classifiedCategory = parsed.type as string;
+    if (isSchemaCategory(classifiedCategory)) {
+      try {
+        const result = await extractWithSchema(tier, classifiedCategory, extractionContent);
+        structuredExtraction = result.extraction;
+        extractionLatencyMs = result.latencyMs;
+      } catch (err) {
+        // Pass 2 failure is non-fatal — we still have pass-1 generic extraction
+        if (typeof console !== "undefined" && err instanceof Error) {
+          console.error("[upload] schema extraction failed:", err.message);
+        }
+      }
+    }
+
+    // Patient matching — use structured extraction patient data if available, fall back to pass-1
+    const structPatient = structuredExtraction?.patient as Record<string, unknown> | undefined;
+    const structPatientName = structPatient?.name as Record<string, unknown> | undefined;
+    const patientNameForMatch =
+      structPatientName?.raw_text as string ??
+      parsed.extracted?.patientNameOnDoc;
+    const patientDobForMatch =
+      (structPatient?.dob_raw as string) ??
+      (structPatient?.dob as string) ??
+      parsed.extracted?.patientDobOnDoc;
+    const patientMrnForMatch = parsed.extracted?.patientMrnOnDoc;
+
     const candidates = matchPatient({
-      name: parsed.extracted?.patientNameOnDoc,
-      dob: parsed.extracted?.patientDobOnDoc,
-      mrn: parsed.extracted?.patientMrnOnDoc,
+      name: patientNameForMatch,
+      dob: patientDobForMatch,
+      mrn: patientMrnForMatch,
     });
     const bestCandidate = candidates[0];
     const matchedPatientId =
       bestCandidate && bestCandidate.score >= 0.8 ? bestCandidate.patientId : null;
     const matchConfidence = bestCandidate?.score ?? null;
 
-    const routing = inferRouting(parsed.type, parsed.urgency, matchedPatientId);
+    // Use legacy type for routing compat if the classified type is a full schema name
+    const routingType = CATEGORY_TO_LEGACY[classifiedCategory] ?? parsed.type;
+    const routing = inferRouting(routingType as FaxType, parsed.urgency, matchedPatientId);
 
     const id = genId("FAX-UP");
     const nowIso = new Date().toISOString();
@@ -239,6 +344,7 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
       pages,
       fromNumber: "Uploaded",
       fromOrg:
+        (structuredExtraction?.sender as Record<string, unknown>)?.name as string ??
         parsed.extracted?.sendingOrg ??
         senderHint ??
         "Uploaded by operator",
@@ -251,7 +357,12 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
       matchedPatientId,
       matchConfidence,
       candidates,
-      extracted: { ...parsed.extracted, summary: parsed.extracted?.summary },
+      extracted: {
+        ...parsed.extracted,
+        summary: parsed.extracted?.summary,
+        // Merge the full structured extraction into extracted so the detail page can use it
+        ...(structuredExtraction ? { structuredExtraction } : {}),
+      },
       routedTo: routing.routedTo,
       routedReason: routing.routedReason,
       ocrText:
@@ -283,6 +394,20 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
         tokensIn,
         tokensOut,
       },
+      ...(structuredExtraction
+        ? [
+            {
+              id: `${id}:extracted`,
+              faxId: id,
+              at: new Date(Date.now() + 700).toISOString(),
+              kind: "extracted" as const,
+              actor: "claude",
+              detail: `Structured extraction completed (${classifiedCategory} schema) in ${extractionLatencyMs}ms`,
+              model,
+              latencyMs: extractionLatencyMs,
+            },
+          ]
+        : []),
       ...(matchedPatientId
         ? [
             {
@@ -318,12 +443,47 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
           ]),
     ];
 
-    // Always cache in process memory so the detail page can render immediately
-    // even if Supabase isn't configured / schema isn't applied. Supabase
-    // remains authoritative when it's available.
+    // ── Persist to all stores ──
+
+    // 1. In-memory (fast, for immediate detail page render)
     saveFaxInMemory(fax, events);
 
-    const insert = await insertUploadedFax({ fax, events });
+    // 2. SQLite (local dev persistence)
+    const sqliteResult = insertFaxSqlite(fax, events);
+
+    // 3. If structured extraction succeeded, persist to dedicated table
+    if (structuredExtraction && sqliteResult.ok) {
+      insertExtractionSqlite({
+        id: `${id}:extraction`,
+        faxId: id,
+        category: classifiedCategory,
+        subcategory: (structuredExtraction.document_subcategory as string) ?? undefined,
+        extraction: structuredExtraction,
+        modelUsed: model,
+        latencyMs: extractionLatencyMs,
+      });
+    }
+
+    // 4. Supabase (prod persistence)
+    const supabaseResult = await insertUploadedFax({ fax, events });
+
+    // 5. Fire webhooks (async, non-blocking)
+    if (structuredExtraction) {
+      fireWebhooks("fax.extracted", {
+        faxId: id,
+        category: classifiedCategory,
+        extraction: structuredExtraction,
+        meta: {
+          receivedAt: fax.receivedAt,
+          fromOrg: fax.fromOrg,
+          status: fax.status,
+          urgency: fax.urgency,
+          matchedPatientId: fax.matchedPatientId,
+        },
+      }).catch(() => {}); // non-blocking
+    }
+
+    const persisted = sqliteResult.ok || supabaseResult.ok;
 
     return {
       ok: true,
@@ -332,10 +492,10 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
       confidence: Number(parsed.typeConfidence ?? 0.85),
       modelLabel,
       latencyMs,
-      // Report "persisted" as true if EITHER store succeeded. Memory is
-      // demo-persistent across requests in the same Lambda instance.
-      persisted: insert.ok,
-      persistError: insert.ok ? undefined : insert.error,
+      persisted,
+      persistError: persisted ? undefined : (sqliteResult.error ?? supabaseResult.error),
+      structuredExtraction,
+      extractionLatencyMs,
     };
   } catch (err) {
     if (typeof console !== "undefined" && err instanceof Error) {

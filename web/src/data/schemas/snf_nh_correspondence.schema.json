@@ -1,0 +1,535 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/snf_nh_correspondence.schema.json",
+  "title": "Cevi AI \u2014 SNF / Nursing Home Correspondence",
+  "description": "Communications from SNFs, nursing homes, assisted living, memory care about shared-care patients: admission/discharge notices, acute clinical changes, medication change requests, verbal orders requiring signature, fall incident reports, care conference summaries. SBAR-format nursing narratives are captured verbatim.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "snf_nh_correspondence"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "admission_notice",
+        "discharge_notice",
+        "acute_change",
+        "medication_change_request",
+        "order_clarification",
+        "fall_incident",
+        "lab_result_relayed",
+        "verbal_order_signature_request",
+        "care_conference",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "communication_type": {
+      "type": "string",
+      "description": "Type as printed or implied by the form: 'Admission notice', 'Discharge notice', 'Medication change request', 'Acute change', 'Fall report', 'Verbal order signature request', 'Care conference summary'."
+    },
+    "date_of_event": {
+      "type": "string",
+      "format": "date"
+    },
+    "date_of_event_raw": {
+      "type": "string"
+    },
+    "room_number": {
+      "type": "string"
+    },
+    "level_of_care": {
+      "type": "string",
+      "description": "As printed: 'Skilled', 'Custodial', 'Memory care', 'Rehab', 'Hospice in facility'."
+    },
+    "event_description": {
+      "type": "string",
+      "description": "Free-text description of the event or reason for the communication."
+    },
+    "nursing_assessment": {
+      "type": "string"
+    },
+    "sbar_narrative": {
+      "type": "string",
+      "description": "SBAR (Situation/Background/Assessment/Recommendation) text if present."
+    },
+    "vital_signs": {
+      "type": "object",
+      "properties": {
+        "bp": {
+          "type": "string"
+        },
+        "pulse": {
+          "type": "string"
+        },
+        "respiratory_rate": {
+          "type": "string"
+        },
+        "temperature": {
+          "type": "string"
+        },
+        "spo2": {
+          "type": "string"
+        },
+        "blood_sugar": {
+          "type": "string"
+        }
+      }
+    },
+    "fall_details": {
+      "type": "object",
+      "properties": {
+        "occurred_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "witnessed": {
+          "type": "string"
+        },
+        "injury_description": {
+          "type": "string"
+        }
+      }
+    },
+    "medication_change_request": {
+      "type": "object",
+      "properties": {
+        "current_medication": {
+          "type": "string"
+        },
+        "requested_change": {
+          "type": "string"
+        },
+        "indication": {
+          "type": "string"
+        }
+      }
+    },
+    "verbal_orders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "order_text": {
+            "type": "string"
+          },
+          "order_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "received_by_nurse": {
+            "type": "string"
+          },
+          "ordering_provider": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "requested_action": {
+      "type": "string",
+      "description": "What the facility is asking the PCP to do, as printed."
+    },
+    "callback_number": {
+      "type": "string"
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category",
+    "patient"
+  ],
+  "examples": [
+    {
+      "document_category": "snf_nh_correspondence",
+      "document_subcategory": "acute_change",
+      "patient": {
+        "name": {
+          "raw_text": "GARCIA, ROSA MARIA",
+          "first_name": "Rosa",
+          "middle_name": "Maria",
+          "last_name": "Garcia"
+        },
+        "dob": "1939-08-14",
+        "dob_raw": "08/14/1939",
+        "sex": "F"
+      },
+      "sender": {
+        "name": "Heritage Oaks Post-Acute Care",
+        "address": {
+          "raw_text": "3100 Heritage Oaks Dr, Irving, TX 75062",
+          "line1": "3100 Heritage Oaks Dr",
+          "city": "Irving",
+          "state": "TX",
+          "postal_code": "75062"
+        },
+        "phone": {
+          "raw_text": "972-555-4040",
+          "digits": "9725554040"
+        },
+        "fax": {
+          "raw_text": "972-555-4041",
+          "digits": "9725554041"
+        }
+      },
+      "providers": [
+        {
+          "role": "Attending",
+          "name": {
+            "raw_text": "Raymond Okonkwo, MD",
+            "first_name": "Raymond",
+            "last_name": "Okonkwo"
+          },
+          "credentials": [
+            "MD"
+          ]
+        },
+        {
+          "role": "PCP",
+          "name": {
+            "raw_text": "Michael Harrison, MD",
+            "first_name": "Michael",
+            "last_name": "Harrison"
+          },
+          "credentials": [
+            "MD"
+          ]
+        }
+      ],
+      "communication_type": "Acute change notification",
+      "date_of_event": "2026-04-22",
+      "date_of_event_raw": "04/22/2026",
+      "room_number": "204B",
+      "level_of_care": "Skilled",
+      "event_description": "Nursing notified of acute change in mental status \u2014 increased confusion, agitation over past 24 hours. New UTI suspected based on cloudy urine.",
+      "nursing_assessment": "Patient normally alert and oriented x3, today oriented x1, pulling at IV lines, cloudy urine noted at toileting.",
+      "vital_signs": {
+        "bp": "148/86",
+        "pulse": "94",
+        "respiratory_rate": "18",
+        "temperature": "100.4 F",
+        "spo2": "95%",
+        "blood_sugar": "142"
+      },
+      "requested_action": "Please advise on workup. UA and UC sent. Awaiting orders for empiric antibiotic vs await culture.",
+      "callback_number": "972-555-4040",
+      "fax_envelope": {
+        "received_at": "2026-04-22T10:12:48",
+        "page_count": 2
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/snf_nh_correspondence.schema.json",
+        "extracted_at": "2026-04-22T10:13:22"
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import type { FaxType, FaxStatus, Urgency } from "@/shared/constants";
+import type { Urgency } from "@/shared/constants";
 import type { ExtractedFields, FaxEvent, Fax, MatchCandidate } from "@/shared/types";
 
 export interface UserFaxRow {
@@ -9,8 +9,8 @@ export interface UserFaxRow {
   from_org: string | null;
   fax_number_to: string | null;
   to_clinic: string | null;
-  status: FaxStatus;
-  type: FaxType;
+  status: string;
+  type: string;
   type_confidence: number;
   urgency: Urgency;
   matched_patient_id: string | null;
@@ -31,7 +31,7 @@ export interface UserFaxEventRow {
   id: string;
   fax_id: string;
   at: string;
-  kind: FaxEvent["kind"];
+  kind: string;
   actor: string;
   detail: string;
   model: string | null;

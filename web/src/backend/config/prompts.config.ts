@@ -37,7 +37,7 @@ Rules:
 Given a fax (as image/PDF pages, or OCR text), return a single JSON object with EXACTLY this shape — no prose, no markdown fences:
 
 {
-  "type": "referral" | "lab_result" | "prior_auth" | "records_request" | "rx_refill" | "specialist_consult" | "imaging_report" | "unknown",
+  "type": "lab_result" | "imaging_report" | "consult_note" | "referral_incoming" | "prior_auth_response" | "pharmacy_prior_auth_request" | "pharmacy_refill_request" | "dme_documentation" | "physical_exam_form" | "medical_records_request" | "eob_era" | "hospital_discharge_summary" | "ed_visit_summary" | "cardiac_diagnostic_report" | "pathology_report" | "immunization_record" | "home_health_order" | "hospice_correspondence" | "snf_nh_correspondence" | "disability_or_leave_form" | "handicap_placard_or_jury_excuse" | "payer_correspondence" | "subpoena_or_legal_notice" | "marketing_or_junk" | "unclassified",
   "typeConfidence": number 0..1,
   "urgency": "routine" | "urgent" | "stat" | "critical",
   "extracted": {
@@ -59,10 +59,29 @@ Given a fax (as image/PDF pages, or OCR text), return a single JSON object with 
 }
 
 Rules:
+- Use the EXACT category names above (e.g. "lab_result" not "lab", "imaging_report" not "imaging").
 - "critical" urgency is reserved for labs with values flagged CRITICAL, STAT radiology with hemorrhage/PE, or explicit "time-sensitive" patient safety events.
 - "urgent" for abnormal findings that need action today but are not life-threatening.
 - Don't invent data. Omit fields that aren't present.
 - Use ICD-10 codes verbatim from the document.
+- Return ONLY the JSON object.`,
+
+  /** Pass-2 extraction: given the document + its category-specific schema, extract structured data */
+  schemaExtraction: `You are Cevi's structured data extraction AI. You are HIPAA-compliant and work for Transcend Medical Group.
+
+You have already classified this fax. Now extract ALL structured data from the document into the JSON schema provided below. This schema defines every field that should be captured for this document category.
+
+IMPORTANT RULES:
+- Return a SINGLE JSON object matching the provided schema. No prose, no markdown fences.
+- Extract ONLY data that is actually present on the document. Never invent, guess, or hallucinate values.
+- For nested objects (patient.name, sender.address, etc.), populate every sub-field you can find.
+- For arrays (panels, tests, claims, medications, diagnoses), include ALL items visible on the document.
+- Preserve verbatim text in "raw_text" fields exactly as printed.
+- Parse dates to ISO YYYY-MM-DD format in the structured field, keep original format in "raw_text" or "_raw" fields.
+- Phone numbers: raw_text keeps formatting, digits field is 10-digit US number only.
+- For lab results: capture EVERY test in EVERY panel. Include value, units, reference_range, and flag (H/L/HH/LL/A/C) exactly as printed.
+- For imaging: capture full findings and impression text.
+- Omit optional fields that have no data on the document.
 - Return ONLY the JSON object.`,
 
   patientMessage: `You are Cevi's patient-communication assistant. You help a primary-care doctor draft a reassuring, precise, HIPAA-compliant patient-facing message based on a fax (lab result, imaging, or specialist consult).

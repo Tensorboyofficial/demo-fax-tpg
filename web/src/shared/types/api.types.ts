@@ -1,8 +1,6 @@
 import type { FaxType, Urgency } from "@/shared/constants";
 import type { Fax, FaxEvent, ExtractedFields } from "./fax.types";
 import type { MatchCandidate, Patient } from "./patient.types";
-import type { AgentStat } from "./agent.types";
-import type { Integration } from "./integration.types";
 
 // ── Fax List ──
 export interface FaxListResponse {
@@ -79,26 +77,10 @@ export interface AcknowledgeResponse {
   id?: string;
 }
 
-// ── Agents ──
-export interface AgentListResponse {
-  data: AgentStat[];
-}
-
-export interface AgentDetailResponse {
-  agent: AgentStat;
-  faxes: Fax[];
-}
-
 // ── Audit ──
 export interface AuditResponse {
   data: FaxEvent[];
   total: number;
-}
-
-// ── Integrations ──
-export interface IntegrationListResponse {
-  connected: Integration[];
-  available: Integration[];
 }
 
 // ── Error ──

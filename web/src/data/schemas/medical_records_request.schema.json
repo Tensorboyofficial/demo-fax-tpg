@@ -1,0 +1,492 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/medical_records_request.schema.json",
+  "title": "Cevi AI \u2014 Medical Records Request",
+  "description": "Third-party records requests: attorneys (HIPAA), patients/personal representatives (HIPAA or HITECH), ROI vendors (MRO, Sharecare, Ciox/Datavant, Verisma, HealthMark), SSA disability, workers comp, continuing care. Excludes subpoenas/court orders \u2014 those are in subpoena_or_legal_notice.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "medical_records_request"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "hipaa_authorization_patient",
+        "hipaa_authorization_attorney",
+        "hitech_request_electronic",
+        "insurance_claims_review",
+        "disability_ssa",
+        "workers_compensation",
+        "continuing_care_transfer",
+        "roi_vendor_request",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "requesting_contact": {
+      "type": "object",
+      "description": "Individual contact named on the request (attorney, ROI vendor rep, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "firm_or_organization": {
+          "type": "string"
+        },
+        "bar_number": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "fax": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "request_type": {
+      "type": "string",
+      "description": "As printed or evident: 'HIPAA Authorization - patient signed', 'HIPAA Authorization - attorney', 'HITECH electronic request', 'Disability - SSA', 'Workers Comp', 'Continuing care transfer', 'ROI vendor request'."
+    },
+    "authorization_signed_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "authorization_signed_date_raw": {
+      "type": "string"
+    },
+    "authorization_expiration_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "signed_by_patient": {
+      "type": "string",
+      "description": "As seen: 'Yes', 'No', 'Personal representative'."
+    },
+    "personal_representative_name": {
+      "type": "string"
+    },
+    "records_requested": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "date_range_requested_raw": {
+      "type": "string",
+      "description": "Date range as printed: '2024-01-01 to present', 'last 5 years'."
+    },
+    "delivery_method_requested": {
+      "type": "string"
+    },
+    "delivery_fax": {
+      "type": "string"
+    },
+    "delivery_address": {
+      "type": "string"
+    },
+    "delivery_email": {
+      "type": "string"
+    },
+    "case_reference": {
+      "type": "string"
+    },
+    "use_of_records_disclosed": {
+      "type": "string",
+      "description": "Stated purpose: 'Personal injury litigation', 'SSA disability', 'Workers comp claim'."
+    },
+    "release_vendor_name": {
+      "type": "string",
+      "description": "ROI vendor name if the request is via MRO, Sharecare, Ciox, Datavant, Verisma, HealthMark."
+    },
+    "fee_enclosed": {
+      "type": "string"
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category",
+    "patient"
+  ],
+  "examples": [
+    {
+      "document_category": "medical_records_request",
+      "document_subcategory": "hipaa_authorization_attorney",
+      "patient": {
+        "name": {
+          "raw_text": "Washington, DeShawn J.",
+          "first_name": "DeShawn",
+          "middle_name": "J.",
+          "last_name": "Washington"
+        },
+        "dob": "1971-09-03",
+        "dob_raw": "09/03/1971",
+        "sex": "M"
+      },
+      "sender": {
+        "name": "Morrison & Chen Law Firm",
+        "address": {
+          "raw_text": "4800 Main St, Suite 1200, Dallas, TX 75201",
+          "line1": "4800 Main St",
+          "line2": "Suite 1200",
+          "city": "Dallas",
+          "state": "TX",
+          "postal_code": "75201"
+        },
+        "phone": {
+          "raw_text": "214-555-7700",
+          "digits": "2145557700"
+        },
+        "fax": {
+          "raw_text": "214-555-7701",
+          "digits": "2145557701"
+        }
+      },
+      "providers": [],
+      "requesting_contact": {
+        "name": "Amanda Chen, Esq.",
+        "firm_or_organization": "Morrison & Chen Law Firm",
+        "bar_number": "24089472",
+        "phone": "214-555-7700 x415",
+        "fax": "214-555-7701"
+      },
+      "request_type": "HIPAA Authorization - attorney",
+      "authorization_signed_date": "2026-04-14",
+      "authorization_signed_date_raw": "04/14/2026",
+      "authorization_expiration_date": "2027-04-14",
+      "signed_by_patient": "Yes",
+      "records_requested": [
+        "Office visit notes 02/18/2026 to present",
+        "All imaging reports",
+        "All lab results",
+        "Referral notes",
+        "Medication history"
+      ],
+      "date_range_requested_raw": "02/18/2026 \u2013 present",
+      "delivery_method_requested": "Fax",
+      "delivery_fax": "214-555-7701",
+      "case_reference": "MC-2026-047 Washington v. TxDOT",
+      "use_of_records_disclosed": "Personal injury litigation related to MVA 02/18/2026",
+      "fax_envelope": {
+        "received_at": "2026-04-22T09:47:22",
+        "page_count": 4
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/medical_records_request.schema.json",
+        "extracted_at": "2026-04-22T09:48:11"
+      }
+    }
+  ]
+}

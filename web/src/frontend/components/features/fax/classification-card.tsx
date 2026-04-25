@@ -10,23 +10,24 @@ import {
 } from "@/frontend/components/ui/badge";
 import { ConfidenceMeter } from "@/frontend/components/composed/confidence-meter";
 import { Sparkles, Zap } from "lucide-react";
-import type { FaxType, Urgency } from "@/shared/types";
+import { FAX_TYPE_LABELS } from "@/shared/constants";
+import type { Urgency } from "@/shared/types";
 
-const TYPE_LABELS: Record<FaxType, string> = {
-  referral: "Inbound referral",
-  lab_result: "Lab result",
-  prior_auth: "Prior authorization",
-  records_request: "Medical records request",
-  rx_refill: "Prescription refill",
-  specialist_consult: "Specialist consultation",
-  imaging_report: "Imaging report",
-  unknown: "Unclassified",
+const TYPE_LABELS: Record<string, string> = {
+  ...FAX_TYPE_LABELS,
+  // Legacy aliases for seed data
+  lab_result: "Lab Result",
+  specialist_consult: "Consult Note",
+  imaging_report: "Imaging Report",
+  rx_refill: "Rx Refill",
+  records_request: "Records Request",
+  unknown: "Other",
 };
 
 type Tier = "fast" | "smart" | "premium";
 
 interface Props {
-  type: FaxType;
+  type: string;
   confidence: number;
   urgency: Urgency;
   modelLabel: string;

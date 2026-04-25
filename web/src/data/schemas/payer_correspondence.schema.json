@@ -1,0 +1,473 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/payer_correspondence.schema.json",
+  "title": "Cevi AI \u2014 Payer Correspondence",
+  "description": "Non-EOB, non-PA administrative letters from payers and their contractors: credentialing, audits (RAC, ZPIC/UPIC, CERT, SIU), HEDIS chart chase, HCC risk-adjustment chart review, overpayment demands, policy change notices, fee schedule updates, network termination notices, welcome letters. Deadlines and requested documents captured as printed.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "payer_correspondence"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "credentialing_packet",
+        "credentialing_attestation_request",
+        "credentialing_decision",
+        "network_termination_notice",
+        "fee_schedule_update",
+        "policy_change_notice",
+        "audit_rac",
+        "audit_zpic_upic",
+        "audit_cert",
+        "audit_private_payer",
+        "medical_record_chart_chase_hedis",
+        "medical_record_risk_adjustment_hcc",
+        "overpayment_demand_letter",
+        "claim_appeal_decision",
+        "quality_program_notice",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "correspondence_type": {
+      "type": "string",
+      "description": "As printed or evident: 'Credentialing packet', 'Audit request', 'HEDIS chart chase', 'Overpayment demand', 'Policy change notice', 'Credentialing decision', 'Fee schedule update', 'Network termination notice'."
+    },
+    "subject_of_correspondence": {
+      "type": "string"
+    },
+    "case_or_reference_number": {
+      "type": "string"
+    },
+    "requested_action": {
+      "type": "string"
+    },
+    "response_deadline": {
+      "type": "string",
+      "format": "date"
+    },
+    "response_deadline_raw": {
+      "type": "string"
+    },
+    "response_method": {
+      "type": "string",
+      "description": "As printed: 'Fax to 800-xxx', 'Upload to payer portal', 'Mail to P.O. Box'."
+    },
+    "documents_requested": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "For chart chase/audit: documents to return."
+    },
+    "date_range_of_records_requested_raw": {
+      "type": "string"
+    },
+    "specific_dates_of_service": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "amount_at_issue": {
+      "type": "string",
+      "description": "Dollar amount if printed (overpayment demands)."
+    },
+    "effective_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "expiration_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "summary": {
+      "type": "string",
+      "description": "Free-text summary of the letter content."
+    },
+    "consequences_if_no_response": {
+      "type": "string"
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category",
+    "patient"
+  ],
+  "examples": [
+    {
+      "document_category": "payer_correspondence",
+      "document_subcategory": "medical_record_chart_chase_hedis",
+      "patient": {
+        "name": {
+          "raw_text": "GARCIA, ROSA MARIA",
+          "first_name": "Rosa",
+          "middle_name": "Maria",
+          "last_name": "Garcia"
+        },
+        "dob": "1939-08-14",
+        "dob_raw": "08/14/1939",
+        "sex": "F",
+        "identifiers": [
+          {
+            "label": "Medicare",
+            "value": "2AB3CD4EF56"
+          }
+        ]
+      },
+      "sender": {
+        "name": "Humana Gold Plus HMO (Medicare Advantage)",
+        "address": {
+          "raw_text": "500 W Main St, Louisville, KY 40202",
+          "line1": "500 W Main St",
+          "city": "Louisville",
+          "state": "KY",
+          "postal_code": "40202"
+        },
+        "phone": {
+          "raw_text": "800-424-5494",
+          "digits": "8004245494"
+        },
+        "fax": {
+          "raw_text": "502-555-3310",
+          "digits": "5025553310"
+        }
+      },
+      "providers": [],
+      "correspondence_type": "HEDIS 2026 medical record chart chase",
+      "subject_of_correspondence": "HEDIS 2026 Medical Record Review \u2014 Diabetes Measures (CDC)",
+      "case_or_reference_number": "HU-HEDIS-2026-8472932",
+      "requested_action": "Please provide records for HEDIS comprehensive diabetes care measure reporting: most recent office visit note, most recent HbA1c result, most recent retinal eye exam documentation, most recent nephropathy screening (urine microalbumin or eGFR), most recent BP reading within measurement year.",
+      "response_deadline": "2026-05-15",
+      "response_deadline_raw": "05/15/2026",
+      "response_method": "Secure fax 1-502-555-3310 or payer portal humana-hedis.ciox.com",
+      "documents_requested": [
+        "Most recent office visit note",
+        "HbA1c result within measurement year",
+        "Retinal eye exam documentation",
+        "Urine microalbumin / eGFR result",
+        "Most recent BP reading"
+      ],
+      "date_range_of_records_requested_raw": "01/01/2025 \u2013 present",
+      "consequences_if_no_response": "Impact on quality measure reporting; no claim-level consequence.",
+      "fax_envelope": {
+        "received_at": "2026-04-22T14:22:11",
+        "page_count": 2
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/payer_correspondence.schema.json",
+        "extracted_at": "2026-04-22T14:22:58"
+      }
+    }
+  ]
+}

@@ -1,0 +1,514 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/prior_auth_response.schema.json",
+  "title": "Cevi AI \u2014 Prior Authorization Response",
+  "description": "Responses from payers/PBMs/UM vendors: approval, denial, partial approval, request for more info. Covers medication, imaging (Carelon, eviCore, Cohere), procedure, DME, home health, SNF, therapy, infusion, genetic testing. Denials include appeal rights and peer-to-peer contact as printed.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "prior_auth_response"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "medication_approval",
+        "medication_denial",
+        "medication_partial_approval",
+        "imaging_approval",
+        "imaging_denial",
+        "procedure_approval",
+        "procedure_denial",
+        "dme_approval",
+        "dme_denial",
+        "home_health_approval",
+        "home_health_denial",
+        "snf_approval",
+        "snf_denial",
+        "additional_info_needed",
+        "withdrawn",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "decision": {
+      "type": "string",
+      "description": "Decision as printed: 'Approved', 'Denied', 'Approved with modification', 'Partial approval', 'Additional info needed'."
+    },
+    "service_requested": {
+      "type": "object",
+      "properties": {
+        "service_type": {
+          "type": "string",
+          "description": "'Medication', 'Imaging', 'Procedure', 'DME', 'Home Health', 'SNF', 'Therapy', 'Infusion', 'Genetic Testing'."
+        },
+        "description": {
+          "type": "string"
+        },
+        "cpt_or_hcpcs": {
+          "type": "string"
+        }
+      }
+    },
+    "authorization_number": {
+      "type": "string"
+    },
+    "effective_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "expiration_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "approved_quantity": {
+      "type": "string",
+      "description": "As printed: '13 pens', '90 days supply', '6 visits'."
+    },
+    "authorized_facility_or_provider": {
+      "type": "string"
+    },
+    "denial_reason": {
+      "type": "string"
+    },
+    "clinical_rationale": {
+      "type": "string"
+    },
+    "appeal_rights": {
+      "type": "object",
+      "properties": {
+        "deadline": {
+          "type": "string",
+          "format": "date"
+        },
+        "fax_or_address": {
+          "type": "string"
+        },
+        "peer_to_peer_phone": {
+          "type": "string"
+        },
+        "peer_to_peer_deadline": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "member_details": {
+      "type": "object",
+      "properties": {
+        "member_id": {
+          "type": "string"
+        },
+        "group_number": {
+          "type": "string"
+        },
+        "plan_name": {
+          "type": "string"
+        }
+      }
+    },
+    "decision_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "decision_date_raw": {
+      "type": "string"
+    },
+    "reviewer_name": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category",
+    "patient"
+  ],
+  "examples": [
+    {
+      "document_category": "prior_auth_response",
+      "document_subcategory": "medication_approval",
+      "patient": {
+        "name": {
+          "raw_text": "Kim, Min-Jun",
+          "first_name": "Min-Jun",
+          "last_name": "Kim"
+        },
+        "dob": "1967-02-19",
+        "dob_raw": "02/19/1967",
+        "sex": "M",
+        "identifiers": [
+          {
+            "label": "Member ID",
+            "value": "XBR483920174"
+          }
+        ]
+      },
+      "sender": {
+        "name": "Prime Therapeutics",
+        "address": {
+          "raw_text": "Eagan, MN",
+          "city": "Eagan",
+          "state": "MN"
+        },
+        "phone": {
+          "raw_text": "800-794-8033",
+          "digits": "8007948033"
+        },
+        "fax": {
+          "raw_text": "866-443-1172",
+          "digits": "8664431172"
+        }
+      },
+      "providers": [
+        {
+          "role": "Recipient",
+          "name": {
+            "raw_text": "Jennifer Wong, MD",
+            "first_name": "Jennifer",
+            "last_name": "Wong"
+          },
+          "credentials": [
+            "MD"
+          ]
+        }
+      ],
+      "decision": "Approved",
+      "service_requested": {
+        "service_type": "Medication",
+        "description": "Semaglutide (Ozempic) 1 mg/dose pen"
+      },
+      "authorization_number": "PA-2026-04-847293",
+      "effective_date": "2026-04-24",
+      "expiration_date": "2027-04-23",
+      "approved_quantity": "13 pens (1.5 mL each), 364 days supply",
+      "member_details": {
+        "member_id": "XBR483920174",
+        "group_number": "482910",
+        "plan_name": "BCBS TX PPO"
+      },
+      "decision_date": "2026-04-24",
+      "decision_date_raw": "04/24/2026",
+      "reviewer_name": "Jonathan Price, PharmD",
+      "notes": "Approved based on documented T2DM with HbA1c 9.1% and step therapy of metformin + sulfonylurea with inadequate glycemic control.",
+      "fax_envelope": {
+        "received_at": "2026-04-24T15:22:17",
+        "page_count": 2
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/prior_auth_response.schema.json",
+        "extracted_at": "2026-04-24T15:22:59"
+      }
+    }
+  ]
+}

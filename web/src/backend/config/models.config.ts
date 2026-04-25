@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-export type ModelTier = "fast" | "smart" | "premium";
+export type { ModelTier } from "@/shared/constants/model-labels";
+type ModelTier = "fast" | "smart" | "premium";
 
 export interface ModelTierConfig {
   model: string;

@@ -1,90 +1,154 @@
-import { Card, CardHeader, CardContent } from "@/frontend/components/ui/card";
-import { IconBox } from "@/frontend/components/ui/icon-box";
 import { Badge } from "@/frontend/components/ui/badge";
-import { Settings as SettingsIcon, ShieldCheck, Bell, Users, Lock } from "lucide-react";
+import {
+  Settings as SettingsIcon,
+  ShieldCheck,
+  Bell,
+  Users,
+  Lock,
+  Building2,
+  Sparkles,
+  Database,
+} from "lucide-react";
 
-export const metadata = {
-  title: "Settings · Cevi",
-};
+export const metadata = { title: "Settings · Cevi" };
 
-const CARDS = [
+interface SettingSection {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  items: { label: string; value: string; mono?: boolean }[];
+}
+
+const SECTIONS: SettingSection[] = [
   {
-    tone: "accent" as const,
+    icon: <Building2 className="h-4 w-4" strokeWidth={1.5} />,
+    title: "Clinic Profile",
+    description: "Organization and location details",
+    items: [
+      { label: "Organization", value: "Transcend Medical Group" },
+      { label: "Location", value: "Arlington, TX" },
+      { label: "Fax number", value: "817-860-2704", mono: true },
+      { label: "EHR", value: "eClinicalWorks" },
+      { label: "Time zone", value: "Central (CT)" },
+    ],
+  },
+  {
     icon: <Users className="h-4 w-4" strokeWidth={1.5} />,
-    title: "Team & roles",
-    body: "Invite front-desk, nurses, and providers. Role-based access to faxes, queues, and PHI.",
-    cta: "4 members · Admin (you)",
+    title: "Team & Roles",
+    description: "Manage who can access faxes and PHI",
+    items: [
+      { label: "Dr. Todd Nguyen", value: "Admin · Provider" },
+      { label: "Sarah Chen", value: "Front Desk" },
+      { label: "Maria Lopez", value: "Nurse" },
+      { label: "James Wilson", value: "Billing" },
+    ],
   },
   {
-    tone: "teal" as const,
-    icon: <ShieldCheck className="h-4 w-4" strokeWidth={1.5} />,
-    title: "Classification thresholds",
-    body: "Tune per-type confidence thresholds. Default: 80% type, 90% patient match. Below → review queue.",
-    cta: "Defaults applied",
+    icon: <Sparkles className="h-4 w-4" strokeWidth={1.5} />,
+    title: "AI Classification",
+    description: "Model selection and confidence thresholds",
+    items: [
+      { label: "Default model", value: "Claude Sonnet 4.6" },
+      { label: "Type confidence threshold", value: "80%", mono: true },
+      { label: "Patient match threshold", value: "95%", mono: true },
+      { label: "Review threshold", value: "70%", mono: true },
+      { label: "Auto-route above threshold", value: "Enabled" },
+    ],
   },
   {
-    tone: "amber" as const,
     icon: <Bell className="h-4 w-4" strokeWidth={1.5} />,
     title: "Notifications",
-    body: "Who gets pinged when a STAT or CRITICAL fax lands. SMS via Twilio, email, eClinicalWorks inbox.",
-    cta: "2 recipients",
+    description: "Alert routing for urgent and critical faxes",
+    items: [
+      { label: "STAT faxes", value: "SMS + eCW inbox → Dr. Nguyen" },
+      { label: "Critical lab results", value: "SMS → On-call provider" },
+      { label: "Failed matches", value: "Email → Front desk" },
+      { label: "Daily digest", value: "Email → All staff, 7:00 AM CT" },
+    ],
   },
   {
-    tone: "jade" as const,
+    icon: <Database className="h-4 w-4" strokeWidth={1.5} />,
+    title: "Integrations",
+    description: "Connected systems and data sources",
+    items: [
+      { label: "Supabase", value: "Connected", mono: true },
+      { label: "Medsender (fax ingest)", value: "Active" },
+      { label: "eClinicalWorks (write-back)", value: "Pending setup" },
+      { label: "Twilio (SMS alerts)", value: "Configured" },
+    ],
+  },
+  {
     icon: <Lock className="h-4 w-4" strokeWidth={1.5} />,
-    title: "Compliance",
-    body: "BAA on file · SOC 2 Type II (2025) · HIPAA §164.312(b) audit controls enforced.",
-    cta: "All controls green",
+    title: "Compliance & Security",
+    description: "HIPAA controls and audit configuration",
+    items: [
+      { label: "BAA status", value: "On file" },
+      { label: "Audit logging", value: "Enabled · immutable" },
+      { label: "PHI access logging", value: "Enabled" },
+      { label: "Session timeout", value: "30 minutes" },
+      { label: "Data retention", value: "7 years" },
+    ],
   },
 ];
 
 export default function SettingsPage() {
   return (
     <div>
-      <div className="mb-8 flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--cevi-text-tertiary)] mb-2">
-            Settings
-          </div>
-          <h1 className="font-serif text-[32px] leading-[1.1] tracking-[-0.02em] text-[var(--cevi-text)]">
-            Tune it to your clinic.
-          </h1>
-          <p className="mt-3 text-[14px] text-[var(--cevi-text-muted)] max-w-xl">
-            Thresholds, notifications, users, and compliance — all one click away. Full
-            surface is configured during onboarding; this is the read-only preview.
-          </p>
-        </div>
-        <IconBox tone="muted" size="lg">
-          <SettingsIcon className="h-6 w-6" strokeWidth={1.5} />
-        </IconBox>
+      <div className="mb-6">
+        <h1 className="font-serif text-[24px] leading-[1.2] tracking-[-0.02em] text-[var(--cevi-text)]">
+          Settings
+        </h1>
+        <p className="mt-1 text-[13px] text-[var(--cevi-text-muted)]">
+          Clinic configuration, team management, and compliance controls
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {CARDS.map((c) => (
-          <Card key={c.title} padding="none">
-            <CardHeader className="flex items-start gap-3">
-              <IconBox tone={c.tone} size="sm">
-                {c.icon}
-              </IconBox>
-              <div className="flex-1">
-                <div className="text-[14px] font-semibold text-[var(--cevi-text)]">
-                  {c.title}
-                </div>
-                <div className="text-[11px] text-[var(--cevi-text-muted)] mt-0.5">
-                  {c.cta}
-                </div>
+      <div className="space-y-4">
+        {SECTIONS.map((section) => (
+          <div
+            key={section.title}
+            className="rounded-lg border border-[var(--cevi-border)] bg-white overflow-hidden"
+          >
+            {/* Section header */}
+            <div className="flex items-center gap-3 px-4 py-3 bg-[var(--cevi-surface-warm)] border-b border-[var(--cevi-border-light)]">
+              <div className="h-8 w-8 rounded-lg bg-white border border-[var(--cevi-border)] flex items-center justify-center text-[var(--cevi-accent)]">
+                {section.icon}
               </div>
-              <Badge variant="outline" size="sm">
-                Preview
-              </Badge>
-            </CardHeader>
-            <CardContent>
-              <div className="text-[13px] text-[var(--cevi-text-secondary)] leading-snug">
-                {c.body}
+              <div>
+                <div className="text-[13px] font-semibold text-[var(--cevi-text)]">{section.title}</div>
+                <div className="text-[11px] text-[var(--cevi-text-muted)]">{section.description}</div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Key-value rows */}
+            <div>
+              {section.items.map((item, i) => (
+                <div
+                  key={item.label}
+                  className={`flex items-center justify-between px-4 py-2.5 ${
+                    i < section.items.length - 1 ? "border-b border-[var(--cevi-border-light)]" : ""
+                  }`}
+                >
+                  <span className="text-[12px] text-[var(--cevi-text-secondary)]">{item.label}</span>
+                  <span
+                    className={`text-[12px] text-[var(--cevi-text)] ${item.mono ? "font-mono" : "font-medium"}`}
+                  >
+                    {item.value}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
         ))}
+      </div>
+
+      {/* Footer */}
+      <div className="mt-6 flex items-center justify-between text-[11px] text-[var(--cevi-text-muted)]">
+        <span>Cevi v1.0 · Transcend Medical Group</span>
+        <div className="flex items-center gap-1.5">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--cevi-jade)]" />
+          <span>All systems operational</span>
+        </div>
       </div>
     </div>
   );

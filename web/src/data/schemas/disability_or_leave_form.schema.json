@@ -1,0 +1,602 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/disability_or_leave_form.schema.json",
+  "title": "Cevi AI \u2014 Disability or Leave Form",
+  "description": "Provider-signed forms certifying medical condition for leave, disability, or accommodation: FMLA (WH-380-E/F/384/385), STD/LTD from private insurers (Hartford, Unum, Lincoln, MetLife), SSA disability forms (3368, 3369, 827), Aflac, Texas workers comp (DWC-73, DWC-69), VA DBQs (21-0960), ADA accommodation, fit-for-duty, return-to-work.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "disability_or_leave_form"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "fmla_wh380e_serious_own_condition",
+        "fmla_wh380f_family_member",
+        "fmla_wh384_military_family",
+        "fmla_wh385_covered_servicemember",
+        "std_private_insurer",
+        "ltd_private_insurer",
+        "ssa_3368_adult_disability_report",
+        "ssa_3369_work_history",
+        "ssa_827_authorization",
+        "ssa_medical_source_statement",
+        "aflac_claim_form",
+        "workers_comp_tx_dwc73_work_status",
+        "workers_comp_tx_dwc69_mmi_impairment",
+        "workers_comp_generic",
+        "va_21_0960_dbq",
+        "state_medicaid_disability",
+        "leave_of_absence_generic",
+        "fit_for_duty_certification",
+        "return_to_work_release",
+        "ada_reasonable_accommodation",
+        "jury_duty_medical_excuse",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "form_name": {
+      "type": "string",
+      "description": "Form name as printed on the document: 'WH-380-E', 'SSA-3368', 'DWC-73', 'Hartford Short-Term Disability Claim', etc."
+    },
+    "employer_name": {
+      "type": "string"
+    },
+    "employer_fax": {
+      "type": "string"
+    },
+    "employee_job_title": {
+      "type": "string"
+    },
+    "employee_id": {
+      "type": "string"
+    },
+    "insurer_or_administrator": {
+      "type": "string"
+    },
+    "claim_or_reference_number": {
+      "type": "string"
+    },
+    "form_completion_due_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "form_completion_due_date_raw": {
+      "type": "string"
+    },
+    "patient_role_in_leave": {
+      "type": "string",
+      "description": "As printed: 'Employee - own condition', 'Family member', 'Servicemember'."
+    },
+    "primary_condition": {
+      "type": "string",
+      "description": "Primary diagnosis/condition as printed."
+    },
+    "primary_condition_icd10": {
+      "type": "string"
+    },
+    "secondary_conditions": {
+      "type": "string"
+    },
+    "condition_onset_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "first_treatment_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "most_recent_visit_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "treatment_plan": {
+      "type": "string"
+    },
+    "medications_impacting_work": {
+      "type": "string"
+    },
+    "regimen_of_continuing_treatment": {
+      "type": "string"
+    },
+    "incapacity_details": {
+      "type": "object",
+      "description": "Critical for FMLA/STD \u2014 duration and pattern of incapacity as stated.",
+      "properties": {
+        "incapacity_pattern": {
+          "type": "string",
+          "description": "As printed: 'Continuous', 'Intermittent', 'Reduced schedule', 'Episodic'."
+        },
+        "start_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "end_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "expected_duration": {
+          "type": "string"
+        },
+        "episodic_frequency": {
+          "type": "string",
+          "description": "E.g., '2-4 episodes per month'."
+        },
+        "episodic_duration_per_episode": {
+          "type": "string"
+        },
+        "reduced_schedule_hours_per_day": {
+          "type": "string"
+        },
+        "essential_functions_unable_to_perform": {
+          "type": "string"
+        }
+      }
+    },
+    "work_restrictions": {
+      "type": "object",
+      "properties": {
+        "can_work": {
+          "type": "string"
+        },
+        "can_work_with_restrictions": {
+          "type": "string"
+        },
+        "lifting_restriction": {
+          "type": "string"
+        },
+        "standing_restriction": {
+          "type": "string"
+        },
+        "sitting_restriction": {
+          "type": "string"
+        },
+        "cognitive_restrictions": {
+          "type": "string"
+        },
+        "other_restrictions": {
+          "type": "string"
+        },
+        "restrictions_start_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "restrictions_end_date": {
+          "type": "string",
+          "format": "date"
+        },
+        "accommodations_suggested": {
+          "type": "string"
+        }
+      }
+    },
+    "return_to_work_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "return_to_work_duty_type": {
+      "type": "string",
+      "description": "As printed: 'Full duty', 'Modified duty', 'Unknown'."
+    },
+    "family_member_details": {
+      "type": "object",
+      "description": "For FMLA-family-member or similar.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "dob": {
+          "type": "string",
+          "format": "date"
+        },
+        "relationship": {
+          "type": "string"
+        },
+        "care_required_description": {
+          "type": "string"
+        }
+      }
+    },
+    "provider_signature_present": {
+      "type": "string"
+    },
+    "provider_signature_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "return_fax_number": {
+      "type": "string"
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category",
+    "patient"
+  ],
+  "examples": [
+    {
+      "document_category": "disability_or_leave_form",
+      "document_subcategory": "fmla_wh380e_serious_own_condition",
+      "patient": {
+        "name": {
+          "raw_text": "TRAN, LINH",
+          "first_name": "Linh",
+          "last_name": "Tran"
+        },
+        "dob": "1989-04-15",
+        "dob_raw": "04/15/1989",
+        "sex": "F"
+      },
+      "sender": {
+        "name": "Sedgwick (FMLA Administration for American Airlines)",
+        "fax": {
+          "raw_text": "855-598-3075",
+          "digits": "8555983075"
+        }
+      },
+      "providers": [
+        {
+          "role": "Certifying",
+          "name": {
+            "raw_text": "Priya Patel, DO, FACP",
+            "first_name": "Priya",
+            "last_name": "Patel"
+          },
+          "credentials": [
+            "DO",
+            "FACP"
+          ]
+        }
+      ],
+      "form_name": "WH-380-E (FMLA, Employee's own Serious Health Condition)",
+      "employer_name": "American Airlines, Inc.",
+      "employee_job_title": "Flight Attendant",
+      "employee_id": "AA-492817",
+      "insurer_or_administrator": "Sedgwick CMS",
+      "claim_or_reference_number": "SDG-FMLA-2026-8473920",
+      "form_completion_due_date": "2026-04-27",
+      "form_completion_due_date_raw": "04/27/2026",
+      "patient_role_in_leave": "Employee \u2014 own condition",
+      "primary_condition": "Migraine with aura, chronic",
+      "primary_condition_icd10": "G43.109",
+      "condition_onset_date": "2018-06-01",
+      "most_recent_visit_date": "2026-04-23",
+      "regimen_of_continuing_treatment": "Monthly CGRP injections (erenumab), acute sumatriptan PRN, neurology follow-up q6 months.",
+      "incapacity_details": {
+        "incapacity_pattern": "Intermittent",
+        "episodic_frequency": "2-4 episodes per month",
+        "episodic_duration_per_episode": "1-2 days per episode",
+        "essential_functions_unable_to_perform": "Safety-critical decision making during acute migraine; work in bright cabin environments; extended shifts during acute episodes."
+      },
+      "work_restrictions": {
+        "can_work": "Yes",
+        "can_work_with_restrictions": "Yes",
+        "other_restrictions": "During acute migraine episodes (2-4/month, 1-2 days duration), unable to perform safety-critical flight attendant duties.",
+        "accommodations_suggested": "Intermittent FMLA leave as needed, estimated 4-8 days per month."
+      },
+      "return_to_work_date": "2026-04-24",
+      "return_to_work_duty_type": "Full duty (with intermittent leave accommodation)",
+      "provider_signature_present": "Yes",
+      "provider_signature_date": "2026-04-24",
+      "return_fax_number": "855-598-3075",
+      "fax_envelope": {
+        "received_at": "2026-04-20T10:14:22",
+        "page_count": 4
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "schema_id": "https://cevi.ai/schemas/disability_or_leave_form.schema.json",
+        "extracted_at": "2026-04-20T10:15:02"
+      }
+    }
+  ]
+}

@@ -1,0 +1,606 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://cevi.ai/schemas/lab_result.schema.json",
+  "title": "Cevi AI \u2014 Lab Result",
+  "description": "Lab result fax from external labs without HL7 interface (Quest, LabCorp, CPL, reference labs, specialty labs). Captures what is printed on the report: panels grouping individual tests, each test with name/value/units/reference-range/flag as printed. Structured panels array enables both grouped display (nested) and flat display (one row per test) from a single extraction. No LOINC codes, no UCUM normalization, no critical-value routing \u2014 those are downstream enrichment.",
+  "type": "object",
+  "properties": {
+    "document_category": {
+      "type": "string",
+      "const": "lab_result"
+    },
+    "document_subcategory": {
+      "type": "string",
+      "enum": [
+        "chemistry_panel",
+        "hematology",
+        "urinalysis",
+        "microbiology",
+        "endocrinology",
+        "cardiac_markers",
+        "tumor_markers",
+        "toxicology",
+        "coagulation",
+        "hba1c",
+        "lipid_panel",
+        "thyroid_panel",
+        "hepatitis_panel",
+        "hiv_std",
+        "genetic",
+        "allergy_panel",
+        "blood_typing",
+        "pregnancy",
+        "cologuard_fit",
+        "point_of_care",
+        "multi_analyte_panel",
+        "other"
+      ]
+    },
+    "patient": {
+      "type": "object",
+      "description": "Patient as identified on the fax. Does NOT include eCW account number or matcher output \u2014 matching runs after extraction.",
+      "properties": {
+        "name": {
+          "type": "object",
+          "description": "Person name with verbatim raw_text plus parsed components for separate copy-paste.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim name string as printed."
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "middle_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "suffix": {
+              "type": "string"
+            }
+          }
+        },
+        "dob": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date YYYY-MM-DD when parseable. Omit if ambiguous."
+        },
+        "dob_raw": {
+          "type": "string",
+          "description": "Verbatim DOB string as printed."
+        },
+        "sex": {
+          "type": "string",
+          "description": "Sex as printed. Typical values: M, F, Male, Female, Unknown."
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "identifiers": {
+          "type": "array",
+          "description": "Patient identifiers printed on the fax. Captured as printed with the label used.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "description": "Label as printed: 'Lab MRN', 'Account #', 'Member ID', etc."
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ]
+          }
+        }
+      }
+    },
+    "sender": {
+      "type": "object",
+      "description": "Organization that sent the fax (lab, hospital, pharmacy, law firm, payer, etc.).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "object",
+          "description": "Postal address from document. Each component is its own field.",
+          "properties": {
+            "raw_text": {
+              "type": "string",
+              "description": "Verbatim multi-line address as printed."
+            },
+            "line1": {
+              "type": "string"
+            },
+            "line2": {
+              "type": "string",
+              "description": "Apt, Suite, Unit, etc."
+            },
+            "city": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "description": "2-letter state code."
+            },
+            "postal_code": {
+              "type": "string"
+            }
+          }
+        },
+        "phone": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "fax": {
+          "type": "object",
+          "description": "Phone/fax as shown on document.",
+          "properties": {
+            "raw_text": {
+              "type": "string"
+            },
+            "digits": {
+              "type": "string",
+              "description": "10-digit US number, digits only."
+            },
+            "extension": {
+              "type": "string"
+            }
+          }
+        },
+        "clia_number": {
+          "type": "string",
+          "description": "CLIA only if printed."
+        },
+        "lab_director": {
+          "type": "string",
+          "description": "Laboratory director name, if printed."
+        }
+      }
+    },
+    "providers": {
+      "type": "array",
+      "description": "All providers named on the document with their role.",
+      "items": {
+        "type": "object",
+        "description": "Provider as identified on the fax. Only from text on the page.",
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role as printed or implied by section: 'Ordering', 'Attending', 'Radiologist', 'Signed by', etc."
+          },
+          "name": {
+            "type": "object",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "prefix": {
+                "type": "string",
+                "description": "Dr., etc."
+              },
+              "first_name": {
+                "type": "string"
+              },
+              "middle_name": {
+                "type": "string"
+              },
+              "last_name": {
+                "type": "string"
+              },
+              "suffix": {
+                "type": "string"
+              }
+            }
+          },
+          "credentials": {
+            "type": "array",
+            "description": "Credentials as printed: ['MD'], ['DO','FACP'], ['NP'].",
+            "items": {
+              "type": "string"
+            }
+          },
+          "npi": {
+            "type": "string",
+            "description": "NPI only if printed on the fax."
+          },
+          "specialty": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          },
+          "fax": {
+            "type": "object",
+            "description": "Phone/fax as shown on document.",
+            "properties": {
+              "raw_text": {
+                "type": "string"
+              },
+              "digits": {
+                "type": "string",
+                "description": "10-digit US number, digits only."
+              },
+              "extension": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "accession_number": {
+      "type": "string",
+      "description": "Lab accession/specimen identifier as printed."
+    },
+    "requisition_number": {
+      "type": "string"
+    },
+    "report_status": {
+      "type": "string",
+      "description": "Status string as printed: 'Final', 'Preliminary', 'Corrected', 'Amended', etc."
+    },
+    "specimen": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Specimen type as printed: 'Serum', 'Plasma', 'Whole blood', 'Urine, random', 'Stool', etc."
+        },
+        "collected_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "collected_at_raw": {
+          "type": "string",
+          "description": "Verbatim collection datetime as printed."
+        },
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "received_at_raw": {
+          "type": "string"
+        },
+        "fasting": {
+          "type": "string",
+          "description": "Fasting status as printed: 'Yes', 'No', 'Unknown', 'N/A'."
+        }
+      }
+    },
+    "reported_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reported_at_raw": {
+      "type": "string"
+    },
+    "clinical_info": {
+      "type": "string",
+      "description": "Clinical history / indication / diagnoses as printed on the requisition section."
+    },
+    "panels": {
+      "type": "array",
+      "description": "Panels/sections as grouped on the report. Each panel has a name and a list of tests. This mirrors the report layout; flat views are derived by unrolling panels into individual test rows.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Panel name as printed: 'CMP', 'CBC w/ Differential', 'Lipid Panel', 'Hemoglobin A1c'."
+          },
+          "tests": {
+            "type": "array",
+            "description": "Individual analyte results in this panel.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Test/analyte name as printed: 'Glucose', 'Hemoglobin', 'LDL Cholesterol', 'TSH'."
+                },
+                "value": {
+                  "type": "string",
+                  "description": "Result value as printed. Kept as string so it handles 'Negative', '7.6', '<0.01', '>150' uniformly."
+                },
+                "units": {
+                  "type": "string",
+                  "description": "Units as printed: 'mg/dL', 'x10E3/uL', '%', 'mmol/L'. Empty string if no units (e.g., INR, pH)."
+                },
+                "reference_range": {
+                  "type": "string",
+                  "description": "Reference range as printed: '70 - 99', '<200', 'Negative', '>=40'. No parsing."
+                },
+                "flag": {
+                  "type": "string",
+                  "description": "Abnormal flag as printed. Common: 'H', 'L', 'HH', 'LL', '', 'A'. Preserve whatever the lab printed."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "critical_value_note": {
+      "type": "string",
+      "description": "Critical value callback attestation text, if printed on the report."
+    },
+    "narrative": {
+      "type": "string",
+      "description": "Free-text interpretation, methodology, or comments section as printed."
+    },
+    "report_signed_by": {
+      "type": "string",
+      "description": "Signing pathologist / lab director name as printed in the report footer."
+    },
+    "full_text": {
+      "type": "string",
+      "description": "Full OCR text of the document for auditing, search, and reprocessing."
+    },
+    "fax_envelope": {
+      "type": "object",
+      "description": "Transmission metadata from fax service \u2014 not content from the document.",
+      "properties": {
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "from_fax_number": {
+          "type": "string"
+        },
+        "to_fax_number": {
+          "type": "string"
+        },
+        "csid_banner": {
+          "type": "string"
+        },
+        "page_count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "extraction_meta": {
+      "type": "object",
+      "properties": {
+        "extractor_version": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "schema_id": {
+          "type": "string"
+        },
+        "extracted_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "required": [
+    "document_category",
+    "patient"
+  ],
+  "examples": [
+    {
+      "document_category": "lab_result",
+      "document_subcategory": "chemistry_panel",
+      "patient": {
+        "name": {
+          "raw_text": "Marquez, Ernesto R.",
+          "first_name": "Ernesto",
+          "middle_name": "R.",
+          "last_name": "Marquez"
+        },
+        "dob": "1958-04-17",
+        "dob_raw": "04/17/1958",
+        "sex": "M",
+        "address": {
+          "raw_text": "1204 Westcliff Dr, Fort Worth, TX 76107",
+          "line1": "1204 Westcliff Dr",
+          "city": "Fort Worth",
+          "state": "TX",
+          "postal_code": "76107"
+        },
+        "identifiers": [
+          {
+            "label": "Lab MRN",
+            "value": "QLR-184203"
+          }
+        ]
+      },
+      "sender": {
+        "name": "Quest Diagnostics",
+        "address": {
+          "raw_text": "14225 Newbrook Dr, Chantilly, VA 20151",
+          "line1": "14225 Newbrook Dr",
+          "city": "Chantilly",
+          "state": "VA",
+          "postal_code": "20151"
+        },
+        "clia_number": "45D0913477",
+        "lab_director": "Rajesh Rao, MD, PhD"
+      },
+      "providers": [
+        {
+          "role": "Ordering",
+          "name": {
+            "raw_text": "Dr. Todd Nguyen",
+            "prefix": "Dr.",
+            "first_name": "Todd",
+            "last_name": "Nguyen"
+          },
+          "npi": "1184729301"
+        }
+      ],
+      "accession_number": "QLR399211387",
+      "report_status": "Final",
+      "specimen": {
+        "type": "Serum",
+        "collected_at": "2026-04-18T17:21:00",
+        "collected_at_raw": "04/18/2026 17:21",
+        "fasting": "Yes"
+      },
+      "reported_at": "2026-04-19T08:14:00",
+      "reported_at_raw": "04/19/2026 08:14",
+      "panels": [
+        {
+          "name": "CMP",
+          "tests": [
+            {
+              "name": "Glucose",
+              "value": "113",
+              "units": "mg/dL",
+              "reference_range": "70 - 99",
+              "flag": "H"
+            },
+            {
+              "name": "BUN",
+              "value": "18",
+              "units": "mg/dL",
+              "reference_range": "7 - 25",
+              "flag": ""
+            },
+            {
+              "name": "Creatinine",
+              "value": "1.11",
+              "units": "mg/dL",
+              "reference_range": "0.60 - 1.30",
+              "flag": ""
+            },
+            {
+              "name": "Sodium",
+              "value": "140",
+              "units": "mmol/L",
+              "reference_range": "135 - 146",
+              "flag": ""
+            }
+          ]
+        },
+        {
+          "name": "Lipid Panel",
+          "tests": [
+            {
+              "name": "Cholesterol, Total",
+              "value": "132",
+              "units": "mg/dL",
+              "reference_range": "100 - 199",
+              "flag": ""
+            },
+            {
+              "name": "HDL Cholesterol",
+              "value": "31",
+              "units": "mg/dL",
+              "reference_range": "40 - 80",
+              "flag": "L"
+            },
+            {
+              "name": "LDL Cholesterol",
+              "value": "104",
+              "units": "mg/dL",
+              "reference_range": "50 - 99",
+              "flag": "H"
+            }
+          ]
+        },
+        {
+          "name": "Hemoglobin A1c",
+          "tests": [
+            {
+              "name": "Hemoglobin A1c",
+              "value": "6.3",
+              "units": "%",
+              "reference_range": "4.0 - 5.6",
+              "flag": "H"
+            }
+          ]
+        }
+      ],
+      "fax_envelope": {
+        "received_at": "2026-04-19T09:12:44",
+        "from_fax_number": "8004287888",
+        "page_count": 2,
+        "csid_banner": "QUEST DIAGNOSTICS"
+      },
+      "extraction_meta": {
+        "extractor_version": "0.1.0",
+        "model": "gemini-2.5-pro",
+        "schema_id": "https://cevi.ai/schemas/lab_result.schema.json",
+        "extracted_at": "2026-04-19T09:13:17"
+      }
+    }
+  ]
+}
