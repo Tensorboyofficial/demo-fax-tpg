@@ -601,7 +601,7 @@ export function DetailShell({ fax, initialEvents }: Props) {
 
           {/* AI summary — shown in both tabs */}
           {aiSummary && (
-            <div className="shrink-0 mx-4 mt-3 p-3 rounded-lg bg-[var(--cevi-accent-light)] border border-[var(--cevi-accent)]/15">
+            <div className="shrink-0 ml-4 mr-5 mt-3 p-3 rounded-lg bg-[var(--cevi-accent-light)] border border-[var(--cevi-accent)]/15">
               <div className="flex items-center gap-1.5 mb-1">
                 <Sparkles className="h-3 w-3 text-[var(--cevi-accent)]" strokeWidth={1.5} />
                 <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--cevi-accent)]">AI Summary</span>
@@ -612,7 +612,7 @@ export function DetailShell({ fax, initialEvents }: Props) {
           )}
 
           {/* Scrollable content area */}
-          <div className="flex-1 px-4 py-3 space-y-1 scrollbar-thin" style={{ overflowY: isSplitView ? "auto" : "visible" }}>
+          <div className="flex-1 pl-4 pr-5 py-3 space-y-1 scrollbar-thin" style={{ overflowY: isSplitView ? "auto" : "visible" }}>
 
             {/* ── Schema Extracted tab ── */}
             {activeTab === "schema" && (
