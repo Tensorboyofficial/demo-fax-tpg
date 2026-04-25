@@ -39,7 +39,7 @@ export function CategoryPill({ value, onChange, options }: CategoryPillProps) {
         <ChevronDown className="h-3.5 w-3.5" strokeWidth={2.5} />
       </button>
       {open && (
-        <div className="absolute top-full left-0 mt-1 bg-white border border-[#D4D4D4] rounded-lg shadow-lg z-50 min-w-[180px] py-1 overflow-hidden">
+        <div className="absolute top-full left-0 mt-1 bg-white border border-[#D4D4D4] rounded-lg shadow-lg z-50 min-w-[200px] max-h-[360px] overflow-y-auto py-1">
           {options.map((opt) => (
             <button
               key={opt.key}

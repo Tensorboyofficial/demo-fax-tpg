@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { getAllFaxes } from "@/backend/services/data-merge.service";
 import { CategoryTable } from "@/frontend/components/features/fax/category-table";
-import { CATEGORY_CONFIG } from "@/backend/config/category.config";
+import { getCategoryConfig } from "@/backend/config/category.config";
+import { CATEGORY_TO_LEGACY } from "@/shared/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -11,26 +12,24 @@ export default async function CategoryPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const config = CATEGORY_CONFIG.find((c) => c.category === slug);
+  const config = getCategoryConfig(slug);
   if (!config) notFound();
 
   const allFaxes = await getAllFaxes();
 
-  // Map legacy type values → canonical category slugs
-  const LEGACY_MAP: Record<string, string> = {
-    lab_result: "lab",
-    specialist_consult: "consult",
-    imaging_report: "imaging",
-    rx_refill: "other",
-    unknown: "other",
-  };
+  // Match faxes by: exact category match, legacy alias, or schema_key match
+  const legacyName = CATEGORY_TO_LEGACY[slug];
   const faxes = allFaxes.filter(
-    (f) => f.type === slug || LEGACY_MAP[f.type] === slug,
+    (f) =>
+      f.type === slug ||
+      f.type === config.category ||
+      (legacyName && f.type === legacyName) ||
+      f.type === config.schema_key,
   );
 
   return (
     <div>
-      <CategoryTable faxes={faxes} category={slug} label={config.label} />
+      <CategoryTable faxes={faxes} category={config.category} label={config.label} />
     </div>
   );
 }
@@ -41,7 +40,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const config = CATEGORY_CONFIG.find((c) => c.category === slug);
+  const config = getCategoryConfig(slug);
   return {
     title: config ? `${config.label} · Cevi` : "Category · Cevi",
   };

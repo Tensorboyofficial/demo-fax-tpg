@@ -2,12 +2,12 @@ import type { FaxType } from "@/shared/constants";
 
 /** Per-category configuration (PRD section 4.4) */
 export interface CategoryConfig {
-  category: FaxType;
+  category: string;
   label: string;
   confident_match_threshold: number;   // e.g. 0.95
   review_threshold: number;            // e.g. 0.70
   always_human_review: boolean;        // some categories always need human eyes
-  route_to_queue: string;              // e.g. "labs_review", "front_desk"
+  route_to_queue: string | null;       // e.g. "labs_review", "front_desk", null for junk
   splittable: boolean;                 // EOBs can be split into per-patient children
   schema_key: string;                  // pointer to extraction schema file
   component_weights: Record<string, number>;  // matching weights per component
