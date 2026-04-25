@@ -44,7 +44,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div
         className="transition-[padding-left] duration-200 ease-out"
-        style={{ paddingLeft: collapsed ? 56 : 200 }}
+        style={{ paddingLeft: collapsed ? 64 : 220 }}
       >
         <Topbar />
         <main className="px-6 md:px-10 py-6 max-w-[1440px]">

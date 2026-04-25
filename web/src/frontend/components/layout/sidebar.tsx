@@ -2,25 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import {
-  Home,
-  User,
-  Settings,
-  Table2,
-  Mail,
   Building2,
-  LogOut,
-  X,
-  PanelLeftClose,
-  PanelLeftOpen,
   Copy,
   ExternalLink,
+  Home,
+  LogOut,
+  Mail,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Settings,
+  Table2,
+  User,
+  X,
 } from "lucide-react";
 import { CeviLogo } from "@/frontend/components/brand/cevi-logo";
 import { cn } from "@/shared/utils";
-import { useState, useRef, useEffect } from "react";
-import { useSidebar } from "./sidebar-context";
 import { useIsDesktop } from "@/frontend/hooks/use-media-query";
+import { useSidebar } from "./sidebar-context";
 
 interface NavItem {
   href: string;
@@ -28,53 +28,221 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
 }
 
-const MAIN_NAV: NavItem[] = [
+const NAV: NavItem[] = [
   { href: "/", label: "Home", icon: Home },
   { href: "/patients", label: "Patients", icon: User },
   { href: "/settings", label: "Settings", icon: Settings },
   { href: "/category", label: "Schemas", icon: Table2 },
 ];
 
-/* ─── Account Menu (logout only) ─── */
-function AccountMenu({ onClose, collapsed, anchorRef }: { onClose: () => void; collapsed: boolean; anchorRef: React.RefObject<HTMLDivElement | null> }) {
+const W_EXPANDED = 220;
+const W_COLLAPSED = 64;
+const W_MOBILE = 280;
+
+function isActive(pathname: string, href: string) {
+  if (href === "/") return pathname === "/" || pathname.startsWith("/inbox");
+  if (href === "/category") return pathname.startsWith("/category");
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/* ─── Sidebar ─── */
+export function Sidebar() {
+  const pathname = usePathname();
+  const { collapsed, toggle, mobileOpen, closeMobile } = useSidebar();
+  const isDesktop = useIsDesktop();
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [supportOpen, setSupportOpen] = useState(false);
+
+  useEffect(() => {
+    closeMobile();
+  }, [pathname, closeMobile]);
+
+  const width = !isDesktop ? W_MOBILE : collapsed ? W_COLLAPSED : W_EXPANDED;
+  const visible = isDesktop || mobileOpen;
+  const showLabels = isDesktop ? !collapsed : true;
+
+  return (
+    <>
+      <aside
+        className="fixed inset-y-0 left-0 z-30 flex flex-col bg-[var(--cevi-surface-warm)] border-r border-[var(--cevi-border-light)] transition-[width,transform] duration-200 ease-out"
+        style={{
+          width,
+          transform: visible ? "translateX(0)" : "translateX(-100%)",
+        }}
+      >
+        {/* Header — logo (when expanded) + toggle */}
+        <div
+          className={cn(
+            "h-14 shrink-0 flex items-center",
+            showLabels ? "justify-between px-4" : "justify-center px-2",
+          )}
+        >
+          {showLabels && (
+            <Link
+              href="/"
+              aria-label="Cevi home"
+              className="inline-flex items-center text-[var(--cevi-text)]"
+              onClick={closeMobile}
+            >
+              <CeviLogo size="sm" />
+            </Link>
+          )}
+
+          {isDesktop ? (
+            <button
+              onClick={toggle}
+              type="button"
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              className="h-8 w-8 inline-flex items-center justify-center rounded-md text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)] hover:text-[var(--cevi-text)] transition-colors"
+            >
+              {collapsed ? (
+                <PanelLeftOpen className="h-4 w-4" strokeWidth={1.5} />
+              ) : (
+                <PanelLeftClose className="h-4 w-4" strokeWidth={1.5} />
+              )}
+            </button>
+          ) : (
+            <button
+              onClick={closeMobile}
+              type="button"
+              aria-label="Close sidebar"
+              className="h-8 w-8 inline-flex items-center justify-center rounded-md text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)] hover:text-[var(--cevi-text)] transition-colors"
+            >
+              <X className="h-4 w-4" strokeWidth={1.5} />
+            </button>
+          )}
+        </div>
+
+        {/* Nav */}
+        <nav
+          className={cn(
+            "flex-1 overflow-y-auto scrollbar-thin pt-1",
+            showLabels ? "px-3" : "px-2",
+          )}
+        >
+          <ul className="space-y-1">
+            {NAV.map((item) => {
+              const active = isActive(pathname ?? "", item.href);
+              const Icon = item.icon;
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    title={!showLabels ? item.label : undefined}
+                    onClick={closeMobile}
+                    className={cn(
+                      "flex items-center rounded-lg text-[14px] font-medium transition-colors",
+                      showLabels ? "h-9 gap-3 px-3" : "h-9 w-10 mx-auto justify-center",
+                      active
+                        ? "bg-[var(--cevi-bg)] text-[var(--cevi-text)] font-semibold"
+                        : "text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)] hover:text-[var(--cevi-text)]",
+                    )}
+                  >
+                    <Icon
+                      className={cn(
+                        "h-[18px] w-[18px] shrink-0",
+                        active ? "text-[var(--cevi-accent)]" : "text-current",
+                      )}
+                      strokeWidth={1.5}
+                    />
+                    {showLabels && <span className="truncate">{item.label}</span>}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        {/* Footer — Support + Account */}
+        <div
+          className={cn(
+            "shrink-0 pb-3 pt-2 space-y-1",
+            showLabels ? "px-3" : "px-2",
+          )}
+        >
+          <button
+            type="button"
+            onClick={() => setSupportOpen(true)}
+            title={!showLabels ? "Support" : undefined}
+            className={cn(
+              "w-full flex items-center rounded-lg text-[14px] font-medium text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)] hover:text-[var(--cevi-text)] transition-colors",
+              showLabels ? "h-9 gap-3 px-3" : "h-9 w-10 mx-auto justify-center",
+            )}
+          >
+            <Mail className="h-[18px] w-[18px] shrink-0" strokeWidth={1.5} />
+            {showLabels && <span>Support</span>}
+          </button>
+
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setAccountOpen((v) => !v)}
+              title={!showLabels ? "TMG" : undefined}
+              className={cn(
+                "w-full flex items-center rounded-lg text-[14px] font-medium text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)] hover:text-[var(--cevi-text)] transition-colors",
+                showLabels ? "h-9 gap-3 px-3" : "h-9 w-10 mx-auto justify-center",
+              )}
+            >
+              <Building2 className="h-[18px] w-[18px] shrink-0" strokeWidth={1.5} />
+              {showLabels && <span>TMG</span>}
+            </button>
+            {accountOpen && (
+              <AccountMenu
+                onClose={() => setAccountOpen(false)}
+                showLabels={showLabels}
+              />
+            )}
+          </div>
+        </div>
+      </aside>
+
+      {/* Mobile backdrop */}
+      {!isDesktop && mobileOpen && (
+        <div
+          className="fixed inset-0 z-20 bg-black/30"
+          onClick={closeMobile}
+          aria-hidden="true"
+        />
+      )}
+
+      {supportOpen && <SupportModal onClose={() => setSupportOpen(false)} />}
+    </>
+  );
+}
+
+/* ─── Account Menu (logout) ─── */
+function AccountMenu({
+  onClose,
+  showLabels,
+}: {
+  onClose: () => void;
+  showLabels: boolean;
+}) {
   const ref = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState<{ bottom: number; left: number } | null>(null);
-
   useEffect(() => {
-    if (anchorRef.current) {
-      const rect = anchorRef.current.getBoundingClientRect();
-      setPos({ bottom: window.innerHeight - rect.top + 4, left: rect.left });
-    }
-  }, [anchorRef]);
-
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
+    function handle(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) onClose();
     }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
   }, [onClose]);
-
   return (
     <div
       ref={ref}
-      className="fixed bg-white border border-[var(--cevi-border)] rounded-lg z-50 overflow-hidden"
-      style={{
-        bottom: pos?.bottom ?? 60,
-        left: pos?.left ?? 12,
-        width: collapsed ? 208 : 180,
-        boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
-      }}
+      className="absolute bottom-full left-0 right-0 mb-1 rounded-lg border border-[var(--cevi-border)] bg-[var(--cevi-bg)] shadow-md overflow-hidden"
     >
-      <div className="py-1">
-        <button
-          onClick={onClose}
-          className="w-full flex items-center gap-2.5 px-3 h-9 text-[13px] text-[var(--cevi-accent)] hover:bg-[var(--cevi-surface)] transition-colors"
-        >
-          <LogOut className="h-3.5 w-3.5" strokeWidth={1.5} />
-          Log out
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={onClose}
+        className={cn(
+          "w-full flex items-center gap-2.5 h-9 text-[13px] text-[var(--cevi-accent)] hover:bg-[var(--cevi-surface)] transition-colors",
+          showLabels ? "px-3" : "justify-center px-1",
+        )}
+      >
+        <LogOut className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
+        {showLabels && <span>Log out</span>}
+      </button>
     </div>
   );
 }
@@ -83,43 +251,55 @@ function AccountMenu({ onClose, collapsed, anchorRef }: { onClose: () => void; c
 function SupportModal({ onClose }: { onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
-
   useEffect(() => {
-    function handleClick(e: MouseEvent) {
+    function handle(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) onClose();
     }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
   }, [onClose]);
-
   const email = "theo@cevi.ai";
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+      onClick={onClose}
+    >
       <div
         ref={ref}
-        className="bg-white rounded-xl border border-[var(--cevi-border)] shadow-xl w-full max-w-sm mx-4 p-6"
+        className="bg-[var(--cevi-bg)] rounded-xl border border-[var(--cevi-border)] shadow-xl w-full max-w-sm mx-4 p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-[18px] font-semibold text-[var(--cevi-text)]">Contact Support</h2>
-          <button onClick={onClose} className="p-1 rounded-md hover:bg-[var(--cevi-surface)] transition-colors">
+          <h2 className="text-[18px] font-semibold text-[var(--cevi-text)]">
+            Contact Support
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 rounded-md hover:bg-[var(--cevi-surface)] transition-colors"
+          >
             <X className="h-4 w-4 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
           </button>
         </div>
         <p className="text-[13px] text-[var(--cevi-text-secondary)] mb-4">
           Reach out to our support team for assistance with any questions or issues.
         </p>
-        <div className="flex items-center gap-2 p-3 rounded-lg bg-[var(--cevi-surface-warm)] border border-[var(--cevi-border-light)]">
-          <Mail className="h-4 w-4 text-[var(--cevi-text-muted)] shrink-0" strokeWidth={1.5} />
-          <span className="flex-1 text-[14px] font-medium text-[var(--cevi-text)]">{email}</span>
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-[var(--cevi-surface)] border border-[var(--cevi-border-light)]">
+          <Mail
+            className="h-4 w-4 text-[var(--cevi-text-muted)] shrink-0"
+            strokeWidth={1.5}
+          />
+          <span className="flex-1 text-[14px] font-medium text-[var(--cevi-text)]">
+            {email}
+          </span>
           <button
+            type="button"
             onClick={() => {
               navigator.clipboard.writeText(email);
               setCopied(true);
               setTimeout(() => setCopied(false), 2000);
             }}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-[var(--cevi-border)] bg-white text-[12px] font-medium text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] transition-colors"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-[var(--cevi-border)] bg-[var(--cevi-bg)] text-[12px] font-medium text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] transition-colors"
           >
             <Copy className="h-3 w-3" strokeWidth={1.5} />
             {copied ? "Copied" : "Copy"}
@@ -136,147 +316,5 @@ function SupportModal({ onClose }: { onClose: () => void }) {
         </div>
       </div>
     </div>
-  );
-}
-
-/* ─── Sidebar ─── */
-export function Sidebar() {
-  const pathname = usePathname();
-  const { collapsed, toggle, mobileOpen, closeMobile } = useSidebar();
-  const isDesktop = useIsDesktop();
-  const [accountOpen, setAccountOpen] = useState(false);
-  const [supportOpen, setSupportOpen] = useState(false);
-  const accountAnchorRef = useRef<HTMLDivElement>(null);
-
-  // Close mobile sidebar on route change
-  useEffect(() => {
-    closeMobile();
-  }, [pathname, closeMobile]);
-
-  const isActive = (href: string) => {
-    if (href === "/") return pathname === "/" || pathname.startsWith("/inbox");
-    if (href === "/category") return pathname.startsWith("/category");
-    return pathname === href || pathname.startsWith(`${href}/`);
-  };
-
-  const sidebarWidth = isDesktop ? (collapsed ? 56 : 200) : 260;
-  const visible = isDesktop || mobileOpen;
-
-  return (
-    <>
-      <aside
-        className="fixed inset-y-0 left-0 z-20 bg-[var(--cevi-surface-warm)] flex flex-col transition-all duration-200 ease-out"
-        style={{
-          width: sidebarWidth,
-          transform: visible ? "translateX(0)" : "translateX(-100%)",
-          boxShadow: !isDesktop && mobileOpen ? "4px 0 24px rgba(0,0,0,0.12)" : "none",
-        }}
-      >
-        {/* Logo + collapse toggle */}
-        <div className={cn("h-12 flex items-center shrink-0", collapsed ? "justify-center px-2" : "justify-between px-4")}>
-          {collapsed ? (
-            <button
-              onClick={toggle}
-              className="h-8 w-8 flex items-center justify-center rounded-md border border-[var(--cevi-border)] hover:bg-[var(--cevi-surface)] transition-colors text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] cursor-pointer z-10"
-              title="Expand sidebar"
-              type="button"
-            >
-              <PanelLeftOpen className="h-4 w-4" strokeWidth={1.5} />
-            </button>
-          ) : (
-            <>
-              <Link href="/" aria-label="Cevi home" className="inline-flex">
-                <CeviLogo size="sm" className="h-5" />
-              </Link>
-              <button
-                onClick={toggle}
-                className="h-8 w-8 flex items-center justify-center rounded-md border border-[var(--cevi-border)] hover:bg-[var(--cevi-surface)] transition-colors text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] cursor-pointer z-10"
-                title="Collapse sidebar"
-                type="button"
-              >
-                <PanelLeftClose className="h-4 w-4" strokeWidth={1.5} />
-              </button>
-            </>
-          )}
-        </div>
-
-        {/* Nav */}
-        <nav className={cn("flex-1 overflow-y-auto scrollbar-thin mt-2", collapsed ? "px-1.5" : "px-3")}>
-          <ul className="space-y-1">
-            {MAIN_NAV.map((item) => {
-              const active = isActive(item.href);
-              const Icon = item.icon;
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    title={collapsed ? item.label : undefined}
-                    className={cn(
-                      "flex items-center rounded-lg text-[15px] font-medium transition-colors relative",
-                      collapsed ? "justify-center h-9 w-9 mx-auto" : "gap-2.5 px-3 h-9",
-                      active
-                        ? "bg-[var(--cevi-bg)] text-[var(--cevi-text)] font-semibold"
-                        : "text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)]",
-                    )}
-                  >
-                    <Icon
-                      className={cn("h-5 w-5 shrink-0", active ? "text-[var(--cevi-accent)]" : "text-[var(--cevi-text-muted)]")}
-                      strokeWidth={1.5}
-                    />
-                    {!collapsed && <span>{item.label}</span>}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-
-        {/* Bottom section */}
-        <div className={cn("pb-3 space-y-1", collapsed ? "px-1.5" : "px-3")}>
-          {/* Support */}
-          <button
-            onClick={() => setSupportOpen(true)}
-            title={collapsed ? "Support" : undefined}
-            className={cn(
-              "w-full flex items-center rounded-lg text-[15px] font-medium text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)] hover:text-[var(--cevi-text)] transition-colors",
-              collapsed ? "justify-center h-9" : "gap-2.5 px-3 h-9",
-            )}
-          >
-            <Mail className="h-5 w-5 shrink-0" strokeWidth={1.5} />
-            {!collapsed && <span>Support</span>}
-          </button>
-
-          {/* Account / Org */}
-          <div ref={accountAnchorRef} className="relative">
-            {accountOpen && <AccountMenu onClose={() => setAccountOpen(false)} collapsed={collapsed} anchorRef={accountAnchorRef} />}
-            <button
-              onClick={() => setAccountOpen(!accountOpen)}
-              title={collapsed ? "TMG" : undefined}
-              className={cn(
-                "w-full flex items-center rounded-lg hover:bg-[var(--cevi-surface)] transition-colors",
-                collapsed ? "justify-center h-9" : "gap-2.5 px-3 h-9",
-              )}
-            >
-              <Building2
-                className="h-5 w-5 shrink-0 text-[var(--cevi-text-muted)]"
-                strokeWidth={1.5}
-              />
-              {!collapsed && <span className="text-[15px] font-medium text-[var(--cevi-text-muted)]">TMG</span>}
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Mobile overlay */}
-      {!isDesktop && mobileOpen && (
-        <div
-          className="fixed inset-0 z-10 bg-black/20"
-          onClick={closeMobile}
-        />
-      )}
-
-      {/* Support Modal */}
-      {supportOpen && <SupportModal onClose={() => setSupportOpen(false)} />}
-    </>
   );
 }

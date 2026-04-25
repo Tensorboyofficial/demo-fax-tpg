@@ -174,9 +174,9 @@ export function Topbar() {
           )}
 
           {/* Search bar */}
-          <div
+          <label
             className={cn(
-              "flex-1 h-full flex items-center transition-colors",
+              "flex-1 h-full flex items-center cursor-text rounded-md transition-colors px-2",
               searchHover ? "bg-[var(--cevi-surface)]" : "bg-transparent",
             )}
             onMouseEnter={() => setSearchHover(true)}
@@ -192,9 +192,9 @@ export function Topbar() {
                   router.push(`/?q=${encodeURIComponent(searchQuery.trim())}`);
                 }
               }}
-              className="search-clean w-full h-full bg-transparent text-[22px] font-medium text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-faint)] px-2 outline-none border-none"
+              className="search-clean w-full h-full bg-transparent text-[22px] font-medium text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-faint)] outline-none border-none"
             />
-          </div>
+          </label>
 
           {/* Upload button */}
           <button

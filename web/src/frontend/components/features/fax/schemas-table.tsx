@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal } from "lucide-react";
+import { Archive, Copy, MoreHorizontal, Pencil, SquareArrowOutUpRight } from "lucide-react";
 import { cn, formatRelative } from "@/shared/utils";
 
 interface SchemaRow {
@@ -33,6 +34,7 @@ interface Props {
 
 export function SchemasTable({ schemas }: Props) {
   const router = useRouter();
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
   const sorted = [...schemas].sort((a, b) => b.fileCount - a.fileCount || a.label.localeCompare(b.label));
 
   return (
@@ -93,12 +95,16 @@ export function SchemasTable({ schemas }: Props) {
                     {schema.earliestFaxDate ? formatRelative(schema.earliestFaxDate) : "—"}
                   </td>
                   <td className="px-4 py-3.5">
-                    <button
-                      onClick={(e) => e.stopPropagation()}
-                      className="p-1 rounded-md hover:bg-[var(--cevi-surface-hover)] transition-colors"
-                    >
-                      <MoreHorizontal className="h-4 w-4 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
-                    </button>
+                    <RowMenu
+                      open={openMenu === schema.category}
+                      onToggle={(e) => {
+                        e.stopPropagation();
+                        setOpenMenu((prev) => (prev === schema.category ? null : schema.category));
+                      }}
+                      onClose={() => setOpenMenu(null)}
+                      onOpenSchema={() => router.push(`/category/${schema.category}`)}
+                      categoryKey={schema.category}
+                    />
                   </td>
                 </tr>
               );
@@ -107,5 +113,98 @@ export function SchemasTable({ schemas }: Props) {
         </table>
       </div>
     </div>
+  );
+}
+
+interface RowMenuProps {
+  open: boolean;
+  onToggle: (e: React.MouseEvent) => void;
+  onClose: () => void;
+  onOpenSchema: () => void;
+  categoryKey: string;
+}
+
+function RowMenu({ open, onToggle, onClose, onOpenSchema, categoryKey }: RowMenuProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    function handle(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    }
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [open, onClose]);
+
+  const stop = (e: React.MouseEvent) => e.stopPropagation();
+
+  return (
+    <div ref={ref} className="relative inline-block" onClick={stop}>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-label="Schema actions"
+        className="p-1 rounded-md hover:bg-[var(--cevi-surface)] transition-colors"
+      >
+        <MoreHorizontal className="h-4 w-4 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-full mt-1 z-20 min-w-[200px] rounded-lg border border-[var(--cevi-border)] bg-[var(--cevi-bg)] shadow-md py-1">
+          <MenuItem
+            icon={<SquareArrowOutUpRight className="h-3.5 w-3.5" strokeWidth={1.5} />}
+            label="Open schema"
+            onClick={() => { onOpenSchema(); onClose(); }}
+          />
+          <MenuItem
+            icon={<Pencil className="h-3.5 w-3.5" strokeWidth={1.5} />}
+            label="Edit schema"
+            onClick={() => { onOpenSchema(); onClose(); }}
+          />
+          <MenuItem
+            icon={<Copy className="h-3.5 w-3.5" strokeWidth={1.5} />}
+            label={copied ? "Copied" : "Copy category key"}
+            onClick={() => {
+              navigator.clipboard.writeText(categoryKey);
+              setCopied(true);
+              setTimeout(() => { setCopied(false); onClose(); }, 900);
+            }}
+          />
+          <div className="my-1 h-px bg-[var(--cevi-border-light)]" />
+          <MenuItem
+            icon={<Archive className="h-3.5 w-3.5" strokeWidth={1.5} />}
+            label="Archive"
+            destructive
+            onClick={onClose}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MenuItem({
+  icon,
+  label,
+  onClick,
+  destructive,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  destructive?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "w-full flex items-center gap-2.5 px-3 h-9 text-[13px] text-left hover:bg-[var(--cevi-surface)] transition-colors",
+        destructive ? "text-[var(--cevi-accent)]" : "text-[var(--cevi-text)]",
+      )}
+    >
+      <span className="text-[var(--cevi-text-muted)]">{icon}</span>
+      {label}
+    </button>
   );
 }
