@@ -1,15 +1,16 @@
-// Pin timezone to UTC for all server-rendered time strings so SSR output
-// matches client hydration — prevents React hydration mismatch.
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+// Manual formatting avoids Intl locale differences between Node and browser
+// which cause React hydration mismatches.
 export function formatDateTime(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-    timeZone: "UTC",
-  });
+  const mon = MONTHS[d.getUTCMonth()];
+  const day = d.getUTCDate();
+  let hr = d.getUTCHours();
+  const min = d.getUTCMinutes().toString().padStart(2, "0");
+  const ampm = hr >= 12 ? "PM" : "AM";
+  hr = hr % 12 || 12;
+  return `${mon} ${day}, ${hr}:${min} ${ampm}`;
 }
 
 // Use a fixed anchor for relative time so SSR and client agree. Seed faxes
@@ -32,21 +33,15 @@ export function formatRelative(iso: string, nowIso?: string): string {
 }
 
 export function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC",
-  });
+  const d = new Date(iso);
+  return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
 }
 
 export function formatDob(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "2-digit",
-    day: "2-digit",
-    year: "numeric",
-    timeZone: "UTC",
-  });
+  const d = new Date(iso);
+  const mm = (d.getUTCMonth() + 1).toString().padStart(2, "0");
+  const dd = d.getUTCDate().toString().padStart(2, "0");
+  return `${mm}/${dd}/${d.getUTCFullYear()}`;
 }
 
 export function calcAge(dobIso: string, refIso?: string): number {

@@ -58,4 +58,6 @@ export interface Fax {
   /** parent_id for split faxes (e.g. multi-patient EOBs) */
   parentId?: string;
   isHero?: boolean;
+  /** URL to the original uploaded file (PDF/image) stored in /public/uploads/ */
+  fileUrl?: string;
 }

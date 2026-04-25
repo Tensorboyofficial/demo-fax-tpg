@@ -146,21 +146,21 @@ function makeCols(): ColDef[] {
     {
       key: "document",
       header: "Document",
-      width: "w-[120px]",
+      width: "w-[100px]",
       getValue: (f) => f.id,
       render: (f) => (
         <div>
-          <div className="text-[11px] font-mono text-[#1A1A1A] font-medium">{f.id.replace("FAX-20260423-", "FAX-")}</div>
-          <div className="text-[10px] text-[#9CA3AF]">{f.pages} pg</div>
+          <div className="text-[11px] font-mono text-[var(--cevi-text)] font-medium">{f.id.replace("FAX-20260423-", "FAX-")}</div>
+          <div className="text-[10px] text-[var(--cevi-text-faint)]">{f.pages} pg</div>
         </div>
       ),
     },
     {
       key: "preview",
-      header: "Preview",
-      width: "w-[70px]",
+      header: "",
+      width: "w-[50px]",
       getValue: () => "",
-      render: () => null, // handled separately with FaxThumbnail
+      render: () => null,
     },
     {
       key: "type",
@@ -179,10 +179,10 @@ function makeCols(): ColDef[] {
     {
       key: "patient",
       header: "Patient",
-      width: "min-w-[160px]",
+      width: "w-[140px]",
       getValue: (f) => patientLabel(f),
       render: (f) => (
-        <span className="text-[12px] text-[#1A1A1A]">
+        <span className="text-[12px] text-[var(--cevi-text)] truncate block">
           {patientLabel(f)}
         </span>
       ),
@@ -190,10 +190,10 @@ function makeCols(): ColDef[] {
     {
       key: "sender",
       header: "Sender",
-      width: "w-[160px]",
+      width: "w-[140px]",
       getValue: (f) => f.fromOrg,
       render: (f) => (
-        <span className="text-[12px] text-[#1A1A1A] font-medium truncate block">
+        <span className="text-[12px] text-[var(--cevi-text)] font-medium truncate block max-w-[140px]">
           {f.fromOrg}
         </span>
       ),
@@ -201,24 +201,31 @@ function makeCols(): ColDef[] {
     {
       key: "status",
       header: "Status",
-      width: "w-[120px]",
+      width: "w-[100px]",
       getValue: (f) => toLifecycle(f.status),
       render: (f) => <StateChip state={toLifecycle(f.status)} />,
     },
     {
-      key: "confidence",
-      header: "Confidence",
-      width: "w-[100px]",
+      key: "typeConf",
+      header: "Type Conf.",
+      width: "w-[70px]",
+      getValue: (f) => f.typeConfidence != null ? `${Math.round(f.typeConfidence * 100)}%` : "\u2014",
+      render: (f) => <ConfidenceValue value={f.typeConfidence} variant="dot" />,
+    },
+    {
+      key: "matchConf",
+      header: "Patient Match",
+      width: "w-[80px]",
       getValue: (f) => f.matchConfidence != null ? `${Math.round(f.matchConfidence * 100)}%` : "\u2014",
       render: (f) => <ConfidenceValue value={f.matchConfidence} variant="dot" />,
     },
     {
       key: "received",
       header: "Received",
-      width: "w-[90px]",
+      width: "w-[80px]",
       getValue: (f) => formatRelative(f.receivedAt),
       render: (f) => (
-        <span className="text-[11px] text-[#9CA3AF] font-medium tabular-nums">
+        <span className="text-[11px] text-[var(--cevi-text-faint)] font-medium tabular-nums">
           {formatRelative(f.receivedAt)}
         </span>
       ),
@@ -226,13 +233,13 @@ function makeCols(): ColDef[] {
     {
       key: "action",
       header: "",
-      width: "w-[50px]",
+      width: "w-[40px]",
       getValue: () => "",
       render: (f) => (
         <Link
           href={`/inbox/${f.id}`}
           onClick={(e) => e.stopPropagation()}
-          className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] font-medium text-[var(--cevi-text-muted)] hover:text-[var(--cevi-accent)] hover:bg-[var(--cevi-accent-light)] transition-colors"
+          className="inline-flex items-center gap-1 px-1.5 py-1 rounded text-[10px] font-medium text-[var(--cevi-text-muted)] hover:text-[var(--cevi-accent)] hover:bg-[var(--cevi-accent-light)] transition-colors"
           title="View details"
         >
           <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
@@ -289,6 +296,25 @@ export function InboxTable({ faxes: faxesProp }: Props) {
 
   const needsReviewCount = counts.needs_review;
 
+  // Checkbox selection for export
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const toggleSelectAll = useCallback(() => {
+    setSelectedIds((prev) => {
+      if (prev.size === filtered.length) return new Set();
+      return new Set(filtered.map((f) => f.id));
+    });
+  }, [filtered]);
+
   // Selection
   const getCellValue = useCallback(
     (r: number, c: number) => {
@@ -318,37 +344,35 @@ export function InboxTable({ faxes: faxesProp }: Props) {
   return (
     <div>
       {/* Search row */}
-      <div className="flex items-center gap-3 px-5 py-3">
+      <div className="flex items-center gap-3 px-5 py-3.5">
         <div className="flex-1 flex items-center">
-          <Search className="h-5 w-5 text-[#9CA3AF] mr-2 shrink-0" strokeWidth={1.5} />
+          <Search className="h-[18px] w-[18px] text-[var(--cevi-text-faint)] mr-2.5 shrink-0" strokeWidth={1.5} />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search..."
-            className="search-clean flex-1 border-0 outline-none bg-transparent text-[18px] font-medium text-[#1A1A1A] placeholder:text-[#9CA3AF] py-1"
+            placeholder="Search faxes..."
+            className="search-clean flex-1 border-0 outline-none bg-transparent text-[16px] font-medium text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-faint)] placeholder:font-normal py-0.5"
           />
         </div>
         <Link href="/upload">
-          <button className="inline-flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium text-[#1A1A1A] bg-white border border-[#D4D4D4] rounded-[10px] hover:bg-[#F5F5F5] transition-colors">
-            <Upload className="h-3.5 w-3.5" strokeWidth={2} />
+          <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[var(--cevi-text-secondary)] bg-white border border-[var(--cevi-border)] rounded-lg hover:bg-[var(--cevi-surface)] hover:border-[var(--cevi-border)] hover:text-[var(--cevi-text)] transition-colors shadow-[var(--shadow-sm)]">
+            <Upload className="h-3.5 w-3.5" strokeWidth={1.5} />
             Upload
           </button>
         </Link>
         <button
           onClick={() => {
             const params = new URLSearchParams({ format: "json" });
-            if (categoryFilter !== "all") params.set("category", categoryFilter);
+            if (selectedIds.size > 0) params.set("ids", [...selectedIds].join(","));
+            else if (categoryFilter !== "all") params.set("category", categoryFilter);
             window.open(`/api/v1/export?${params.toString()}`, "_blank");
           }}
-          className="inline-flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium text-[#1A1A1A] bg-white border border-[#D4D4D4] rounded-[10px] hover:bg-[#F5F5F5] transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[var(--cevi-text-secondary)] bg-white border border-[var(--cevi-border)] rounded-lg hover:bg-[var(--cevi-surface)] hover:text-[var(--cevi-text)] transition-colors shadow-[var(--shadow-sm)]"
         >
-          <Download className="h-3.5 w-3.5" strokeWidth={2} />
-          Export
+          <Download className="h-3.5 w-3.5" strokeWidth={1.5} />
+          Export{selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}
         </button>
-        <div className="h-8 w-8 rounded-full bg-[var(--cevi-accent)] text-white font-semibold text-[11px] inline-flex items-center justify-center shrink-0 cursor-pointer">
-          T
-        </div>
       </div>
 
       {/* Category row */}
@@ -359,11 +383,21 @@ export function InboxTable({ faxes: faxesProp }: Props) {
             onChange={setCategoryFilter}
             options={CATEGORY_OPTIONS}
           />
-          <span className="text-[12px] text-[#9CA3AF] font-medium">
-            {selection.selectedCellCount > 1
-              ? `${selection.selectedCellCount} cells selected`
-              : `${filtered.length} faxes`}
+          <span className="text-[12px] text-[var(--cevi-text-faint)] font-medium">
+            {selectedIds.size > 0
+              ? `${selectedIds.size} selected`
+              : selection.selectedCellCount > 1
+                ? `${selection.selectedCellCount} cells selected`
+                : `${filtered.length} faxes`}
           </span>
+          {selectedIds.size > 0 && (
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              className="text-[11px] font-medium text-[var(--cevi-accent)] hover:underline"
+            >
+              Clear
+            </button>
+          )}
         </div>
       </div>
 
@@ -371,21 +405,21 @@ export function InboxTable({ faxes: faxesProp }: Props) {
       <KeyboardShortcutsBar shortcuts={SHORTCUTS} />
 
       {/* Status tabs */}
-      <div className="flex items-center gap-1 px-5 border-t border-[#EAEAEA] border-b border-b-[#EAEAEA] bg-white">
+      <div className="flex items-center gap-0.5 px-5 border-t border-[var(--cevi-border-light)] border-b border-b-[var(--cevi-border-light)] bg-white">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setStatusFilter(tab.key)}
             className={cn(
-              "px-[14px] py-2.5 text-[13px] font-medium border-b-2 transition-colors -mb-px",
+              "px-3 py-2.5 text-[12px] font-medium border-b-[2px] transition-colors -mb-px",
               statusFilter === tab.key
-                ? "text-[#1A1A1A] border-b-[#1A1A1A]"
-                : "text-[#6B7280] border-b-transparent hover:text-[#1A1A1A]",
+                ? "text-[var(--cevi-text)] border-b-[var(--cevi-text)]"
+                : "text-[var(--cevi-text-muted)] border-b-transparent hover:text-[var(--cevi-text-secondary)] hover:border-b-[var(--cevi-border)]",
             )}
           >
             {tab.label}
             {tab.key === "needs_review" && needsReviewCount > 0 && (
-              <span className="ml-1.5 inline-block px-1.5 py-0.5 text-[11px] font-medium text-[#A32D2D] bg-[#FEF2F2] rounded-full">
+              <span className="ml-1.5 inline-block px-1.5 py-0.5 text-[11px] font-medium text-[var(--cevi-error)] bg-[var(--cevi-error-light)] rounded-full">
                 {needsReviewCount}
               </span>
             )}
@@ -395,15 +429,23 @@ export function InboxTable({ faxes: faxesProp }: Props) {
 
       {/* Grid */}
       <div ref={gridRef} tabIndex={0} className="overflow-auto max-h-[640px] outline-none">
-        <table className="w-full min-w-max border-collapse text-[12px]">
+        <table className="w-full border-collapse text-[12px]">
           <thead>
             <tr>
+              <th className="w-[40px] px-2 py-2 bg-[var(--table-header-bg)] border-r border-b border-[var(--table-border)] sticky top-0 z-[2]">
+                <input
+                  type="checkbox"
+                  checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                  onChange={toggleSelectAll}
+                  className="h-3.5 w-3.5 rounded border-[var(--cevi-border)] text-[var(--cevi-accent)] cursor-pointer accent-[var(--cevi-accent)]"
+                />
+              </th>
               {cols.map((col, ci) => (
                 <th
                   key={col.key}
                   onClick={() => selection.selectColumn(ci, false)}
                   className={cn(
-                    "font-medium text-[11px] text-[#6B7280] px-3 py-2 bg-[#FAFAFA] border-r border-b border-[#F0F0F0] text-left sticky top-0 z-[2] whitespace-nowrap cursor-pointer select-none transition-colors hover:bg-[#F0F0F0]",
+                    "font-medium text-[11px] text-[var(--cevi-text-muted)] px-3 py-2 bg-[var(--table-header-bg)] border-r border-b border-[var(--table-border)] text-left sticky top-0 z-[2] whitespace-nowrap cursor-pointer select-none transition-colors hover:bg-[var(--cevi-surface-hover)]",
                     col.width,
                     selection.isColSelected(ci) && "grid-colhead col-selected",
                   )}
@@ -422,18 +464,27 @@ export function InboxTable({ faxes: faxesProp }: Props) {
                 className={cn(
                   "group transition-colors",
                   isUnopened ? "font-semibold" : "font-normal",
-                  selection.isRowSelected(ri) && "bg-[#FAFAFA]",
+                  selection.isRowSelected(ri) && "bg-[var(--table-header-bg)]",
+                  selectedIds.has(fax.id) && "bg-[var(--cevi-accent-light)]",
                 )}
               >
+                <td className="border-r border-b border-[var(--table-border)] px-2 py-2.5 text-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(fax.id)}
+                    onChange={() => toggleSelect(fax.id)}
+                    className="h-3.5 w-3.5 rounded border-[var(--cevi-border)] cursor-pointer accent-[var(--cevi-accent)]"
+                  />
+                </td>
                 {cols.map((col, ci) => {
                   const isEditing = editCell?.r === ri && editCell?.c === ci;
                   return (
                   <td
                     key={col.key}
                     className={cn(
-                      "border-r border-b border-[#F0F0F0] cursor-cell select-none relative text-[12px] text-[#1A1A1A]",
+                      "border-r border-b border-[var(--table-border)] cursor-cell select-none relative text-[12px] text-[var(--cevi-text)]",
                       selection.cellClasses(ri, ci),
-                      !selection.isRowSelected(ri) && "group-hover:bg-[#FAFAFA]",
+                      !selection.isRowSelected(ri) && "group-hover:bg-[var(--table-header-bg)]",
                     )}
                     onMouseDown={(e) => {
                       if ((e.target as HTMLElement).closest(".fax-thumb")) return;
@@ -514,8 +565,8 @@ export function InboxTable({ faxes: faxesProp }: Props) {
             })}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={cols.length} className="py-16 text-center">
-                  <div className="text-[12px] text-[#9CA3AF] mb-2">
+                <td colSpan={cols.length + 1} className="py-16 text-center">
+                  <div className="text-[12px] text-[var(--cevi-text-faint)] mb-2">
                     No faxes match the current filters.
                   </div>
                   <button

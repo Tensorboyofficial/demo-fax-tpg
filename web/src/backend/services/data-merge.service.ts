@@ -3,6 +3,7 @@ import type { IFaxRepository, IEventRepository } from "../repositories/interface
 import { SupabaseFaxRepository, SupabaseEventRepository } from "../repositories/supabase/supabase-fax.repository";
 import { MemoryFaxRepository, MemoryEventRepository } from "../repositories/memory/memory-fax.repository";
 import { SeedFaxRepository, SeedEventRepository } from "../repositories/seed/seed-fax.repository";
+import { SqliteFaxRepository, SqliteEventRepository } from "../repositories/sqlite/sqlite-fax.repository";
 
 function dedupeById<T extends { id: string }>(items: T[]): T[] {
   const seen = new Set<string>();
@@ -18,46 +19,39 @@ function dedupeById<T extends { id: string }>(items: T[]): T[] {
 export class DataMergeService {
   constructor(
     private readonly supabaseRepo: IFaxRepository,
-    private readonly memoryRepo: IFaxRepository,
-    private readonly seedRepo: IFaxRepository,
+    private readonly sqliteRepo: IFaxRepository,
     private readonly supabaseEventRepo: IEventRepository,
-    private readonly memoryEventRepo: IEventRepository,
-    private readonly seedEventRepo: IEventRepository,
+    private readonly sqliteEventRepo: IEventRepository,
   ) {}
 
   async getAllFaxes(): Promise<Fax[]> {
-    const [supabase, memory, seed] = await Promise.all([
+    const [supabase, sqlite] = await Promise.all([
       this.supabaseRepo.findAll(),
-      this.memoryRepo.findAll(),
-      this.seedRepo.findAll(),
+      this.sqliteRepo.findAll(),
     ]);
-    const merged = dedupeById([...supabase, ...memory, ...seed]);
+    // Priority: supabase > sqlite (seed & memory disconnected — DB only)
+    const merged = dedupeById([...supabase, ...sqlite]);
     return merged.sort((a, b) => (a.receivedAt < b.receivedAt ? 1 : -1));
   }
 
   async getFaxById(id: string): Promise<Fax | null> {
     const up = await this.supabaseRepo.findById(id);
     if (up) return up;
-    const mem = await this.memoryRepo.findById(id);
-    if (mem) return mem;
-    return this.seedRepo.findById(id);
+    return this.sqliteRepo.findById(id);
   }
 
   async getEventsForFax(id: string): Promise<FaxEvent[]> {
     const up = await this.supabaseEventRepo.findByFaxId(id);
     if (up.length > 0) return up;
-    const mem = await this.memoryEventRepo.findByFaxId(id);
-    if (mem.length > 0) return mem;
-    return this.seedEventRepo.findByFaxId(id);
+    return this.sqliteEventRepo.findByFaxId(id);
   }
 
   async getAllEvents(): Promise<FaxEvent[]> {
-    const [uploaded, memory, seed] = await Promise.all([
+    const [uploaded, sqlite] = await Promise.all([
       this.supabaseEventRepo.findAll(),
-      this.memoryEventRepo.findAll(),
-      this.seedEventRepo.findAll(),
+      this.sqliteEventRepo.findAll(),
     ]);
-    const merged = dedupeById([...uploaded, ...memory, ...seed]);
+    const merged = dedupeById([...uploaded, ...sqlite]);
     return merged.sort((a, b) => (a.at < b.at ? 1 : -1));
   }
 }
@@ -69,11 +63,9 @@ function getInstance(): DataMergeService {
   if (!_instance) {
     _instance = new DataMergeService(
       new SupabaseFaxRepository(),
-      new MemoryFaxRepository(),
-      new SeedFaxRepository(),
+      new SqliteFaxRepository(),
       new SupabaseEventRepository(),
-      new MemoryEventRepository(),
-      new SeedEventRepository(),
+      new SqliteEventRepository(),
     );
   }
   return _instance;

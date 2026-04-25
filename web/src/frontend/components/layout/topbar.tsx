@@ -56,17 +56,17 @@ export function Topbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="h-14 bg-white border-b border-[var(--cevi-border)]">
-      <div className="h-full px-6 md:px-10 flex items-center gap-4">
+    <header className="h-12 bg-white border-b border-[var(--cevi-border)]">
+      <div className="h-full px-6 md:px-10 flex items-center gap-3">
         <div className="flex-1" />
 
         {/* Notification bell */}
         <button
-          className="relative p-2 rounded-md hover:bg-[var(--cevi-surface-warm)] transition-colors"
+          className="relative p-1.5 rounded-lg hover:bg-[var(--cevi-surface)] transition-colors"
           aria-label="Notifications"
         >
           <Bell className="h-4 w-4 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[var(--cevi-accent)] ring-2 ring-white" />
+          <span className="absolute top-1 right-1 h-[7px] w-[7px] rounded-full bg-[var(--cevi-accent)] ring-[1.5px] ring-white" />
         </button>
 
         {/* User avatar */}
@@ -74,8 +74,8 @@ export function Topbar() {
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className={cn(
-              "h-8 w-8 rounded-full bg-[var(--cevi-accent-bg)] text-[var(--cevi-accent)] font-semibold text-[11px] inline-flex items-center justify-center transition-all",
-              menuOpen ? "ring-2 ring-[var(--cevi-accent)]/30" : "hover:ring-2 hover:ring-[var(--cevi-accent)]/20",
+              "h-7 w-7 rounded-full bg-[var(--cevi-accent-bg)] text-[var(--cevi-accent)] font-semibold text-[10px] inline-flex items-center justify-center transition-all",
+              menuOpen ? "ring-2 ring-[var(--cevi-accent)]/20" : "hover:ring-2 hover:ring-[var(--cevi-border)]",
             )}
             aria-label="Account menu"
           >

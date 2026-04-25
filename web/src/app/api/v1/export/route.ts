@@ -22,7 +22,15 @@ export async function GET(req: NextRequest) {
     const toDate = params.get("to") ?? undefined;
     const status = params.get("status") ?? undefined;
 
+    const ids = params.get("ids") ?? undefined;
+
     let faxes = await getAllFaxes();
+
+    // Filter by specific IDs (from checkbox selection)
+    if (ids) {
+      const idSet = new Set(ids.split(","));
+      faxes = faxes.filter((f) => idSet.has(f.id));
+    }
 
     // Apply filters
     if (category) {

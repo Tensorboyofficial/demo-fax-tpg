@@ -11,7 +11,13 @@ export function getSqlite(): Database.Database {
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
   initSchema(db);
+  migrate(db);
   return db;
+}
+
+/** Add columns that may be missing from older DBs */
+function migrate(d: Database.Database) {
+  try { d.exec("ALTER TABLE faxes ADD COLUMN file_url TEXT"); } catch { /* already exists */ }
 }
 
 function initSchema(d: Database.Database) {
@@ -40,6 +46,7 @@ function initSchema(d: Database.Database) {
       is_user_uploaded INTEGER NOT NULL DEFAULT 1,
       source_kind TEXT DEFAULT 'upload',
       created_by TEXT DEFAULT 'anon',
+      file_url TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 

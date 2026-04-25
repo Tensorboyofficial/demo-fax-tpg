@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Check } from "lucide-react";
 
 interface CategoryOption {
   key: string;
@@ -32,27 +32,35 @@ export function CategoryPill({ value, onChange, options }: CategoryPillProps) {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="inline-flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium text-white rounded-[10px] transition-colors"
-        style={{ background: "#E85D40", borderColor: "#E85D40" }}
+        className="inline-flex items-center gap-1.5 px-3 py-[5px] text-[12px] font-semibold text-white rounded-lg transition-all hover:opacity-90 active:scale-[0.97]"
+        style={{ background: "var(--cevi-accent)" }}
       >
         {selected?.label ?? value}
-        <ChevronDown className="h-3.5 w-3.5" strokeWidth={2.5} />
+        <ChevronDown
+          className="h-3 w-3 transition-transform"
+          strokeWidth={2.5}
+          style={{ transform: open ? "rotate(180deg)" : "rotate(0)" }}
+        />
       </button>
       {open && (
-        <div className="absolute top-full left-0 mt-1 bg-white border border-[#D4D4D4] rounded-lg shadow-lg z-50 min-w-[200px] max-h-[360px] overflow-y-auto py-1">
-          {options.map((opt) => (
-            <button
-              key={opt.key}
-              onClick={() => { onChange(opt.key); setOpen(false); }}
-              className={`w-full text-left px-3 py-2 text-[12px] font-medium transition-colors ${
-                opt.key === value
-                  ? "bg-[#FEF7F5] text-[#E85D40]"
-                  : "text-[#1A1A1A] hover:bg-[#F5F5F5]"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
+        <div className="absolute top-full left-0 mt-1.5 bg-white border border-[var(--cevi-border)] rounded-lg shadow-[var(--shadow-md)] z-50 min-w-[200px] max-h-[360px] overflow-y-auto py-1 scrollbar-thin">
+          {options.map((opt) => {
+            const active = opt.key === value;
+            return (
+              <button
+                key={opt.key}
+                onClick={() => { onChange(opt.key); setOpen(false); }}
+                className={`w-full text-left px-3 py-[6px] text-[12px] font-medium transition-colors flex items-center justify-between gap-2 ${
+                  active
+                    ? "bg-[var(--cevi-accent-light)] text-[var(--cevi-accent)]"
+                    : "text-[var(--cevi-text)] hover:bg-[var(--cevi-surface)]"
+                }`}
+              >
+                {opt.label}
+                {active && <Check className="h-3 w-3 shrink-0" strokeWidth={2.5} />}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

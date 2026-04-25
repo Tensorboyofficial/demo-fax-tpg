@@ -1,4 +1,4 @@
-import { cn, formatDateTime } from "@/shared/utils";
+import { cn, formatDateTime, formatDate } from "@/shared/utils";
 import { Badge } from "@/frontend/components/ui/badge";
 import { Printer as FaxIcon, FileText } from "lucide-react";
 import type { Fax } from "@/shared/types";
@@ -58,12 +58,7 @@ export function FaxPreview({ fax, className }: Props) {
         <div className="absolute top-10 right-8 rotate-[8deg] border-[3px] border-[var(--cevi-accent)] text-[var(--cevi-accent)] px-3 py-1 font-bold text-[12px] tracking-[0.15em] opacity-60 select-none pointer-events-none">
           RECEIVED
           <div className="text-[8px] tracking-[0.1em] font-semibold text-center mt-0.5">
-            {new Date(fax.receivedAt).toLocaleDateString("en-US", {
-              timeZone: "UTC",
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
+{formatDate(fax.receivedAt)}
           </div>
         </div>
       </div>

@@ -244,7 +244,7 @@ export function Sidebar() {
         )}
       >
         {/* Logo + collapse toggle */}
-        <div className={cn("h-12 flex items-center shrink-0", collapsed ? "justify-center px-2" : "justify-between px-4")}>
+        <div className={cn("h-12 flex items-center shrink-0 border-b border-[var(--cevi-border-light)]", collapsed ? "justify-center px-2" : "justify-between px-4")}>
           {collapsed ? (
             <button
               onClick={toggle}
@@ -282,10 +282,10 @@ export function Sidebar() {
                     href={item.href}
                     title={collapsed ? item.label : undefined}
                     className={cn(
-                      "flex items-center rounded-md text-[13px] font-medium transition-colors",
+                      "flex items-center rounded-md text-[13px] font-medium transition-colors relative",
                       collapsed ? "justify-center h-9 w-full" : "gap-2.5 px-3 h-9",
                       active
-                        ? "bg-[var(--cevi-accent-light)] text-[var(--cevi-text)]"
+                        ? "bg-[var(--cevi-accent-light)] text-[var(--cevi-text)] font-semibold"
                         : "text-[var(--cevi-text-secondary)] hover:bg-[var(--cevi-surface-warm)] hover:text-[var(--cevi-text)]",
                     )}
                   >
@@ -321,10 +321,10 @@ export function Sidebar() {
                         <Link
                           href={item.href}
                           className={cn(
-                            "flex items-center gap-2 px-3 h-8 rounded-md text-[12px] font-medium transition-colors",
+                            "flex items-center gap-2 px-3 h-[30px] rounded-md text-[12px] font-medium transition-colors",
                             active
-                              ? "bg-[var(--cevi-accent-light)] text-[var(--cevi-text)]"
-                              : "text-[var(--cevi-text-secondary)] hover:bg-[var(--cevi-surface-warm)] hover:text-[var(--cevi-text)]",
+                              ? "bg-[var(--cevi-accent-light)] text-[var(--cevi-text)] font-semibold"
+                              : "text-[var(--cevi-text-tertiary)] hover:bg-[var(--cevi-surface-warm)] hover:text-[var(--cevi-text)]",
                           )}
                         >
                           <span className={cn(active ? "text-[var(--cevi-accent)]" : "text-[var(--cevi-text-muted)]")}>

@@ -29,6 +29,7 @@ function rowToFax(row: Record<string, unknown>): Fax {
     aiSummary: (row.ai_summary as string) ?? undefined,
     modelUsed: (row.model_used as string) ?? undefined,
     isHero: false,
+    fileUrl: (row.file_url as string) ?? undefined,
   };
 }
 
@@ -85,12 +86,12 @@ export function insertFaxSqlite(fax: Fax, events: FaxEvent[]): { ok: boolean; er
         id, received_at, pages, from_number, from_org, fax_number_to, to_clinic,
         status, type, type_confidence, urgency, matched_patient_id, match_confidence,
         extracted, routed_to, routed_reason, ocr_text, ai_summary, model_used,
-        is_user_uploaded, source_kind, created_by
+        is_user_uploaded, source_kind, created_by, file_url
       ) VALUES (
         @id, @received_at, @pages, @from_number, @from_org, @fax_number_to, @to_clinic,
         @status, @type, @type_confidence, @urgency, @matched_patient_id, @match_confidence,
         @extracted, @routed_to, @routed_reason, @ocr_text, @ai_summary, @model_used,
-        @is_user_uploaded, @source_kind, @created_by
+        @is_user_uploaded, @source_kind, @created_by, @file_url
       )
     `);
 
@@ -123,6 +124,7 @@ export function insertFaxSqlite(fax: Fax, events: FaxEvent[]): { ok: boolean; er
         is_user_uploaded: 1,
         source_kind: "upload",
         created_by: "anon",
+        file_url: fax.fileUrl ?? null,
       });
 
       for (const e of events) {

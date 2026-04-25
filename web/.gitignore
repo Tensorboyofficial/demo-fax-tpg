@@ -44,3 +44,6 @@ next-env.d.ts
 cevi.db
 cevi.db-wal
 cevi.db-shm
+
+# uploaded fax files (PHI)
+/public/uploads/

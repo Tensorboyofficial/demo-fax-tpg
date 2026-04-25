@@ -4,12 +4,14 @@ import { getAnthropic, MODELS, MODEL_LABELS, type ModelTier } from "@/backend/co
 import { PROMPTS_CONFIG } from "@/backend/config/prompts.config";
 import { loadCategorySchema } from "@/backend/config/schema-loader";
 import { insertUploadedFax } from "@/backend/repositories/supabase/supabase-writes";
-import { saveFaxInMemory } from "@/backend/repositories/memory/memory-fax.repository";
+// Memory repo disconnected — DB only (seed & memory kept in code but not used)
 import { insertFaxSqlite, insertExtractionSqlite } from "@/backend/repositories/sqlite/sqlite-fax.repository";
 import { fireWebhooks } from "@/backend/services/webhook.service";
 import { matchPatient } from "@/backend/services/matching.service";
 import { RoutingService } from "@/backend/services/routing.service";
 import { guardRate } from "@/backend/middleware/rate-limiter";
+import { writeFileSync, existsSync, mkdirSync } from "fs";
+import path from "path";
 import { SCHEMA_CATEGORIES, CATEGORY_TO_LEGACY } from "@/shared/constants";
 import type {
   ExtractedFields,
@@ -338,6 +340,25 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
 
     const id = genId("FAX-UP");
     const nowIso = new Date().toISOString();
+
+    // Save uploaded file to public/uploads/ for document viewer
+    let fileUrl: string | undefined;
+    if (mode !== "text") {
+      const file = formData.get("file") as File;
+      if (file) {
+        const ext = file.type === "application/pdf" ? ".pdf"
+          : file.type === "image/png" ? ".png"
+          : file.type === "image/jpeg" ? ".jpg"
+          : ".webp";
+        const filename = `${id}${ext}`.toLowerCase();
+        const uploadsDir = path.join(process.cwd(), "public", "uploads");
+        if (!existsSync(uploadsDir)) mkdirSync(uploadsDir, { recursive: true });
+        const buffer = Buffer.from(await file.arrayBuffer());
+        writeFileSync(path.join(uploadsDir, filename), buffer);
+        fileUrl = `/uploads/${filename}`;
+      }
+    }
+
     const fax: Fax = {
       id,
       receivedAt: nowIso,
@@ -371,6 +392,7 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
       aiSummary: parsed.aiSummary,
       modelUsed: model,
       isHero: false,
+      fileUrl,
     };
 
     const events: FaxEvent[] = [
@@ -445,10 +467,7 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
 
     // ── Persist to all stores ──
 
-    // 1. In-memory (fast, for immediate detail page render)
-    saveFaxInMemory(fax, events);
-
-    // 2. SQLite (local dev persistence)
+    // 1. SQLite (local dev persistence)
     const sqliteResult = insertFaxSqlite(fax, events);
 
     // 3. If structured extraction succeeded, persist to dedicated table

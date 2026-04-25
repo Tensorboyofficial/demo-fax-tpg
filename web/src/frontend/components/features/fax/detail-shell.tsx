@@ -23,7 +23,7 @@ import { Button } from "@/frontend/components/ui/button";
 import { useToast } from "@/frontend/components/ui/toast";
 import { ConfidenceMeter } from "@/frontend/components/composed/confidence-meter";
 import { patients, patientFullName } from "@/data/seed/patients";
-import { formatDateTime, formatDob, calcAge, cn } from "@/shared/utils";
+import { formatDateTime, formatDate, formatDob, calcAge, cn } from "@/shared/utils";
 import { FAX_TYPE_LABELS, MODEL_LABELS, modelLabelFromId, type ModelTier } from "@/shared/constants";
 import type { Fax, FaxEvent, ExtractedFields, Urgency } from "@/shared/types";
 
@@ -131,9 +131,13 @@ export function DetailShell({ fax, initialEvents }: Props) {
 
   // Section collapse state
   const [extractionOpen, setExtractionOpen] = useState(true);
+  const [jsonOpen, setJsonOpen] = useState(true);
   const [metaOpen, setMetaOpen] = useState(true);
   const [matchOpen, setMatchOpen] = useState(true);
   const [auditOpen, setAuditOpen] = useState(false);
+
+  // Structured extraction from Pass 2
+  const structuredExtraction = fields.structuredExtraction as Record<string, unknown> | undefined;
 
   // Document viewer state
   const [zoom, setZoom] = useState(100);
@@ -354,44 +358,60 @@ export function DetailShell({ fax, initialEvents }: Props) {
                 className="mx-auto transition-transform origin-top"
                 style={{ maxWidth: `${Math.round(612 * zoom / 100)}px` }}
               >
-                {ocrPages.map((pageText, i) => (
-                  <div key={i} className="mb-6 last:mb-0">
-                    <div className="fax-paper rounded-lg p-8 relative shadow-md">
-                      {/* RECEIVED stamp on first page */}
-                      {i === 0 && (
-                        <div className="absolute top-6 right-6 rotate-[8deg] border-[3px] border-[var(--cevi-accent)] text-[var(--cevi-accent)] px-3 py-1 font-bold text-[11px] tracking-[0.15em] opacity-50 select-none pointer-events-none">
-                          RECEIVED
-                          <div className="text-[7px] tracking-[0.1em] font-semibold text-center mt-0.5">
-                            {new Date(fax.receivedAt).toLocaleDateString("en-US", { timeZone: "UTC", month: "short", day: "numeric", year: "numeric" })}
+                {/* Render actual file if available (PDF or image) */}
+                {fax.fileUrl ? (
+                  fax.fileUrl.endsWith(".pdf") ? (
+                    <div className="mb-6">
+                      <iframe
+                        src={fax.fileUrl}
+                        className="w-full rounded-lg shadow-md bg-white"
+                        style={{ height: `${Math.round(792 * zoom / 100)}px` }}
+                        title="Fax document"
+                      />
+                    </div>
+                  ) : (
+                    <div className="mb-6">
+                      <img
+                        src={fax.fileUrl}
+                        alt="Fax document"
+                        className="w-full rounded-lg shadow-md bg-white"
+                      />
+                    </div>
+                  )
+                ) : (
+                  /* Fallback: render OCR text as fax paper */
+                  ocrPages.map((pageText, i) => (
+                    <div key={i} className="mb-6 last:mb-0">
+                      <div className="fax-paper rounded-lg p-8 relative shadow-md">
+                        {i === 0 && (
+                          <div className="absolute top-6 right-6 rotate-[8deg] border-[3px] border-[var(--cevi-accent)] text-[var(--cevi-accent)] px-3 py-1 font-bold text-[11px] tracking-[0.15em] opacity-50 select-none pointer-events-none">
+                            RECEIVED
+                            <div className="text-[7px] tracking-[0.1em] font-semibold text-center mt-0.5">
+                              {formatDate(fax.receivedAt)}
+                            </div>
                           </div>
+                        )}
+                        <div className="pb-2 mb-4 text-[9px] text-[#888] font-sans tracking-[0.05em] flex items-center justify-between border-b border-dashed border-[rgba(0,0,0,0.15)]">
+                          <span>RECEIVED AT {fax.faxNumberTo}</span>
+                          <span>Page {i + 1} of {fax.pages}</span>
                         </div>
-                      )}
-
-                      {/* Page header */}
-                      <div className="pb-2 mb-4 text-[9px] text-[#888] font-sans tracking-[0.05em] flex items-center justify-between border-b border-dashed border-[rgba(0,0,0,0.15)]">
-                        <span>RECEIVED AT {fax.faxNumberTo}</span>
-                        <span>Page {i + 1} of {fax.pages}</span>
-                      </div>
-
-                      {/* Page content */}
-                      <div
-                        className="font-mono text-[11px] leading-[1.65] text-[#2a2722] whitespace-pre-wrap"
-                        style={{ fontSize: `${Math.round(11 * zoom / 100)}px` }}
-                      >
-                        {pageText}
-                      </div>
-
-                      {/* Page footer */}
-                      <div className="mt-6 pt-2 border-t border-dashed border-[rgba(0,0,0,0.15)] text-[9px] text-[#888] font-sans flex items-center justify-between">
-                        <span>— page {i + 1} —</span>
-                        <span className="inline-flex items-center gap-1">
-                          <FileText className="h-2.5 w-2.5" strokeWidth={1.5} />
-                          {fax.fromNumber}
-                        </span>
+                        <div
+                          className="font-mono text-[11px] leading-[1.65] text-[#2a2722] whitespace-pre-wrap"
+                          style={{ fontSize: `${Math.round(11 * zoom / 100)}px` }}
+                        >
+                          {pageText}
+                        </div>
+                        <div className="mt-6 pt-2 border-t border-dashed border-[rgba(0,0,0,0.15)] text-[9px] text-[#888] font-sans flex items-center justify-between">
+                          <span>— page {i + 1} —</span>
+                          <span className="inline-flex items-center gap-1">
+                            <FileText className="h-2.5 w-2.5" strokeWidth={1.5} />
+                            {fax.fromNumber}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -485,6 +505,42 @@ export function DetailShell({ fax, initialEvents }: Props) {
                   );
                 })}
               </div>
+            )}
+
+            {/* Full Schema Extraction (Pass 2) — collapsible sections per top-level key */}
+            {structuredExtraction && (
+              <>
+                <SectionHeader
+                  title="Full schema extraction"
+                  count={Object.keys(structuredExtraction).filter(k => !["extraction_meta", "$schema", "$id"].includes(k)).length}
+                  open={jsonOpen}
+                  onToggle={() => setJsonOpen(!jsonOpen)}
+                  badge={
+                    <span
+                      role="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigator.clipboard.writeText(JSON.stringify(structuredExtraction, null, 2));
+                        toast("Copied JSON");
+                      }}
+                      className="inline-flex items-center gap-1 text-[10px] font-medium text-[var(--cevi-accent)] hover:underline cursor-pointer"
+                    >
+                      <Copy className="h-3 w-3" strokeWidth={1.5} />
+                      Copy JSON
+                    </span>
+                  }
+                />
+                {jsonOpen && (
+                  <div className="space-y-1.5 mb-3">
+                    {Object.entries(structuredExtraction)
+                      .filter(([k]) => !["extraction_meta", "$schema", "$id"].includes(k))
+                      .map(([key, val]) => (
+                        <SchemaSection key={key} sectionKey={key} data={val} onCopy={copyValue} />
+                      ))
+                    }
+                  </div>
+                )}
+              </>
             )}
 
             {/* Fax Metadata */}
@@ -653,6 +709,165 @@ function SectionHeader({
       </div>
       {badge}
     </button>
+  );
+}
+
+/** Collapsible section for each top-level schema key */
+function SchemaSection({ sectionKey, data, onCopy }: { sectionKey: string; data: unknown; onCopy: (v: string) => void }) {
+  const [open, setOpen] = useState(true);
+  const label = sectionKey.replace(/_/g, " ");
+
+  // Leaf value — show as single row
+  if (data === null || data === undefined) return null;
+  if (typeof data === "string" || typeof data === "number" || typeof data === "boolean") {
+    const val = String(data);
+    return (
+      <div
+        className="border border-[var(--cevi-border)] rounded-lg overflow-hidden cursor-pointer hover:bg-[var(--cevi-surface-warm)] transition-colors"
+        onClick={() => onCopy(val)}
+      >
+        <div className="grid grid-cols-[130px_1fr] px-3 py-2">
+          <span className="text-[11px] font-semibold text-[var(--cevi-text-tertiary)] capitalize">{label}</span>
+          <span className="text-[12px] text-[var(--cevi-text)]">{val}</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Array or object — collapsible
+  const isArr = Array.isArray(data);
+  const count = isArr ? data.length : Object.keys(data as Record<string, unknown>).length;
+
+  return (
+    <div className="border border-[var(--cevi-border)] rounded-lg overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-3 py-2 bg-[var(--cevi-surface-warm)] hover:bg-[#EDECEB] transition-colors text-left"
+      >
+        <div className="flex items-center gap-2">
+          {open
+            ? <ChevronDown className="h-3.5 w-3.5 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
+            : <ChevronRight className="h-3.5 w-3.5 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
+          }
+          <span className="text-[12px] font-semibold text-[var(--cevi-text)] capitalize">{label}</span>
+          <span className="text-[10px] text-[var(--cevi-text-muted)]">
+            {isArr ? `${count} item${count !== 1 ? "s" : ""}` : `${count} fields`}
+          </span>
+        </div>
+      </button>
+      {open && (
+        <div className="divide-y divide-[var(--cevi-border-light)]">
+          {isArr ? (
+            (data as unknown[]).map((item, i) => (
+              <div key={i} className="px-3 py-1.5">
+                <div className="text-[10px] font-semibold text-[var(--cevi-text-muted)] uppercase mb-1">
+                  {label} #{i + 1}
+                </div>
+                <FlatFields data={item} onCopy={onCopy} />
+              </div>
+            ))
+          ) : (
+            <div className="px-0">
+              <FlatFields data={data} onCopy={onCopy} />
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Renders all fields of an object (and nested objects) as flat label→value rows */
+function FlatFields({ data, onCopy, prefix = "" }: { data: unknown; onCopy: (v: string) => void; prefix?: string }) {
+  if (data === null || data === undefined) return null;
+  if (typeof data !== "object") {
+    const val = String(data);
+    return (
+      <span
+        className="text-[12px] text-[var(--cevi-text)] cursor-pointer hover:bg-[var(--sel-fill)] rounded px-0.5"
+        onClick={() => onCopy(val)}
+      >
+        {val}
+      </span>
+    );
+  }
+
+  if (Array.isArray(data)) {
+    return (
+      <div className="space-y-1">
+        {data.map((item, i) => (
+          <div key={i} className="pl-2 border-l-2 border-[var(--cevi-border-light)]">
+            {typeof item === "object" && item !== null ? (
+              <FlatFields data={item} onCopy={onCopy} prefix={`${prefix}[${i}].`} />
+            ) : (
+              <span
+                className="text-[12px] text-[var(--cevi-text)] cursor-pointer hover:bg-[var(--sel-fill)] rounded px-0.5 block py-0.5"
+                onClick={() => onCopy(String(item))}
+              >
+                {String(item)}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const entries = Object.entries(data as Record<string, unknown>);
+  return (
+    <div>
+      {entries.map(([key, val]) => {
+        const fullKey = prefix ? `${prefix}${key}` : key;
+        const label = key.replace(/_/g, " ");
+
+        // Nested object — recurse
+        if (val !== null && typeof val === "object" && !Array.isArray(val)) {
+          return (
+            <div key={fullKey} className="border-b border-[var(--cevi-border-light)] last:border-b-0">
+              <div className="px-3 py-1 bg-[#FAFAF9]">
+                <span className="text-[10px] font-semibold text-[var(--cevi-text-muted)] uppercase">{label}</span>
+              </div>
+              <div className="pl-2">
+                <FlatFields data={val} onCopy={onCopy} prefix={`${fullKey}.`} />
+              </div>
+            </div>
+          );
+        }
+
+        // Array — show items
+        if (Array.isArray(val)) {
+          return (
+            <div key={fullKey} className="border-b border-[var(--cevi-border-light)] last:border-b-0">
+              <div className="px-3 py-1 bg-[#FAFAF9]">
+                <span className="text-[10px] font-semibold text-[var(--cevi-text-muted)] uppercase">{label}</span>
+                <span className="text-[10px] text-[var(--cevi-text-muted)] ml-1">({val.length})</span>
+              </div>
+              <div className="pl-2">
+                <FlatFields data={val} onCopy={onCopy} prefix={`${fullKey}.`} />
+              </div>
+            </div>
+          );
+        }
+
+        // Leaf
+        const strVal = val === null || val === undefined ? "—" : String(val);
+        return (
+          <div
+            key={fullKey}
+            className="grid grid-cols-[130px_1fr] border-b border-[var(--cevi-border-light)] last:border-b-0 cursor-pointer hover:bg-[var(--cevi-surface-warm)] transition-colors"
+            onClick={() => strVal !== "—" && onCopy(strVal)}
+          >
+            <div className="px-3 py-1.5 text-[11px] font-semibold text-[var(--cevi-text-tertiary)] border-r border-[var(--cevi-border-light)] capitalize">
+              {label}
+            </div>
+            <div className="px-3 py-1.5 text-[12px] text-[var(--cevi-text)] flex items-center gap-1.5">
+              <span className={cn("truncate", strVal === "—" && "text-[var(--cevi-text-muted)]")}>{strVal}</span>
+              {strVal !== "—" && <Copy className="h-3 w-3 text-[var(--cevi-text-muted)] shrink-0 opacity-0 group-hover:opacity-100" strokeWidth={1.5} />}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
