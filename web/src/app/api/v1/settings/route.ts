@@ -1,6 +1,14 @@
 import { NextRequest } from "next/server";
-import { getSetting, setSetting, deleteSetting } from "@/backend/repositories/sqlite/sqlite.client";
 import { isApiKeyConfigured } from "@/backend/config/models.config";
+
+/** Dynamic SQLite settings — returns null/noop on Vercel */
+function getSqliteSettings() {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mod = require("@/backend/repositories/sqlite/sqlite.client");
+    return { getSetting: mod.getSetting as (k: string) => string | null, setSetting: mod.setSetting as (k: string, v: string) => void, deleteSetting: mod.deleteSetting as (k: string) => boolean };
+  } catch { return null; }
+}
 
 /**
  * GET /api/v1/settings
@@ -9,7 +17,8 @@ import { isApiKeyConfigured } from "@/backend/config/models.config";
 export async function GET() {
   try {
     const keyStatus = isApiKeyConfigured();
-    const runtimeKey = getSetting("anthropic_api_key");
+    const sqlite = getSqliteSettings();
+    const runtimeKey = sqlite?.getSetting("anthropic_api_key") ?? null;
 
     return Response.json({
       anthropic_api_key: {
@@ -53,7 +62,9 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    setSetting(key, value);
+    const sqlite = getSqliteSettings();
+    if (!sqlite) return Response.json({ error: "Settings storage unavailable" }, { status: 503 });
+    sqlite.setSetting(key, value);
 
     return Response.json({
       ok: true,
@@ -76,7 +87,9 @@ export async function DELETE(req: NextRequest) {
   const key = req.nextUrl.searchParams.get("key");
   if (!key) return Response.json({ error: "key query param is required" }, { status: 400 });
 
-  const deleted = deleteSetting(key);
+  const sqlite = getSqliteSettings();
+  if (!sqlite) return Response.json({ error: "Settings storage unavailable" }, { status: 503 });
+  const deleted = sqlite.deleteSetting(key);
 
   return Response.json({
     ok: true,

@@ -4,8 +4,16 @@ import { getAnthropic, MODELS, MODEL_LABELS, type ModelTier } from "@/backend/co
 import { PROMPTS_CONFIG } from "@/backend/config/prompts.config";
 import { loadCategorySchema } from "@/backend/config/schema-loader";
 import { insertUploadedFax } from "@/backend/repositories/supabase/supabase-writes";
-// Memory repo disconnected — DB only (seed & memory kept in code but not used)
-import { insertFaxSqlite, insertExtractionSqlite } from "@/backend/repositories/sqlite/sqlite-fax.repository";
+// SQLite — dynamic import, unavailable on Vercel serverless
+let _sqliteMod: typeof import("@/backend/repositories/sqlite/sqlite-fax.repository") | null = null;
+function getSqliteMod() {
+  if (_sqliteMod) return _sqliteMod;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    _sqliteMod = require("@/backend/repositories/sqlite/sqlite-fax.repository");
+    return _sqliteMod;
+  } catch { return null; }
+}
 import { fireWebhooks } from "@/backend/services/webhook.service";
 import { matchPatient } from "@/backend/services/matching.service";
 import { RoutingService } from "@/backend/services/routing.service";
@@ -467,23 +475,27 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
 
     // ── Persist to all stores ──
 
-    // 1. SQLite (local dev persistence)
-    const sqliteResult = insertFaxSqlite(fax, events);
+    // 1. SQLite (local dev persistence — skipped on Vercel)
+    let sqliteOk = false;
+    const sqliteMod = getSqliteMod();
+    if (sqliteMod) {
+      const sqliteResult = sqliteMod.insertFaxSqlite(fax, events);
+      sqliteOk = sqliteResult.ok;
 
-    // 3. If structured extraction succeeded, persist to dedicated table
-    if (structuredExtraction && sqliteResult.ok) {
-      insertExtractionSqlite({
-        id: `${id}:extraction`,
-        faxId: id,
-        category: classifiedCategory,
-        subcategory: (structuredExtraction.document_subcategory as string) ?? undefined,
-        extraction: structuredExtraction,
-        modelUsed: model,
-        latencyMs: extractionLatencyMs,
-      });
+      if (structuredExtraction && sqliteOk) {
+        sqliteMod.insertExtractionSqlite({
+          id: `${id}:extraction`,
+          faxId: id,
+          category: classifiedCategory,
+          subcategory: (structuredExtraction.document_subcategory as string) ?? undefined,
+          extraction: structuredExtraction,
+          modelUsed: model,
+          latencyMs: extractionLatencyMs,
+        });
+      }
     }
 
-    // 4. Supabase (prod persistence)
+    // 2. Supabase (prod persistence)
     const supabaseResult = await insertUploadedFax({ fax, events });
 
     // 5. Fire webhooks (async, non-blocking)
@@ -502,7 +514,7 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
       }).catch(() => {}); // non-blocking
     }
 
-    const persisted = sqliteResult.ok || supabaseResult.ok;
+    const persisted = sqliteOk || supabaseResult.ok;
 
     return {
       ok: true,
@@ -512,7 +524,7 @@ export async function uploadFax(formData: FormData): Promise<UploadResult | Uplo
       modelLabel,
       latencyMs,
       persisted,
-      persistError: persisted ? undefined : (sqliteResult.error ?? supabaseResult.error),
+      persistError: persisted ? undefined : supabaseResult.error,
       structuredExtraction,
       extractionLatencyMs,
     };

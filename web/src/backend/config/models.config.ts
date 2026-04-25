@@ -1,5 +1,13 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { getSetting } from "@/backend/repositories/sqlite/sqlite.client";
+
+/** Dynamic SQLite settings — returns null on Vercel where better-sqlite3 is unavailable */
+function getSetting(key: string): string | null {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mod = require("@/backend/repositories/sqlite/sqlite.client");
+    return mod.getSetting(key);
+  } catch { return null; }
+}
 
 export type { ModelTier } from "@/shared/constants/model-labels";
 type ModelTier = "fast" | "smart" | "premium";

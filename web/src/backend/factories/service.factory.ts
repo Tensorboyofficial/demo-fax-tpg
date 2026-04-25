@@ -1,23 +1,16 @@
-import { SupabaseFaxRepository, SupabaseEventRepository } from "../repositories/supabase/supabase-fax.repository";
-import { SqliteFaxRepository, SqliteEventRepository } from "../repositories/sqlite/sqlite-fax.repository";
-import { DataMergeService } from "../services/data-merge.service";
+import { getAllFaxes, getFaxByIdMerged, getEventsForFax, getAllEvents } from "../services/data-merge.service";
 import { MatchingService } from "../services/matching.service";
 import { RoutingService } from "../services/routing.service";
 import { MATCHING_CONFIG } from "../config/matching.config";
 
-// Lazy singletons
-let _dataMerge: DataMergeService | null = null;
-
-export function getDataMergeService(): DataMergeService {
-  if (_dataMerge) return _dataMerge;
-
-  _dataMerge = new DataMergeService(
-    new SupabaseFaxRepository(),
-    new SqliteFaxRepository(),
-    new SupabaseEventRepository(),
-    new SqliteEventRepository(),
-  );
-  return _dataMerge;
+/** Returns a DataMergeService-compatible object backed by the singleton in data-merge.service.ts */
+export function getDataMergeService() {
+  return {
+    getAllFaxes,
+    getFaxById: getFaxByIdMerged,
+    getEventsForFax,
+    getAllEvents,
+  };
 }
 
 export function getMatchingService(): MatchingService {

@@ -1,5 +1,13 @@
-import { getSqlite } from "@/backend/repositories/sqlite/sqlite.client";
 import { createHmac, randomUUID } from "crypto";
+
+/** Dynamic SQLite — returns null on Vercel where better-sqlite3 is unavailable */
+function tryGetSqlite() {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mod = require("@/backend/repositories/sqlite/sqlite.client");
+    return mod.getSqlite();
+  } catch { return null; }
+}
 
 interface WebhookConfig {
   id: string;
@@ -19,7 +27,8 @@ export function registerWebhook(params: {
   secret?: string;
   events?: string[];
 }): { ok: true; webhook: WebhookConfig } | { ok: false; error: string } {
-  const db = getSqlite();
+  const db = tryGetSqlite();
+  if (!db) return { ok: false, error: "Webhook storage unavailable" };
   const id = genId();
   const events = params.events ?? ["fax.extracted"];
   try {
@@ -43,7 +52,8 @@ export function registerWebhook(params: {
 
 /** List all webhook configs */
 export function listWebhooks(): WebhookConfig[] {
-  const db = getSqlite();
+  const db = tryGetSqlite();
+  if (!db) return [];
   const rows = db.prepare("SELECT * FROM webhook_config ORDER BY created_at DESC").all() as Record<string, unknown>[];
   return rows.map((r) => ({
     id: r.id as string,
@@ -56,14 +66,16 @@ export function listWebhooks(): WebhookConfig[] {
 
 /** Delete a webhook */
 export function deleteWebhook(id: string): boolean {
-  const db = getSqlite();
+  const db = tryGetSqlite();
+  if (!db) return false;
   const result = db.prepare("DELETE FROM webhook_config WHERE id = ?").run(id);
   return result.changes > 0;
 }
 
 /** Toggle webhook active/inactive */
 export function toggleWebhook(id: string, active: boolean): boolean {
-  const db = getSqlite();
+  const db = tryGetSqlite();
+  if (!db) return false;
   const result = db.prepare("UPDATE webhook_config SET active = ?, updated_at = datetime('now') WHERE id = ?").run(active ? 1 : 0, id);
   return result.changes > 0;
 }
@@ -73,7 +85,9 @@ export async function fireWebhooks(
   eventType: string,
   payload: Record<string, unknown>,
 ): Promise<void> {
-  const db = getSqlite();
+  const db = tryGetSqlite();
+  if (!db) return; // No webhook storage on Vercel — skip silently
+
   const rows = db.prepare(
     "SELECT * FROM webhook_config WHERE active = 1",
   ).all() as Record<string, unknown>[];
@@ -105,7 +119,6 @@ export async function fireWebhooks(
       "X-Cevi-Event": eventType,
     };
 
-    // HMAC signature if secret is configured
     if (secret) {
       const signature = createHmac("sha256", secret).update(body).digest("hex");
       headers["X-Cevi-Signature"] = `sha256=${signature}`;
@@ -148,7 +161,8 @@ export async function fireWebhooks(
 
 /** Get recent deliveries for a webhook */
 export function getWebhookDeliveries(webhookId: string, limit = 20): Record<string, unknown>[] {
-  const db = getSqlite();
+  const db = tryGetSqlite();
+  if (!db) return [];
   return db.prepare(
     "SELECT * FROM webhook_deliveries WHERE webhook_id = ? ORDER BY delivered_at DESC LIMIT ?",
   ).all(webhookId, limit) as Record<string, unknown>[];
