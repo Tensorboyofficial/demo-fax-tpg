@@ -92,7 +92,7 @@ function SupportModal({ onClose }: { onClose: () => void }) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [onClose]);
 
-  const email = "support@reducto.ai";
+  const email = "theo@cevi.ai";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
