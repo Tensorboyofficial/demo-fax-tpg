@@ -335,7 +335,14 @@ export function InboxTable({ faxes: faxesProp }: Props) {
             Upload
           </button>
         </Link>
-        <button className="inline-flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium text-[#1A1A1A] bg-white border border-[#D4D4D4] rounded-[10px] hover:bg-[#F5F5F5] transition-colors">
+        <button
+          onClick={() => {
+            const params = new URLSearchParams({ format: "json" });
+            if (categoryFilter !== "all") params.set("category", categoryFilter);
+            window.open(`/api/v1/export?${params.toString()}`, "_blank");
+          }}
+          className="inline-flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium text-[#1A1A1A] bg-white border border-[#D4D4D4] rounded-[10px] hover:bg-[#F5F5F5] transition-colors"
+        >
           <Download className="h-3.5 w-3.5" strokeWidth={2} />
           Export
         </button>
