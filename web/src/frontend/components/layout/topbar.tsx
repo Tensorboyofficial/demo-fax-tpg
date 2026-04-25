@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { LogOut, Upload, Download, Menu } from "lucide-react";
+import { LogOut, Upload, Download, Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { cn } from "@/shared/utils";
 import { useSidebar } from "./sidebar-context";
 import { useIsDesktop } from "@/frontend/hooks/use-media-query";
@@ -117,7 +117,7 @@ export function Topbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [profilePicUrl, setProfilePicUrl] = useState<string | null>(null);
   const [name, setName] = useState("Theo Sakellos");
-  const { openMobile } = useSidebar();
+  const { openMobile, collapsed, toggle } = useSidebar();
   const isDesktop = useIsDesktop();
 
   // Read profile from localStorage and listen for changes
@@ -170,6 +170,23 @@ export function Topbar() {
               aria-label="Open menu"
             >
               <Menu className="h-5 w-5 text-[var(--cevi-text)]" strokeWidth={1.5} />
+            </button>
+          )}
+
+          {/* Desktop sidebar toggle */}
+          {isDesktop && (
+            <button
+              onClick={toggle}
+              type="button"
+              className="p-1.5 -ml-1 rounded-md text-[var(--cevi-text-muted)] hover:bg-[var(--cevi-surface)] hover:text-[var(--cevi-text)] transition-colors shrink-0"
+              aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {collapsed ? (
+                <PanelLeftOpen className="h-4 w-4" strokeWidth={1.5} />
+              ) : (
+                <PanelLeftClose className="h-4 w-4" strokeWidth={1.5} />
+              )}
             </button>
           )}
 

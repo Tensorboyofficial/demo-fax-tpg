@@ -9,8 +9,6 @@ import {
   ChevronDown,
   ChevronRight,
   ChevronLeft,
-  FileText,
-  Printer as FaxIcon,
   ZoomIn,
   ZoomOut,
   CheckCircle2,
@@ -23,7 +21,7 @@ import { Button } from "@/frontend/components/ui/button";
 import { StateChip } from "@/frontend/components/ui/state-chip";
 import { useToast } from "@/frontend/components/ui/toast";
 import { ConfidenceMeter } from "@/frontend/components/composed/confidence-meter";
-import { formatDateTime, formatDate, cn } from "@/shared/utils";
+import { formatDateTime, cn } from "@/shared/utils";
 import { FAX_TYPE_LABELS, MODEL_LABELS, modelLabelFromId, type ModelTier } from "@/shared/constants";
 import type { Fax, FaxEvent, ExtractedFields, Urgency } from "@/shared/types";
 import { useIsDesktop, useMediaQuery } from "@/frontend/hooks/use-media-query";
@@ -374,33 +372,15 @@ export function DetailShell({ fax, initialEvents }: Props) {
                   />
                 )
               ) : (
-                /* Fallback: render active page as fax paper */
-                <div className="fax-paper p-8 relative">
-                  {activePage === 0 && (
-                    <div className="absolute top-6 right-6 rotate-[8deg] border-[3px] border-[var(--cevi-accent)] text-[var(--cevi-accent)] px-3 py-1 font-bold text-[11px] tracking-[0.15em] opacity-50 select-none pointer-events-none">
-                      RECEIVED
-                      <div className="text-[7px] tracking-[0.1em] font-semibold text-center mt-0.5">
-                        {formatDate(fax.receivedAt)}
-                      </div>
-                    </div>
-                  )}
-                  <div className="pb-2 mb-4 text-[9px] text-[#888] font-sans tracking-[0.05em] flex items-center justify-between border-b border-dashed border-[rgba(0,0,0,0.15)]">
-                    <span>RECEIVED AT {fax.faxNumberTo}</span>
-                    <span>Page {activePage + 1} of {fax.pages}</span>
-                  </div>
-                  <div
-                    className="font-mono text-[11px] leading-[1.65] text-[#2a2722] whitespace-pre-wrap"
-                    style={{ fontSize: `${Math.round(11 * zoom / 100)}px` }}
-                  >
-                    {ocrPages[activePage]}
-                  </div>
-                  <div className="mt-6 pt-2 border-t border-dashed border-[rgba(0,0,0,0.15)] text-[9px] text-[#888] font-sans flex items-center justify-between">
-                    <span>— page {activePage + 1} —</span>
-                    <span className="inline-flex items-center gap-1">
-                      <FileText className="h-2.5 w-2.5" strokeWidth={1.5} />
-                      {fax.fromNumber}
-                    </span>
-                  </div>
+                /* Fallback: clean white Letter-sized page rendering OCR text */
+                <div
+                  className="bg-white p-12 font-mono leading-[1.65] text-[#2a2722] whitespace-pre-wrap"
+                  style={{
+                    minHeight: `${Math.round(792 * zoom / 100)}px`,
+                    fontSize: `${Math.round(11 * zoom / 100)}px`,
+                  }}
+                >
+                  {ocrPages[activePage]}
                 </div>
               )}
             </div>
