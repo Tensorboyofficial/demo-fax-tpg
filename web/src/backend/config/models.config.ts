@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { getSetting } from "@/backend/repositories/sqlite/sqlite.client";
 
 export type { ModelTier } from "@/shared/constants/model-labels";
 type ModelTier = "fast" | "smart" | "premium";
@@ -51,11 +52,40 @@ export const MODEL_LABELS: Record<ModelTier, string> = {
   premium: MODELS_CONFIG.premium.label,
 };
 
-/** Singleton Anthropic client */
+/**
+ * Anthropic client — checks for API key in this order:
+ * 1. Runtime key set via Settings UI (stored in SQLite)
+ * 2. ANTHROPIC_API_KEY environment variable
+ *
+ * Re-creates client when the runtime key changes.
+ */
 let _client: Anthropic | undefined;
+let _lastKey: string | undefined;
+
 export function getAnthropic(): Anthropic {
-  if (!_client) _client = new Anthropic();
+  const runtimeKey = getSetting("anthropic_api_key");
+  const effectiveKey = runtimeKey || process.env.ANTHROPIC_API_KEY;
+
+  if (!effectiveKey) {
+    throw new Error(
+      "No Anthropic API key configured. Set it in Settings or add ANTHROPIC_API_KEY to .env",
+    );
+  }
+
+  // Re-create client if key changed (e.g., user updated it in Settings)
+  if (_client && _lastKey === effectiveKey) return _client;
+
+  _client = new Anthropic({ apiKey: effectiveKey });
+  _lastKey = effectiveKey;
   return _client;
+}
+
+/** Check if an API key is configured (from any source) */
+export function isApiKeyConfigured(): { configured: boolean; source: "settings" | "env" | "none" } {
+  const runtimeKey = getSetting("anthropic_api_key");
+  if (runtimeKey) return { configured: true, source: "settings" };
+  if (process.env.ANTHROPIC_API_KEY) return { configured: true, source: "env" };
+  return { configured: false, source: "none" };
 }
 
 export function resolveModel(tier: ModelTier): string {

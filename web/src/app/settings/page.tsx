@@ -1,4 +1,6 @@
-import { Badge } from "@/frontend/components/ui/badge";
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
 import {
   Settings as SettingsIcon,
   ShieldCheck,
@@ -8,9 +10,15 @@ import {
   Building2,
   Sparkles,
   Database,
+  Key,
+  Eye,
+  EyeOff,
+  Check,
+  X,
+  Loader2,
+  AlertCircle,
+  Trash2,
 } from "lucide-react";
-
-export const metadata = { title: "Settings · Cevi" };
 
 interface SettingSection {
   icon: React.ReactNode;
@@ -91,7 +99,83 @@ const SECTIONS: SettingSection[] = [
   },
 ];
 
+interface ApiKeyState {
+  configured: boolean;
+  source: "settings" | "env" | "none";
+  masked: string | null;
+}
+
 export default function SettingsPage() {
+  const [keyState, setKeyState] = useState<ApiKeyState | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [inputValue, setInputValue] = useState("");
+  const [showInput, setShowInput] = useState(false);
+  const [showKey, setShowKey] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  const fetchKeyState = useCallback(async () => {
+    try {
+      const res = await fetch("/api/v1/settings");
+      const data = await res.json();
+      setKeyState(data.anthropic_api_key);
+    } catch {
+      setKeyState({ configured: false, source: "none", masked: null });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchKeyState();
+  }, [fetchKeyState]);
+
+  const handleSave = async () => {
+    if (!inputValue.trim()) return;
+    setSaving(true);
+    setFeedback(null);
+    try {
+      const res = await fetch("/api/v1/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key: "anthropic_api_key", value: inputValue.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setFeedback({ type: "error", message: data.error ?? "Failed to save" });
+        return;
+      }
+      setFeedback({ type: "success", message: "API key saved" });
+      setInputValue("");
+      setShowInput(false);
+      fetchKeyState();
+    } catch {
+      setFeedback({ type: "error", message: "Network error" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleRemove = async () => {
+    setRemoving(true);
+    setFeedback(null);
+    try {
+      const res = await fetch("/api/v1/settings?key=anthropic_api_key", { method: "DELETE" });
+      const data = await res.json();
+      if (data.fallback) {
+        setFeedback({ type: "success", message: "Runtime key removed. Falling back to .env" });
+      } else {
+        setFeedback({ type: "success", message: "API key removed" });
+      }
+      fetchKeyState();
+    } catch {
+      setFeedback({ type: "error", message: "Network error" });
+    } finally {
+      setRemoving(false);
+    }
+  };
+
   return (
     <div>
       <div className="mb-6">
@@ -104,12 +188,156 @@ export default function SettingsPage() {
       </div>
 
       <div className="space-y-4">
+        {/* ── API Key Section ── */}
+        <div className="rounded-lg border border-[var(--cevi-border)] bg-white overflow-hidden">
+          <div className="flex items-center gap-3 px-4 py-3 bg-[var(--cevi-surface-warm)] border-b border-[var(--cevi-border-light)]">
+            <div className="h-8 w-8 rounded-lg bg-white border border-[var(--cevi-border)] flex items-center justify-center text-[var(--cevi-accent)]">
+              <Key className="h-4 w-4" strokeWidth={1.5} />
+            </div>
+            <div>
+              <div className="text-[13px] font-semibold text-[var(--cevi-text)]">API Key</div>
+              <div className="text-[11px] text-[var(--cevi-text-muted)]">
+                Anthropic API key for Claude classification and extraction
+              </div>
+            </div>
+          </div>
+
+          <div className="px-4 py-3 space-y-3">
+            {/* Status row */}
+            <div className="flex items-center justify-between">
+              <span className="text-[12px] text-[var(--cevi-text-secondary)]">Status</span>
+              {loading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--cevi-text-muted)]" />
+              ) : keyState?.configured ? (
+                <span className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--cevi-jade)]">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--cevi-jade)]" />
+                  Configured
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5 text-[12px] font-medium text-[var(--cevi-coral)]">
+                  <AlertCircle className="h-3 w-3" />
+                  Not configured
+                </span>
+              )}
+            </div>
+
+            {/* Source row */}
+            {keyState?.configured && (
+              <div className="flex items-center justify-between border-t border-[var(--cevi-border-light)] pt-3">
+                <span className="text-[12px] text-[var(--cevi-text-secondary)]">Source</span>
+                <span className="text-[12px] font-mono text-[var(--cevi-text)]">
+                  {keyState.source === "settings" ? "Settings (runtime)" : ".env file"}
+                </span>
+              </div>
+            )}
+
+            {/* Masked key row */}
+            {keyState?.masked && (
+              <div className="flex items-center justify-between border-t border-[var(--cevi-border-light)] pt-3">
+                <span className="text-[12px] text-[var(--cevi-text-secondary)]">Key</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[12px] font-mono text-[var(--cevi-text)]">
+                    {showKey ? keyState.masked : keyState.masked.replace(/[^*-]/g, (c, i) => i < 7 ? c : "*")}
+                  </span>
+                  <button
+                    onClick={() => setShowKey(!showKey)}
+                    className="text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] transition-colors"
+                  >
+                    {showKey ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Feedback message */}
+            {feedback && (
+              <div
+                className={`flex items-center gap-1.5 text-[12px] px-3 py-2 rounded-md ${
+                  feedback.type === "success"
+                    ? "bg-[#f0faf5] text-[var(--cevi-jade)]"
+                    : "bg-[#fef2f2] text-[#dc2626]"
+                }`}
+              >
+                {feedback.type === "success" ? <Check className="h-3.5 w-3.5" /> : <AlertCircle className="h-3.5 w-3.5" />}
+                {feedback.message}
+              </div>
+            )}
+
+            {/* Input for new key */}
+            {showInput && (
+              <div className="border-t border-[var(--cevi-border-light)] pt-3 space-y-2">
+                <label className="text-[11px] font-medium text-[var(--cevi-text-secondary)] uppercase tracking-wider">
+                  {keyState?.configured ? "Replace API Key" : "Enter API Key"}
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="password"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder="sk-ant-api03-..."
+                    className="flex-1 text-[12px] font-mono px-3 py-2 rounded-md border border-[var(--cevi-border)] bg-white text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--cevi-accent)]/30 focus:border-[var(--cevi-accent)]"
+                    onKeyDown={(e) => e.key === "Enter" && handleSave()}
+                    autoFocus
+                  />
+                  <button
+                    onClick={handleSave}
+                    disabled={saving || !inputValue.trim()}
+                    className="px-3 py-2 text-[12px] font-medium rounded-md bg-[var(--cevi-accent)] text-white hover:bg-[var(--cevi-accent)]/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
+                  >
+                    {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                    Save
+                  </button>
+                  <button
+                    onClick={() => { setShowInput(false); setInputValue(""); setFeedback(null); }}
+                    className="px-2 py-2 text-[12px] rounded-md border border-[var(--cevi-border)] text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] hover:bg-[var(--cevi-surface-warm)] transition-colors"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <p className="text-[11px] text-[var(--cevi-text-muted)]">
+                  Key is stored locally in SQLite. In production, use the <code className="font-mono text-[10px] bg-[var(--cevi-surface-warm)] px-1 rounded">ANTHROPIC_API_KEY</code> environment variable instead.
+                </p>
+              </div>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex items-center gap-2 border-t border-[var(--cevi-border-light)] pt-3">
+              {!showInput && (
+                <button
+                  onClick={() => { setShowInput(true); setFeedback(null); }}
+                  className="px-3 py-1.5 text-[12px] font-medium rounded-md border border-[var(--cevi-border)] text-[var(--cevi-text)] hover:bg-[var(--cevi-surface-warm)] transition-colors flex items-center gap-1.5"
+                >
+                  <Key className="h-3.5 w-3.5" />
+                  {keyState?.configured ? "Change Key" : "Add Key"}
+                </button>
+              )}
+
+              {keyState?.source === "settings" && !showInput && (
+                <button
+                  onClick={handleRemove}
+                  disabled={removing}
+                  className="px-3 py-1.5 text-[12px] font-medium rounded-md border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-40 transition-colors flex items-center gap-1.5"
+                >
+                  {removing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                  Remove
+                </button>
+              )}
+
+              {keyState?.source === "env" && !showInput && (
+                <span className="text-[11px] text-[var(--cevi-text-muted)] italic">
+                  Set via .env — remove from .env to use Settings key
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Static Sections ── */}
         {SECTIONS.map((section) => (
           <div
             key={section.title}
             className="rounded-lg border border-[var(--cevi-border)] bg-white overflow-hidden"
           >
-            {/* Section header */}
             <div className="flex items-center gap-3 px-4 py-3 bg-[var(--cevi-surface-warm)] border-b border-[var(--cevi-border-light)]">
               <div className="h-8 w-8 rounded-lg bg-white border border-[var(--cevi-border)] flex items-center justify-center text-[var(--cevi-accent)]">
                 {section.icon}
@@ -120,7 +348,6 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            {/* Key-value rows */}
             <div>
               {section.items.map((item, i) => (
                 <div
@@ -142,7 +369,6 @@ export default function SettingsPage() {
         ))}
       </div>
 
-      {/* Footer */}
       <div className="mt-6 flex items-center justify-between text-[11px] text-[var(--cevi-text-muted)]">
         <span>Cevi v1.0 · Transcend Medical Group</span>
         <div className="flex items-center gap-1.5">

@@ -115,5 +115,36 @@ function initSchema(d: Database.Database) {
       decision TEXT NOT NULL DEFAULT 'unmatched',
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    -- App settings (key-value store)
+    CREATE TABLE IF NOT EXISTS app_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
+}
+
+/** Get a setting value */
+export function getSetting(key: string): string | null {
+  const db = getSqlite();
+  const row = db.prepare("SELECT value FROM app_settings WHERE key = ?").get(key) as { value: string } | undefined;
+  return row?.value ?? null;
+}
+
+/** Set a setting value */
+export function setSetting(key: string, value: string): void {
+  const db = getSqlite();
+  db.prepare(`
+    INSERT INTO app_settings (key, value, updated_at)
+    VALUES (@key, @value, datetime('now'))
+    ON CONFLICT(key) DO UPDATE SET value = @value, updated_at = datetime('now')
+  `).run({ key, value });
+}
+
+/** Delete a setting */
+export function deleteSetting(key: string): boolean {
+  const db = getSqlite();
+  const result = db.prepare("DELETE FROM app_settings WHERE key = ?").run(key);
+  return result.changes > 0;
 }
