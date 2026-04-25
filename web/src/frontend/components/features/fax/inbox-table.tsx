@@ -32,6 +32,7 @@ import { useKeyboardNav } from "@/frontend/hooks/use-keyboard-nav";
 import { useToast } from "@/frontend/components/ui/toast";
 import { patients } from "@/data/seed/patients";
 import { formatRelative, cn } from "@/shared/utils";
+import { useIsDesktop } from "@/frontend/hooks/use-media-query";
 import type { Fax } from "@/shared/types";
 
 /* ─── Lifecycle ─── */
@@ -256,6 +257,7 @@ interface Props {
 
 export function InboxTable({ faxes: faxesProp }: Props) {
   const { toast } = useToast();
+  const isDesktop = useIsDesktop();
   const faxes = faxesProp ?? [];
   const cols = useMemo(() => makeCols(), []);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -344,21 +346,21 @@ export function InboxTable({ faxes: faxesProp }: Props) {
   return (
     <div>
       {/* Search row */}
-      <div className="flex items-center gap-3 px-5 py-3.5">
-        <div className="flex-1 flex items-center">
-          <Search className="h-[18px] w-[18px] text-[var(--cevi-text-faint)] mr-2.5 shrink-0" strokeWidth={1.5} />
+      <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-5 py-3 sm:py-3.5">
+        <div className="flex-1 flex items-center min-w-0">
+          <Search className="h-[18px] w-[18px] text-[var(--cevi-text-faint)] mr-2 sm:mr-2.5 shrink-0" strokeWidth={1.5} />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search faxes..."
-            className="search-clean flex-1 border-0 outline-none bg-transparent text-[16px] font-medium text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-faint)] placeholder:font-normal py-0.5"
+            className="search-clean flex-1 border-0 outline-none bg-transparent text-[14px] sm:text-[16px] font-medium text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-faint)] placeholder:font-normal py-0.5 min-w-0"
           />
         </div>
         <Link href="/upload">
-          <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[var(--cevi-text-secondary)] bg-white border border-[var(--cevi-border)] rounded-lg hover:bg-[var(--cevi-surface)] hover:border-[var(--cevi-border)] hover:text-[var(--cevi-text)] transition-colors shadow-[var(--shadow-sm)]">
+          <button className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-[12px] font-medium text-[var(--cevi-text-secondary)] bg-white border border-[var(--cevi-border)] rounded-lg hover:bg-[var(--cevi-surface)] hover:border-[var(--cevi-border)] hover:text-[var(--cevi-text)] transition-colors shadow-[var(--shadow-sm)]">
             <Upload className="h-3.5 w-3.5" strokeWidth={1.5} />
-            Upload
+            <span className="hidden sm:inline">Upload</span>
           </button>
         </Link>
         <button
@@ -368,15 +370,15 @@ export function InboxTable({ faxes: faxesProp }: Props) {
             else if (categoryFilter !== "all") params.set("category", categoryFilter);
             window.open(`/api/v1/export?${params.toString()}`, "_blank");
           }}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium text-[var(--cevi-text-secondary)] bg-white border border-[var(--cevi-border)] rounded-lg hover:bg-[var(--cevi-surface)] hover:text-[var(--cevi-text)] transition-colors shadow-[var(--shadow-sm)]"
+          className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-[12px] font-medium text-[var(--cevi-text-secondary)] bg-white border border-[var(--cevi-border)] rounded-lg hover:bg-[var(--cevi-surface)] hover:text-[var(--cevi-text)] transition-colors shadow-[var(--shadow-sm)]"
         >
           <Download className="h-3.5 w-3.5" strokeWidth={1.5} />
-          Export{selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}
+          <span className="hidden sm:inline">Export{selectedIds.size > 0 ? ` (${selectedIds.size})` : ""}</span>
         </button>
       </div>
 
       {/* Category row */}
-      <div className="flex items-center justify-between px-5 pb-3 gap-3">
+      <div className="flex items-center justify-between px-3 sm:px-5 pb-3 gap-3 overflow-x-auto">
         <div className="flex items-center gap-3">
           <CategoryPill
             value={categoryFilter}
@@ -401,11 +403,11 @@ export function InboxTable({ faxes: faxesProp }: Props) {
         </div>
       </div>
 
-      {/* Keyboard shortcuts bar */}
-      <KeyboardShortcutsBar shortcuts={SHORTCUTS} />
+      {/* Keyboard shortcuts bar — desktop only */}
+      {isDesktop && <KeyboardShortcutsBar shortcuts={SHORTCUTS} />}
 
       {/* Status tabs */}
-      <div className="flex items-center gap-0.5 px-5 border-t border-[var(--cevi-border-light)] border-b border-b-[var(--cevi-border-light)] bg-white">
+      <div className="flex items-center gap-0.5 px-3 sm:px-5 border-t border-[var(--cevi-border-light)] border-b border-b-[var(--cevi-border-light)] bg-white overflow-x-auto scrollbar-hide">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab.key}
@@ -427,8 +429,57 @@ export function InboxTable({ faxes: faxesProp }: Props) {
         ))}
       </div>
 
-      {/* Grid */}
-      <div ref={gridRef} tabIndex={0} className="overflow-auto max-h-[640px] outline-none">
+      {/* ── Mobile: Card list ── */}
+      {!isDesktop && (
+        <div className="divide-y divide-[var(--cevi-border-light)]">
+          {filtered.map((fax) => {
+            const isUnopened = toLifecycle(fax.status) === "unopened";
+            return (
+              <Link
+                key={fax.id}
+                href={`/inbox/${fax.id}`}
+                className="flex items-start gap-3 px-4 py-3 active:bg-[var(--cevi-surface-warm)] transition-colors"
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className={cn("text-[14px] text-[var(--cevi-text)] truncate", isUnopened && "font-semibold")}>
+                      {fax.fromOrg}
+                    </span>
+                    <StateChip state={toLifecycle(fax.status)} />
+                  </div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge variant={typeBadgeVariant(fax.type)} size="sm">
+                      <span className="inline-flex items-center gap-1">
+                        {TYPE_ICON[fax.type]}
+                        {TYPE_LABELS[fax.type] ?? fax.type}
+                      </span>
+                    </Badge>
+                    <ConfidenceValue value={fax.typeConfidence} variant="dot" />
+                  </div>
+                  <div className="text-[12px] text-[var(--cevi-text-muted)] truncate">
+                    {patientLabel(fax)} &middot; {fax.pages} pg &middot; {formatRelative(fax.receivedAt)}
+                  </div>
+                </div>
+                <ExternalLink className="h-4 w-4 text-[var(--cevi-text-faint)] shrink-0 mt-1" strokeWidth={1.5} />
+              </Link>
+            );
+          })}
+          {filtered.length === 0 && (
+            <div className="py-16 text-center">
+              <div className="text-[13px] text-[var(--cevi-text-faint)] mb-2">No faxes match filters.</div>
+              <button
+                onClick={() => { setStatusFilter("all"); setCategoryFilter("all"); setSearch(""); }}
+                className="text-[13px] font-semibold text-[var(--cevi-accent)]"
+              >
+                Clear filters
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Desktop: Spreadsheet grid ── */}
+      {isDesktop && <div ref={gridRef} tabIndex={0} className="overflow-auto max-h-[640px] outline-none">
         <table className="w-full border-collapse text-[12px]">
           <thead>
             <tr>
@@ -580,7 +631,7 @@ export function InboxTable({ faxes: faxesProp }: Props) {
             )}
           </tbody>
         </table>
-      </div>
+      </div>}
 
       {/* Hover preview + Modal */}
       <HoverPreview fax={hoverFax} position={hoverPos} />

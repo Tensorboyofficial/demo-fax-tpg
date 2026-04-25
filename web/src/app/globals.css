@@ -93,6 +93,8 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -103,6 +105,24 @@ body {
   line-height: 1.5;
   letter-spacing: -0.01em;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Touch targets ── */
+@media (pointer: coarse) {
+  button, a, input[type="checkbox"], select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  /* Exclude inline/compact elements */
+  .state-chip, .conf-val, kbd, .fax-thumb,
+  table button, table a, th, td,
+  nav a, nav button {
+    min-height: unset;
+    min-width: unset;
+  }
 }
 
 /* ── Focus ── */

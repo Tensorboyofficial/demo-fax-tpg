@@ -34,6 +34,7 @@ export async function insertUploadedFax(
       ocr_text: fax.ocrText,
       ai_summary: fax.aiSummary ?? null,
       model_used: fax.modelUsed ?? null,
+      file_url: fax.fileUrl ?? null,
       is_user_uploaded: true,
       source_kind: "upload",
       created_by: "anon",

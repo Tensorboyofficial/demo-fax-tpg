@@ -42,8 +42,9 @@ import {
 } from "lucide-react";
 import { CeviLogo } from "@/frontend/components/brand/cevi-logo";
 import { cn } from "@/shared/utils";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useSidebar } from "./sidebar-context";
+import { useIsDesktop } from "@/frontend/hooks/use-media-query";
 
 interface NavItem {
   href: string;
@@ -174,8 +175,16 @@ function SupportOption({
 }
 
 /* ─── Account Menu ─── */
-function AccountMenu({ onClose, collapsed }: { onClose: () => void; collapsed: boolean }) {
+function AccountMenu({ onClose, collapsed, anchorRef }: { onClose: () => void; collapsed: boolean; anchorRef: React.RefObject<HTMLDivElement | null> }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ bottom: number; left: number } | null>(null);
+
+  useEffect(() => {
+    if (anchorRef.current) {
+      const rect = anchorRef.current.getBoundingClientRect();
+      setPos({ bottom: window.innerHeight - rect.top + 4, left: rect.left });
+    }
+  }, [anchorRef]);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -188,10 +197,13 @@ function AccountMenu({ onClose, collapsed }: { onClose: () => void; collapsed: b
   return (
     <div
       ref={ref}
-      className={cn(
-        "absolute bottom-full mb-1 bg-white border border-[var(--cevi-border)] rounded-lg shadow-[var(--shadow-md)] z-50 overflow-hidden",
-        collapsed ? "left-1 w-52" : "left-3 right-3",
-      )}
+      className="fixed bg-white border border-[var(--cevi-border)] rounded-lg z-50 overflow-hidden"
+      style={{
+        bottom: pos?.bottom ?? 60,
+        left: pos?.left ?? 12,
+        width: collapsed ? 208 : 180,
+        boxShadow: "0 4px 24px rgba(0,0,0,0.12)",
+      }}
     >
       <div className="px-3 py-3 bg-[var(--cevi-surface-warm)] border-b border-[var(--cevi-border-light)]">
         <div className="text-[13px] font-semibold text-[var(--cevi-text)]">Dr. Todd Nguyen</div>
@@ -225,23 +237,37 @@ function AccountMenu({ onClose, collapsed }: { onClose: () => void; collapsed: b
 /* ─── Sidebar ─── */
 export function Sidebar() {
   const pathname = usePathname();
-  const { collapsed, toggle } = useSidebar();
+  const { collapsed, toggle, mobileOpen, closeMobile } = useSidebar();
+  const isDesktop = useIsDesktop();
   const [accountOpen, setAccountOpen] = useState(false);
+  const accountAnchorRef = useRef<HTMLDivElement>(null);
   const [categoriesOpen, setCategoriesOpen] = useState(pathname.startsWith("/category"));
   const [supportOpen, setSupportOpen] = useState(false);
+
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    closeMobile();
+  }, [pathname, closeMobile]);
 
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/" || pathname.startsWith("/inbox");
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
+  // Compute sidebar width
+  const sidebarWidth = isDesktop ? (collapsed ? 56 : 200) : 260;
+  // Visibility: desktop=always visible, mobile=only when mobileOpen
+  const visible = isDesktop || mobileOpen;
+
   return (
     <>
       <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-20 bg-white border-r border-[var(--cevi-border)] flex flex-col transition-[width] duration-200 ease-out",
-          collapsed ? "w-[56px]" : "w-[200px]",
-        )}
+        className="fixed inset-y-0 left-0 z-20 bg-white border-r border-[var(--cevi-border)] flex flex-col transition-all duration-200 ease-out"
+        style={{
+          width: sidebarWidth,
+          transform: visible ? "translateX(0)" : "translateX(-100%)",
+          boxShadow: !isDesktop && mobileOpen ? "4px 0 24px rgba(0,0,0,0.12)" : "none",
+        }}
       >
         {/* Logo + collapse toggle */}
         <div className={cn("h-12 flex items-center shrink-0 border-b border-[var(--cevi-border-light)]", collapsed ? "justify-center px-2" : "justify-between px-4")}>
@@ -384,8 +410,8 @@ export function Sidebar() {
           <div className={cn("my-2 border-t border-[var(--cevi-border-light)]", collapsed ? "mx-1" : "mx-2")} />
 
           {/* Account */}
-          <div className="relative">
-            {accountOpen && <AccountMenu onClose={() => setAccountOpen(false)} collapsed={collapsed} />}
+          <div ref={accountAnchorRef} className="relative">
+            {accountOpen && <AccountMenu onClose={() => setAccountOpen(false)} collapsed={collapsed} anchorRef={accountAnchorRef} />}
             <button
               onClick={() => setAccountOpen(!accountOpen)}
               title={collapsed ? "TMG" : undefined}

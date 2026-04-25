@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Sans, EB_Garamond } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/frontend/components/layout/app-shell";
@@ -17,10 +17,20 @@ const ebGaramond = EB_Garamond({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+};
+
 export const metadata: Metadata = {
   title: "Cevi · Fax Intelligence for Transcend Medical Group",
   description:
     "AI fax classification, patient matching, and automated routing with full HIPAA audit trails. Built for multi-location primary care.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({

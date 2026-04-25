@@ -11,7 +11,7 @@ export default function AuditPage() {
         <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--cevi-text-tertiary)] mb-2">
           Audit Trail
         </div>
-        <h1 className="font-serif text-[32px] leading-[1.1] tracking-[-0.02em] text-[var(--cevi-text)]">
+        <h1 className="font-serif text-[24px] sm:text-[32px] leading-[1.1] tracking-[-0.02em] text-[var(--cevi-text)]">
           Every event, forever.
         </h1>
         <p className="mt-3 text-[14px] text-[var(--cevi-text-muted)]">

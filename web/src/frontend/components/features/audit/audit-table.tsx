@@ -96,7 +96,7 @@ export function AuditTable() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
           <div className="flex items-center gap-1.5">
             <Filter className="h-3.5 w-3.5 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
             <select
@@ -111,7 +111,7 @@ export function AuditTable() {
               ))}
             </select>
           </div>
-          <div className="w-64">
+          <div className="w-full sm:w-64">
             <Input
               placeholder="Search by fax ID, actor, or sender…"
               value={query}
@@ -131,8 +131,8 @@ export function AuditTable() {
         </div>
       </div>
 
-      <div className="rounded-lg border border-[var(--cevi-border)] bg-white overflow-hidden">
-        <table className="w-full">
+      <div className="rounded-lg border border-[var(--cevi-border)] bg-white overflow-x-auto">
+        <table className="w-full min-w-[700px]">
           <thead>
             <tr className="bg-[var(--cevi-surface-warm)] text-left text-[10px] font-semibold text-[var(--cevi-text-tertiary)] uppercase tracking-[0.08em]">
               <th className="px-5 py-3 w-44">Timestamp</th>

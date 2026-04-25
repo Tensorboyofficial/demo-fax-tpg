@@ -2,8 +2,10 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { User, LogOut, Settings, Bell } from "lucide-react";
+import { User, LogOut, Settings, Bell, Menu } from "lucide-react";
 import { cn } from "@/shared/utils";
+import { useSidebar } from "./sidebar-context";
+import { useIsDesktop } from "@/frontend/hooks/use-media-query";
 
 function UserMenu({ onClose }: { onClose: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -54,10 +56,23 @@ function UserMenu({ onClose }: { onClose: () => void }) {
 
 export function Topbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { openMobile } = useSidebar();
+  const isDesktop = useIsDesktop();
 
   return (
-    <header className="h-12 bg-white border-b border-[var(--cevi-border)]">
-      <div className="h-full px-6 md:px-10 flex items-center gap-3">
+    <header className="h-12 bg-white border-b border-[var(--cevi-border)] sticky top-0 z-10">
+      <div className="h-full px-4 sm:px-6 md:px-10 flex items-center gap-3">
+        {/* Mobile hamburger — hidden on desktop */}
+        {!isDesktop && (
+          <button
+            onClick={openMobile}
+            className="p-1.5 -ml-1 rounded-lg hover:bg-[var(--cevi-surface)] transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu className="h-5 w-5 text-[var(--cevi-text)]" strokeWidth={1.5} />
+          </button>
+        )}
+
         <div className="flex-1" />
 
         {/* Notification bell */}

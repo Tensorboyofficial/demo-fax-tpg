@@ -461,24 +461,24 @@ export function PatientRoster({ seedPatients }: Props) {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
+      <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <h1 className="font-serif text-[24px] leading-[1.2] tracking-[-0.02em] text-[var(--cevi-text)]">
+          <h1 className="font-serif text-[20px] sm:text-[24px] leading-[1.2] tracking-[-0.02em] text-[var(--cevi-text)]">
             Patient Roster
           </h1>
           <span className="text-[12px] text-[var(--cevi-text-muted)]">
             {allPatients.length} patients
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="relative">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap w-full sm:w-auto">
+          <div className="relative flex-1 sm:flex-none">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--cevi-text-muted)]" strokeWidth={1.5} />
             <input
               type="text"
               placeholder="Search patients..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-8 pl-8 pr-3 rounded-md border border-[var(--cevi-border)] bg-white text-[13px] text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-muted)] focus:outline-none focus:border-[var(--cevi-text)] focus:ring-2 focus:ring-[var(--cevi-accent)]/20 w-52"
+              className="h-8 pl-8 pr-3 rounded-md border border-[var(--cevi-border)] bg-white text-[13px] text-[var(--cevi-text)] placeholder:text-[var(--cevi-text-muted)] focus:outline-none focus:border-[var(--cevi-text)] focus:ring-2 focus:ring-[var(--cevi-accent)]/20 w-full sm:w-52"
             />
           </div>
           <Button
@@ -487,7 +487,8 @@ export function PatientRoster({ seedPatients }: Props) {
             icon={<UploadCloud className="h-3.5 w-3.5" strokeWidth={1.5} />}
             onClick={() => setShowUpload(true)}
           >
-            Upload CSV
+            <span className="hidden sm:inline">Upload CSV</span>
+            <span className="sm:hidden">CSV</span>
           </Button>
           <Button
             variant="primary"
@@ -495,7 +496,8 @@ export function PatientRoster({ seedPatients }: Props) {
             icon={<Plus className="h-3.5 w-3.5" strokeWidth={1.5} />}
             onClick={() => setShowAdd(true)}
           >
-            Add Patient
+            <span className="hidden sm:inline">Add Patient</span>
+            <span className="sm:hidden">Add</span>
           </Button>
         </div>
       </div>
@@ -599,7 +601,7 @@ export function PatientRoster({ seedPatients }: Props) {
 
       {/* Footer */}
       <div className="mt-3 flex items-center justify-between text-[10px] text-[var(--cevi-text-muted)]">
-        <div className="flex items-center gap-3">
+        <div className="hidden sm:flex items-center gap-3">
           <span><kbd className="px-1 py-0.5 rounded bg-[var(--cevi-surface)] border border-[var(--cevi-border)] text-[9px]">Click</kbd> copy</span>
           <span><kbd className="px-1 py-0.5 rounded bg-[var(--cevi-surface)] border border-[var(--cevi-border)] text-[9px]">Double-click</kbd> edit</span>
           <span><kbd className="px-1 py-0.5 rounded bg-[var(--cevi-surface)] border border-[var(--cevi-border)] text-[9px]">↑↓←→</kbd> navigate</span>

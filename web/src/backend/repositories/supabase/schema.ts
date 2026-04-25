@@ -21,6 +21,7 @@ export interface UserFaxRow {
   ocr_text: string;
   ai_summary: string | null;
   model_used: string | null;
+  file_url: string | null;
   is_user_uploaded: boolean;
   source_kind: string | null;
   created_by: string | null;
@@ -65,6 +66,7 @@ export function rowToFax(row: UserFaxRow): Fax {
     aiSummary: row.ai_summary ?? undefined,
     modelUsed: row.model_used ?? undefined,
     isHero: false,
+    fileUrl: row.file_url ?? undefined,
   };
 }
 

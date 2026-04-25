@@ -352,7 +352,7 @@ export default function SettingsPage() {
               {section.items.map((item, i) => (
                 <div
                   key={item.label}
-                  className={`flex items-center justify-between px-4 py-2.5 ${
+                  className={`flex flex-col sm:flex-row sm:items-center justify-between px-4 py-2.5 gap-0.5 sm:gap-2 ${
                     i < section.items.length - 1 ? "border-b border-[var(--cevi-border-light)]" : ""
                   }`}
                 >

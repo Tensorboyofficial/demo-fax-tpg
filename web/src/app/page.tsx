@@ -13,7 +13,7 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="-mx-6 md:-mx-10 -my-6">
+    <div className="-mx-4 -my-3 md:-mx-10 md:-my-6">
       <InboxTable faxes={allFaxes} />
     </div>
   );

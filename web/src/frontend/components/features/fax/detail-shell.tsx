@@ -26,6 +26,7 @@ import { patients, patientFullName } from "@/data/seed/patients";
 import { formatDateTime, formatDate, formatDob, calcAge, cn } from "@/shared/utils";
 import { FAX_TYPE_LABELS, MODEL_LABELS, modelLabelFromId, type ModelTier } from "@/shared/constants";
 import type { Fax, FaxEvent, ExtractedFields, Urgency } from "@/shared/types";
+import { useIsDesktop, useMediaQuery } from "@/frontend/hooks/use-media-query";
 
 /* ─── API call ─── */
 interface ClassifyResult {
@@ -141,6 +142,8 @@ export function DetailShell({ fax, initialEvents }: Props) {
 
   // Document viewer state
   const [zoom, setZoom] = useState(100);
+  const isDesktop = useIsDesktop();
+  const isSplitView = useMediaQuery("(min-width: 1024px)");
 
   const allFields = [...META_FIELDS, ...EXTRACTION_FIELDS];
 
@@ -241,29 +244,40 @@ export function DetailShell({ fax, initialEvents }: Props) {
   const ocrPages = splitToPages(fax.ocrText, fax.pages);
 
   return (
-    <div className="-mx-6 md:-mx-10 -my-6 flex flex-col h-screen">
+    <div
+      className="flex flex-col"
+      style={{
+        height: isSplitView ? "100vh" : "auto",
+        minHeight: isDesktop ? "100vh" : "auto",
+        margin: isDesktop ? "-24px -40px" : "-12px -16px",
+      }}
+    >
       {/* ── Top action bar ── */}
-      <div className="shrink-0 flex items-center justify-between gap-4 px-4 h-12 border-b border-[var(--cevi-border)] bg-white">
-        <div className="flex items-center gap-3 min-w-0">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] transition-colors"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
-            Back
-          </Link>
-          <div className="h-4 w-px bg-[var(--cevi-border)]" />
+      <div className="shrink-0 flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-4 h-12 border-b border-[var(--cevi-border)] bg-white">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          {isDesktop && (
+            <>
+              <Link
+                href="/"
+                className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--cevi-text-muted)] hover:text-[var(--cevi-text)] transition-colors shrink-0"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
+                <span>Back</span>
+              </Link>
+              <div className="h-4 w-px bg-[var(--cevi-border)]" />
+            </>
+          )}
           <h1 className="text-[14px] font-semibold text-[var(--cevi-text)] truncate">
             {fax.fromOrg}
           </h1>
           <Badge variant={typeBadgeVariant(type)} size="sm">
             {TYPE_LABELS[type] ?? type}
           </Badge>
-          <Badge variant={urgencyBadgeVariant(urgency)} size="sm" dot>
+          <Badge variant={urgencyBadgeVariant(urgency)} size="sm" dot className="hidden sm:inline-flex">
             {urgency}
           </Badge>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <Button
             variant="outline"
             size="sm"
@@ -272,13 +286,13 @@ export function DetailShell({ fax, initialEvents }: Props) {
             onClick={() => handleReclassify("premium")}
             icon={<Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} />}
           >
-            Re-classify
+            <span className="hidden sm:inline">Re-classify</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={() => {}} icon={<AlertTriangle className="h-3.5 w-3.5" strokeWidth={1.5} />}>
+          <Button variant="outline" size="sm" onClick={() => {}} icon={<AlertTriangle className="h-3.5 w-3.5" strokeWidth={1.5} />} className="hidden md:inline-flex">
             Needs Review
           </Button>
           <Button variant="primary" size="sm" onClick={() => {}} icon={<CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} />}>
-            Mark Processed
+            <span className="hidden sm:inline">Mark Processed</span>
           </Button>
         </div>
       </div>
@@ -290,11 +304,31 @@ export function DetailShell({ fax, initialEvents }: Props) {
       )}
 
       {/* ── Split view ── */}
-      <div className="flex-1 flex min-h-0">
+      <div
+        className="flex-1 min-h-0"
+        style={{
+          display: "flex",
+          flexDirection: isSplitView ? "row" : "column",
+          overflow: isSplitView ? "hidden" : "auto",
+        }}
+      >
         {/* ─── LEFT: Document viewer (Reducto-style) ─── */}
-        <div className="flex border-r border-[var(--cevi-border)] bg-[#F7F7F5]">
-          {/* Page thumbnails strip */}
-          <div className="w-[80px] shrink-0 border-r border-[var(--cevi-border-light)] bg-[#F0EFED] overflow-y-auto py-3 px-2 space-y-2 scrollbar-thin">
+        <div
+          className="flex bg-[#F7F7F5]"
+          style={{
+            flex: isSplitView ? "1 1 0%" : "none",
+            minWidth: 0,
+            overflow: isSplitView ? "hidden" : "visible",
+            borderRight: isSplitView ? "1px solid var(--cevi-border)" : "none",
+            borderBottom: isSplitView ? "none" : "1px solid var(--cevi-border)",
+            height: isSplitView ? "auto" : "auto",
+          }}
+        >
+          {/* Page thumbnails strip — hidden on mobile */}
+          <div
+            className="shrink-0 border-r border-[var(--cevi-border-light)] bg-[#F0EFED] overflow-y-auto py-3 px-2 space-y-2 scrollbar-thin"
+            style={{ width: isDesktop ? 80 : 0, display: isDesktop ? "block" : "none" }}
+          >
             {ocrPages.map((_, i) => (
               <button
                 key={i}
@@ -322,7 +356,7 @@ export function DetailShell({ fax, initialEvents }: Props) {
           </div>
 
           {/* Main document area */}
-          <div className="flex-1 flex flex-col min-w-[400px]">
+          <div className="flex-1 flex flex-col min-w-0 sm:min-w-[300px]">
             {/* Document toolbar */}
             <div className="shrink-0 flex items-center justify-between px-4 h-10 border-b border-[var(--cevi-border-light)] bg-white/80">
               <div className="flex items-center gap-2 text-[11px] text-[var(--cevi-text-secondary)]">
@@ -353,7 +387,7 @@ export function DetailShell({ fax, initialEvents }: Props) {
             </div>
 
             {/* Document body */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 p-3 sm:p-6" style={{ overflowY: isSplitView ? "auto" : "visible" }}>
               <div
                 className="mx-auto transition-transform origin-top"
                 style={{ maxWidth: `${Math.round(612 * zoom / 100)}px` }}
@@ -418,7 +452,16 @@ export function DetailShell({ fax, initialEvents }: Props) {
         </div>
 
         {/* ─── RIGHT: Extraction panel ─── */}
-        <div className="w-[480px] shrink-0 flex flex-col bg-white overflow-hidden">
+        <div
+          className="flex flex-col bg-white"
+          style={{
+            width: isSplitView ? 420 : "100%",
+            flexShrink: 0,
+            flex: isSplitView ? "none" : "none",
+            minWidth: 0,
+            overflow: isSplitView ? "hidden" : "visible",
+          }}
+        >
           {/* Panel header */}
           <div className="shrink-0 px-4 py-3 border-b border-[var(--cevi-border-light)]">
             <div className="flex items-center justify-between">
@@ -470,7 +513,7 @@ export function DetailShell({ fax, initialEvents }: Props) {
           )}
 
           {/* Scrollable extraction grid */}
-          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-1 scrollbar-thin">
+          <div className="flex-1 px-4 py-3 space-y-1 scrollbar-thin" style={{ overflowY: isSplitView ? "auto" : "visible" }}>
             {/* Extracted Fields */}
             <SectionHeader
               title="Extracted fields"
@@ -653,7 +696,7 @@ export function DetailShell({ fax, initialEvents }: Props) {
           </div>
 
           {/* Keyboard hints footer */}
-          <div className="shrink-0 px-4 py-2 border-t border-[var(--cevi-border-light)] bg-[var(--cevi-surface-warm)] flex items-center gap-3 text-[10px] text-[var(--cevi-text-muted)]">
+          <div className="shrink-0 px-4 py-2 border-t border-[var(--cevi-border-light)] bg-[var(--cevi-surface-warm)] hidden sm:flex items-center gap-3 text-[10px] text-[var(--cevi-text-muted)]">
             <span><kbd className="px-1 py-0.5 rounded bg-white border border-[var(--cevi-border)] text-[9px]">Click</kbd> copy</span>
             <span><kbd className="px-1 py-0.5 rounded bg-white border border-[var(--cevi-border)] text-[9px]">Double-click</kbd> edit</span>
             <span><kbd className="px-1 py-0.5 rounded bg-white border border-[var(--cevi-border)] text-[9px]">↑↓</kbd> navigate</span>

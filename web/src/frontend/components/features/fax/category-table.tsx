@@ -320,7 +320,7 @@ export function CategoryTable({ faxes, category, label }: Props) {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 px-5 py-3.5">
+      <div className="flex items-center justify-between gap-3 px-3 sm:px-5 py-3 sm:py-3.5 flex-wrap sm:flex-nowrap">
         <div className="flex items-center gap-3">
           <Link
             href="/"
@@ -383,7 +383,7 @@ export function CategoryTable({ faxes, category, label }: Props) {
       <KeyboardShortcutsBar shortcuts={grouped && isLab ? SHORTCUTS : SHORTCUTS_FLAT} />
 
       {/* Status tabs */}
-      <div className="flex items-center gap-0.5 px-5 border-t border-[var(--cevi-border-light)] border-b border-b-[var(--cevi-border-light)] bg-white">
+      <div className="flex items-center gap-0.5 px-3 sm:px-5 border-t border-[var(--cevi-border-light)] border-b border-b-[var(--cevi-border-light)] bg-white overflow-x-auto scrollbar-hide">
         {STATUS_TABS.map((tab) => (
           <button
             key={tab.key}
