@@ -342,7 +342,9 @@ export function DetailShell({ fax, initialEvents }: Props) {
         <div
           className="flex flex-col"
           style={{
-            backgroundColor: "#F0F0EE",
+            backgroundColor: "#F5F5F5",
+            backgroundImage: "radial-gradient(circle, #D4D4D4 0.5px, transparent 0.5px)",
+            backgroundSize: "12px 12px",
             flex: isSplitView ? "1 1 0%" : "none",
             minWidth: 0,
             overflow: isSplitView ? "hidden" : "visible",
@@ -353,16 +355,26 @@ export function DetailShell({ fax, initialEvents }: Props) {
           {/* Main document area — scrollable */}
           <div className="flex-1 p-4 sm:p-8 overflow-y-auto flex items-start justify-center">
             <div
-              className="bg-white rounded-lg shadow-sm overflow-hidden transition-all border border-[var(--cevi-border)]"
+              className="bg-white rounded-lg shadow-md overflow-hidden transition-all"
               style={{ width: `${Math.round(612 * zoom / 100)}px`, maxWidth: "100%" }}
             >
-              {fax.fileUrl && !fax.fileUrl.includes(".pdf") ? (
-                <img
-                  src={fax.fileUrl}
-                  alt="Fax document"
-                  className="w-full bg-white"
-                />
+              {fax.fileUrl ? (
+                fax.fileUrl.includes(".pdf") ? (
+                  <iframe
+                    src={`${fax.fileUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+                    className="w-full bg-white"
+                    style={{ height: `${Math.round(792 * zoom / 100)}px` }}
+                    title="Fax document"
+                  />
+                ) : (
+                  <img
+                    src={fax.fileUrl}
+                    alt="Fax document"
+                    className="w-full bg-white"
+                  />
+                )
               ) : (
+                /* Fallback: render active page as fax paper */
                 <div className="fax-paper p-8 relative">
                   {activePage === 0 && (
                     <div className="absolute top-6 right-6 rotate-[8deg] border-[3px] border-[var(--cevi-accent)] text-[var(--cevi-accent)] px-3 py-1 font-bold text-[11px] tracking-[0.15em] opacity-50 select-none pointer-events-none">
